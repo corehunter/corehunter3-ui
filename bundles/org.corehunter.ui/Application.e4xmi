@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmi:id="_MTr4wLCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ide.application" bindingContexts="_MTr4ybCsEeWDbcndzb8FsA">
+  <children xsi:type="basic:Window" xmi:id="_MTr4wbCsEeWDbcndzb8FsA" label="Corehunter" width="500" height="400">
+    <children xsi:type="basic:PartStack" xmi:id="_CplkILIvEeWaxfSEU7PzyA" elementId="org.corehunter.ui.mainpartstack">
+      <children xsi:type="basic:Part" xmi:id="_Dg4_kLIvEeWaxfSEU7PzyA" elementId="org.corehunter.ui.part.datasets" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.DatasetListPart" label="Datasets"/>
+      <children xsi:type="basic:Part" xmi:id="_4ZnAwLI8EeWECpxiBgDWkg" elementId="org.corehunter.ui.part.corehunter" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.CorehunterRunPart" label="Corehunter"/>
+      <children xsi:type="basic:Part" xmi:id="_-WtRULI8EeWECpxiBgDWkg" elementId="org.corehunter.ui.part.results" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.ResultsPart" label="Results"/>
+    </children>
+  </children>
+  <rootContext xmi:id="_MTr4ybCsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
+    <children xmi:id="_MTr4yrCsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
+    <children xmi:id="_MTr4y7CsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
+  </rootContext>
+  <addons xmi:id="_MTr4wrCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
+  <addons xmi:id="_MTr4w7CsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
+  <addons xmi:id="_MTr4xLCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
+  <addons xmi:id="_MTr4xbCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.workbench.commands.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.CommandProcessingAddon"/>
+  <addons xmi:id="_MTr4xrCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+  <addons xmi:id="_MTr4x7CsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
+  <addons xmi:id="_MTr4yLCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+</application:Application>

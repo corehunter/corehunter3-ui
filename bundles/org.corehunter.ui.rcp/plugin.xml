@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="org.corehunter.ui.rcp"
+            application="org.eclipse.e4.ui.workbench.swt.E4Application">
+         <property
+               name="lifeCycleURI"
+               value="bundleclass://org.corehunter.ui.rcp/org.corehunter.ui.rcp.E4LifeCycle">
+         </property>
+         <property
+               name="applicationCSS"
+               value="platform:/plugin/org.corehunter.ui.rcp/css/default.css">
+         </property>
+         <property
+               name="appName"
+               value="org.corehunter.ui.rcp">
+         </property>
+         <property
+               name="applicationXMI"
+               value="platform:/plugin/org.corehunter.ui/Application.e4xmi">
+         </property>
+      </product>
+   </extension>
+
+</plugin>
