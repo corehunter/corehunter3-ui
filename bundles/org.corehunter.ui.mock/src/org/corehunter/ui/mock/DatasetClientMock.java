@@ -1,10 +1,11 @@
 package org.corehunter.ui.mock;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.corehunter.services.DatasetClient;
 
 import uno.informatics.common.DataTypeConstants;
 import uno.informatics.common.io.FileProperties;
@@ -15,7 +16,6 @@ import uno.informatics.common.model.Feature;
 import uno.informatics.common.model.FeatureDataset;
 import uno.informatics.common.model.ScaleType;
 import uno.informatics.common.model.impl.FeatureImpl;
-import uno.informatics.data.client.DatasetClient;
 import uno.informatics.data.feature.ColumnFeature;
 import uno.informatics.data.feature.ColumnFeatureImpl;
 import uno.informatics.data.feature.array.ArrayFeatureDataset;

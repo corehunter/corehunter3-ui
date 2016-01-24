@@ -6,18 +6,24 @@ Bundle-Version: 1.0.0.qualifier
 Export-Package: org.corehunter.ui
 Require-Bundle: javax.inject;bundle-version="1.0.0",
  org.eclipse.core.runtime;bundle-version="3.11.1",
+ org.corehunter.ui;bundle-version="1.0.0",
+ org.eclipse.e4.core.services,
+ org.eclipse.e4.core.di.extensions,
  org.eclipse.e4.ui.model.workbench;bundle-version="1.1.100",
  org.eclipse.e4.ui.services;bundle-version="1.2.0",
  org.eclipse.e4.ui.workbench;bundle-version="1.3.0",
- org.eclipse.e4.core.di;bundle-version="1.5.0",
- org.eclipse.e4.ui.di;bundle-version="1.1.0",
  org.eclipse.e4.core.contexts;bundle-version="1.4.0",
  uno.informatics.common.model-api;bundle-version="1.0.0",
  uno.informatics.data-api;bundle-version="1.0.0",
- org.corehunter.services
+ org.corehunter.services,
+ org.eclipse.equinox.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: javax.annotation;version="1.0.0";resolution:=optional,
  javax.inject;version="1.0.0",
+ org.corehunter;version="3.0.0",
+ org.eclipse.jface.viewers,
  org.eclipse.swt,
+ org.eclipse.swt.events,
+ org.eclipse.swt.layout,
  org.eclipse.swt.widgets
 Bundle-ActivationPolicy: lazy

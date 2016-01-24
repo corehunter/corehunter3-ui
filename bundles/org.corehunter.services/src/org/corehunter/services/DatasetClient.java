@@ -1,4 +1,4 @@
-package uno.informatics.data.client;
+package org.corehunter.services;
 
 import java.util.List;
 

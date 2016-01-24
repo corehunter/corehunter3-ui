@@ -8,4 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.osgi.framework;version="1.3.0"
 Bundle-ActivationPolicy: lazy
 Require-Bundle: uno.informatics.common.model-api
-Export-Package: uno.informatics.data.client
+Export-Package: org.corehunter.services

@@ -11,4 +11,5 @@ Require-Bundle: org.corehunter.services;bundle-version="1.0.0",
  uno.informatics.data-impl;bundle-version="1.0.0",
  uno.informatics.common.model-impl,
  uno.informatics.common.utils
-Service-Component: OSGI-INF/component.xml
+Service-Component: OSGI-INF/*.xml
+Import-Package: org.corehunter.ui
