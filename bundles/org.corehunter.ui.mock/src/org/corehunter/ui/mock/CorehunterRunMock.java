@@ -4,9 +4,9 @@ import java.util.Date;
 
 import org.corehunter.services.CorehunterRun;
 
-import uno.informatics.common.model.impl.SimpleIdentifierImpl;
+import uno.informatics.data.pojo.SimpleEntityPojo;
 
-public class CorehunterRunMock extends SimpleIdentifierImpl implements CorehunterRun
+public class CorehunterRunMock extends SimpleEntityPojo implements CorehunterRun
 {
   private Date startDate;
   private Date endDate;

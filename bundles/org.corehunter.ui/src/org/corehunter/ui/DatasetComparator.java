@@ -4,7 +4,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 
-import uno.informatics.common.model.Dataset;
+import uno.informatics.data.Dataset;
 
 public class DatasetComparator extends ViewerComparator {
   private int propertyIndex;

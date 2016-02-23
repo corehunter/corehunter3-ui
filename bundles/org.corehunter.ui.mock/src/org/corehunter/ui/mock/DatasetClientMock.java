@@ -1,5 +1,6 @@
 package org.corehunter.ui.mock;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -7,18 +8,18 @@ import java.util.List;
 
 import org.corehunter.services.DatasetClient;
 
-import uno.informatics.common.DataTypeConstants;
 import uno.informatics.common.io.FileProperties;
 import uno.informatics.common.io.FileType;
-import uno.informatics.common.model.DataType;
-import uno.informatics.common.model.Dataset;
-import uno.informatics.common.model.Feature;
-import uno.informatics.common.model.FeatureDataset;
-import uno.informatics.common.model.ScaleType;
-import uno.informatics.common.model.impl.FeatureImpl;
+import uno.informatics.data.DataType;
+import uno.informatics.data.DataTypeConstants;
+import uno.informatics.data.Dataset;
+import uno.informatics.data.Feature;
+import uno.informatics.data.FeatureDataset;
+import uno.informatics.data.ScaleType;
 import uno.informatics.data.feature.ColumnFeature;
-import uno.informatics.data.feature.ColumnFeatureImpl;
+import uno.informatics.data.feature.ColumnFeaturePojo;
 import uno.informatics.data.feature.array.ArrayFeatureDataset;
+import uno.informatics.data.pojo.FeaturePojo;
 import uno.informatics.data.utils.DatasetUtils;
 
 public class DatasetClientMock implements DatasetClient
@@ -60,17 +61,17 @@ public class DatasetClientMock implements DatasetClient
 
     ArrayList<Feature> feature = new ArrayList<Feature>();
     
-    feature.add(new ColumnFeatureImpl("id1", "Col1", "Description1", DataType.INTEGER, ScaleType.INTERVAL, DataTypeConstants.STRING | DataTypeConstants.INT | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id2", "Col2", "Description2", DataType.DOUBLE, ScaleType.RATIO, DataTypeConstants.STRING | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id3", "Col3", "Description3", DataType.STRING, ScaleType.NOMINAL, DataTypeConstants.STRING)) ;
-    feature.add(new ColumnFeatureImpl("id4", "Col4", "Description4", DataType.BOOLEAN, ScaleType.NOMINAL, DataTypeConstants.STRING | DataTypeConstants.BOOLEAN)) ;
-    feature.add(new ColumnFeatureImpl("id5", "Col5", "Description5", DataType.DATE, ScaleType.NOMINAL, DataTypeConstants.STRING | DataTypeConstants.DATE)) ;
+    feature.add(new ColumnFeaturePojo("id1", "Col1", "Description1", DataType.INTEGER, ScaleType.INTERVAL, DataTypeConstants.STRING_ID | DataTypeConstants.INT_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id2", "Col2", "Description2", DataType.DOUBLE, ScaleType.RATIO, DataTypeConstants.STRING_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id3", "Col3", "Description3", DataType.STRING, ScaleType.NOMINAL, DataTypeConstants.STRING_ID)) ;
+    feature.add(new ColumnFeaturePojo("id4", "Col4", "Description4", DataType.BOOLEAN, ScaleType.NOMINAL, DataTypeConstants.STRING_ID | DataTypeConstants.BOOLEAN_ID)) ;
+    feature.add(new ColumnFeaturePojo("id5", "Col5", "Description5", DataType.DATE, ScaleType.NOMINAL, DataTypeConstants.STRING_ID | DataTypeConstants.DATE_ID)) ;
     
-    feature.add(new ColumnFeatureImpl("id11", "Col11", "Description11", DataTypeConstants.STRING | DataTypeConstants.INT | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id12", "Col12", "Description12", DataTypeConstants.STRING | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id13", "Col13", "Description13", DataTypeConstants.STRING)) ;
-    feature.add(new ColumnFeatureImpl("id14", "Col14", "Description14", DataTypeConstants.STRING | DataTypeConstants.BOOLEAN)) ;
-    feature.add(new ColumnFeatureImpl("id15", "Col15", "Description15", DataTypeConstants.STRING | DataTypeConstants.DATE)) ;
+    feature.add(new ColumnFeaturePojo("id11", "Col11", "Description11", DataTypeConstants.STRING_ID | DataTypeConstants.INT_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id12", "Col12", "Description12", DataTypeConstants.STRING_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id13", "Col13", "Description13", DataTypeConstants.STRING_ID)) ;
+    feature.add(new ColumnFeaturePojo("id14", "Col14", "Description14", DataTypeConstants.STRING_ID | DataTypeConstants.BOOLEAN_ID)) ;
+    feature.add(new ColumnFeaturePojo("id15", "Col15", "Description15", DataTypeConstants.STRING_ID | DataTypeConstants.DATE_ID)) ;
     
     return new ArrayFeatureDataset("test1", "test1", "Test dataset editor with hard coded data. No row headers", feature, array) ;
   }
@@ -85,22 +86,22 @@ public class DatasetClientMock implements DatasetClient
     for (int i = 0 ; i < 100 ; ++i)
       array[i] = new Object[] {"row"+i, i,i/10.0,"R"+i+"C3", true, "12/12/2012",i,i/10.0,"R"+i+"C3", true, "12/12/2012"} ;
     
-    ColumnFeatureImpl rowHeaderFeature = new ColumnFeatureImpl("id", "id", "Description1", 
-        DataType.STRING, ScaleType.NOMINAL, DataTypeConstants.STRING) ;
+    ColumnFeaturePojo rowHeaderFeature = new ColumnFeaturePojo("id", "id", "Description1", 
+        DataType.STRING, ScaleType.NOMINAL, DataTypeConstants.STRING_ID) ;
 
     ArrayList<Feature> feature = new ArrayList<Feature>();
     
-    feature.add(new ColumnFeatureImpl("id1", "Col1", "Description1", DataType.INTEGER, ScaleType.INTERVAL, DataTypeConstants.STRING | DataTypeConstants.INT | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id2", "Col2", "Description2", DataType.DOUBLE, ScaleType.RATIO, DataTypeConstants.STRING | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id3", "Col3", "Description3", DataType.STRING, ScaleType.NOMINAL, DataTypeConstants.STRING)) ;
-    feature.add(new ColumnFeatureImpl("id4", "Col4", "Description4", DataType.BOOLEAN, ScaleType.NOMINAL, DataTypeConstants.STRING | DataTypeConstants.BOOLEAN)) ;
-    feature.add(new ColumnFeatureImpl("id5", "Col5", "Description5", DataType.DATE, ScaleType.NOMINAL, DataTypeConstants.STRING | DataTypeConstants.DATE)) ;
+    feature.add(new ColumnFeaturePojo("id1", "Col1", "Description1", DataType.INTEGER, ScaleType.INTERVAL, DataTypeConstants.STRING_ID | DataTypeConstants.INT_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id2", "Col2", "Description2", DataType.DOUBLE, ScaleType.RATIO, DataTypeConstants.STRING_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id3", "Col3", "Description3", DataType.STRING, ScaleType.NOMINAL, DataTypeConstants.STRING_ID)) ;
+    feature.add(new ColumnFeaturePojo("id4", "Col4", "Description4", DataType.BOOLEAN, ScaleType.NOMINAL, DataTypeConstants.STRING_ID | DataTypeConstants.BOOLEAN_ID)) ;
+    feature.add(new ColumnFeaturePojo("id5", "Col5", "Description5", DataType.DATE, ScaleType.NOMINAL, DataTypeConstants.STRING_ID | DataTypeConstants.DATE_ID)) ;
     
-    feature.add(new ColumnFeatureImpl("id11", "Col11", "Description11", DataTypeConstants.STRING | DataTypeConstants.INT | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id12", "Col12", "Description12", DataTypeConstants.STRING | DataTypeConstants.DOUBLE)) ;
-    feature.add(new ColumnFeatureImpl("id13", "Col13", "Description13", DataTypeConstants.STRING)) ;
-    feature.add(new ColumnFeatureImpl("id14", "Col14", "Description14", DataTypeConstants.STRING | DataTypeConstants.BOOLEAN)) ;
-    feature.add(new ColumnFeatureImpl("id15", "Col15", "Description15", DataTypeConstants.STRING | DataTypeConstants.DATE)) ;
+    feature.add(new ColumnFeaturePojo("id11", "Col11", "Description11", DataTypeConstants.STRING_ID | DataTypeConstants.INT_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id12", "Col12", "Description12", DataTypeConstants.STRING_ID | DataTypeConstants.DOUBLE_ID)) ;
+    feature.add(new ColumnFeaturePojo("id13", "Col13", "Description13", DataTypeConstants.STRING_ID)) ;
+    feature.add(new ColumnFeaturePojo("id14", "Col14", "Description14", DataTypeConstants.STRING_ID | DataTypeConstants.BOOLEAN_ID)) ;
+    feature.add(new ColumnFeaturePojo("id15", "Col15", "Description15", DataTypeConstants.STRING_ID | DataTypeConstants.DATE_ID)) ;
     
     return new ArrayFeatureDataset("test2", "test2", "Test dataset editor with hard coded data. With row headers", feature, array, rowHeaderFeature) ;
   }
@@ -112,14 +113,7 @@ public class DatasetClientMock implements DatasetClient
   {           
     try
     {
-      FileProperties fileProperties = new FileProperties(DATA_FILE3, FileType.CSV) ;
-      
-      fileProperties.setColumnHeaderPosition(0) ;
-      fileProperties.setDataRowPosition(1) ;
-      
-      List<ColumnFeature> features = DatasetUtils.generateDatasetFeatures(fileProperties, null, 10) ;
-      
-      return ArrayFeatureDataset.createFeatureDataset(UID3, NAME3, DESCRIPTION3, createFeatures(features), fileProperties) ;
+      return ArrayFeatureDataset.readFeatureDatasetFromTextFile(new File(DatasetClientMock.class.getResource(DATA_FILE3).toString()), FileType.CSV) ;
 
     }
     catch (Exception e)
@@ -133,16 +127,8 @@ public class DatasetClientMock implements DatasetClient
   private static final FeatureDataset createTestDataset4()
   {           
     try
-    {
-      FileProperties fileProperties = new FileProperties(DatasetClientMock.class.getResource(DATA_FILE4).toString(), FileType.CSV) ;
-      
-      fileProperties.setColumnHeaderPosition(0) ;
-      fileProperties.setDataRowPosition(1) ;
-      fileProperties.setRowHeaderPosition(0) ;
-      
-      List<ColumnFeature> features = DatasetUtils.generateDatasetFeatures(fileProperties, null, 10) ;
-      
-      return ArrayFeatureDataset.createFeatureDataset(UID4, NAME4, DESCRIPTION4, createFeatures(features), fileProperties) ;
+    { 
+      return ArrayFeatureDataset.readFeatureDatasetFromTextFile(new File(DatasetClientMock.class.getResource(DATA_FILE4).toString()), FileType.CSV) ;
     }
     catch (Exception e)
     {
@@ -164,7 +150,7 @@ public class DatasetClientMock implements DatasetClient
     List<Feature> features = new ArrayList<Feature>() ;
     
     while (iterator.hasNext())
-      features.add(new FeatureImpl(iterator.next())) ;
+      features.add(new FeaturePojo(iterator.next())) ;
     
     return features;
   }

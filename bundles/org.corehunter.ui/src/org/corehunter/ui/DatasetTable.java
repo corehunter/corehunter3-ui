@@ -22,7 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-import uno.informatics.common.model.Dataset;
+import uno.informatics.data.Dataset;
 
 public class DatasetTable 
 {
