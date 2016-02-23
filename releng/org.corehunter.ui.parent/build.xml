@@ -1,0 +1,30 @@
+<project>
+	<property file="build.properties"/>
+
+	<property name="applications.dir" value="/Users/daveneti/Applications"/>
+	<property name="mvn.convert.dir" value="/Users/daveneti/Repositories/informatics-ui/uno.informatics.ui.maven.osgi.convert/target/repository/plugins"/>
+	<property name="plugins.convert.dir" value="${applications.dir}/Eclipse/Plugins/converted"/>
+
+	<tstamp>
+		<format property="time" pattern="yyyyMMddhhmmss"
+	          offset="-5" unit="hour"/>
+	</tstamp>
+
+	<target name="copy-mvn-jars">
+		<!-- Copies those jars created my maven-->
+
+		<delete file="${plugins.mvn.dir}">
+		</delete>
+
+		<mkdir dir="${plugins.mvn.dir}">
+		</mkdir>
+
+		<copy todir="${plugins.convert.dir}">
+			<fileset dir="${mvn.convert.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+
+	</target>
+
+</project>
