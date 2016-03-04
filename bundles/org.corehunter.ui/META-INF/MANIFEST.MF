@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Export-Package: org.corehunter.ui
 Require-Bundle: javax.inject;bundle-version="1.0.0",
  org.eclipse.core.runtime;bundle-version="3.11.1",
- org.corehunter.ui;bundle-version="1.0.0",
  org.eclipse.e4.core.services,
  org.eclipse.e4.core.di.extensions,
  org.eclipse.e4.ui.model.workbench;bundle-version="1.1.100",

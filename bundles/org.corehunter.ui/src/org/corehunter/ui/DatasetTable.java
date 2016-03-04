@@ -3,7 +3,6 @@ package org.corehunter.ui;
 import javax.inject.Inject;
 
 import org.corehunter.services.DatasetClient;
-import org.corehunter.services.UploadClient;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;

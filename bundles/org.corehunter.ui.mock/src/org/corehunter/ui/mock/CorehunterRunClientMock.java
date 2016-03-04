@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.corehunter.services.CorehunterRun;
+import org.corehunter.services.CorehunterRunArguments;
 import org.corehunter.services.CorehunterRunClient;
 
 public class CorehunterRunClientMock implements CorehunterRunClient
@@ -14,10 +15,13 @@ public class CorehunterRunClientMock implements CorehunterRunClient
   
   static
   {
-    runs.add(createTestCorehunterRunMock1()) ;
-    runs.add(createTestCorehunterRunMock2()) ;
-    //runs.add(createTestCorehunterRunMock3()) ;
-    //runs.add(createTestCorehunterRunMock4()) ;
+    for (int i = 0 ; i < 10 ; ++i)
+    {
+      runs.add(createTestCorehunterRunMock1(i)) ;
+      runs.add(createTestCorehunterRunMock2(i)) ;
+      runs.add(createTestCorehunterRunMock3(i)) ;
+      runs.add(createTestCorehunterRunMock4(i)) ;
+    }
   }
   
   @Override
@@ -26,13 +30,30 @@ public class CorehunterRunClientMock implements CorehunterRunClient
     return runs;
   }
 
-  private static CorehunterRun createTestCorehunterRunMock1()
+  private static CorehunterRun createTestCorehunterRunMock1(int index)
   {
-    return new CorehunterRunMock("Result1", new Date(), new Date(), "started");
+    return new CorehunterRunMock("Result1" + index, new Date(), new Date(), "started");
   }
   
-  private static CorehunterRun createTestCorehunterRunMock2()
+  private static CorehunterRun createTestCorehunterRunMock2(int index)
   {
-    return new CorehunterRunMock("Result2", new Date(), new Date(), "finished");
+    return new CorehunterRunMock("Result2" + index, new Date(), new Date(), "finished");
+  }
+  
+  private static CorehunterRun createTestCorehunterRunMock3(int index)
+  {
+    return new CorehunterRunMock("Result3" + index, new Date(), new Date(), "started");
+  }
+  
+  private static CorehunterRun createTestCorehunterRunMock4(int index)
+  {
+    return new CorehunterRunMock("Result4" + index, new Date(), new Date(), "finished");
+  }
+
+  @Override
+  public CorehunterRun executeCorehunter(CorehunterRunArguments arguments)
+  {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

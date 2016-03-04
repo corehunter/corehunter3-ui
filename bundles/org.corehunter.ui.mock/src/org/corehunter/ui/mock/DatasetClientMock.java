@@ -1,14 +1,13 @@
 package org.corehunter.ui.mock;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.corehunter.services.DatasetClient;
 
-import uno.informatics.common.io.FileProperties;
 import uno.informatics.common.io.FileType;
 import uno.informatics.data.DataType;
 import uno.informatics.data.DataTypeConstants;
@@ -16,34 +15,27 @@ import uno.informatics.data.Dataset;
 import uno.informatics.data.Feature;
 import uno.informatics.data.FeatureDataset;
 import uno.informatics.data.ScaleType;
-import uno.informatics.data.feature.ColumnFeature;
 import uno.informatics.data.feature.ColumnFeaturePojo;
 import uno.informatics.data.feature.array.ArrayFeatureDataset;
-import uno.informatics.data.pojo.FeaturePojo;
-import uno.informatics.data.utils.DatasetUtils;
 
 public class DatasetClientMock implements DatasetClient
 {
 
-  private static final String DATA_FILE3 = "data3.csv";
-  private static final String UID3 = "test3";
-  private static final String NAME3 = "test3";
-  private static final String DESCRIPTION3 = "Test dataset editor with data read from a text file. No row headers";
+  private static final String DATA_FILE3 = "/Users/daveneti/Repositories/corehunter3-ui/bundles/org.corehunter.ui.mock/data/data3.csv";
 
-
-  private static final String DATA_FILE4 = "data4.csv";
-  private static final String UID4 = "test4";
-  private static final String NAME4 = "test4";
-  private static final String DESCRIPTION4 = "Test dataset editor with data read from a text file. Row headers in the firs column";
+  private static final String DATA_FILE4 = "/Users/daveneti/Repositories/corehunter3-ui/bundles/org.corehunter.ui.mock/data/data4.csv";
 
   private static List<Dataset> datasets = new LinkedList<Dataset>() ;
   
   static
   {
-    datasets.add(createTestDataset1()) ;
-    datasets.add(createTestDataset2()) ;
-    //datasets.add(createTestDataset3()) ;
-    //datasets.add(createTestDataset4()) ;
+    for (int i = 0 ; i < 10 ; ++i)
+    {
+      datasets.add(createTestDataset1(i)) ;
+      datasets.add(createTestDataset2(i)) ;
+      datasets.add(createTestDataset3(i)) ;
+      datasets.add(createTestDataset4(i)) ;
+    }
   }
   
   @Override
@@ -52,7 +44,14 @@ public class DatasetClientMock implements DatasetClient
     return datasets;
   }
   
-  private static FeatureDataset createTestDataset1()
+  @Override
+  public void addDataset(Path path, FileType fileType)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+  
+  private static FeatureDataset createTestDataset1(int index)
   {       
     Object[][] array = new Object[100][5];
     
@@ -73,13 +72,13 @@ public class DatasetClientMock implements DatasetClient
     feature.add(new ColumnFeaturePojo("id14", "Col14", "Description14", DataTypeConstants.STRING_ID | DataTypeConstants.BOOLEAN_ID)) ;
     feature.add(new ColumnFeaturePojo("id15", "Col15", "Description15", DataTypeConstants.STRING_ID | DataTypeConstants.DATE_ID)) ;
     
-    return new ArrayFeatureDataset("test1", "test1", "Test dataset editor with hard coded data. No row headers", feature, array) ;
+    return new ArrayFeatureDataset("test1"+index, "test1", "Test dataset editor with hard coded data. No row headers", feature, array) ;
   }
 
   /**
    * @return
    */
-  private static FeatureDataset createTestDataset2()
+  private static FeatureDataset createTestDataset2(int index)
   {       
     Object[][] array = new Object[100][5];
     
@@ -103,18 +102,22 @@ public class DatasetClientMock implements DatasetClient
     feature.add(new ColumnFeaturePojo("id14", "Col14", "Description14", DataTypeConstants.STRING_ID | DataTypeConstants.BOOLEAN_ID)) ;
     feature.add(new ColumnFeaturePojo("id15", "Col15", "Description15", DataTypeConstants.STRING_ID | DataTypeConstants.DATE_ID)) ;
     
-    return new ArrayFeatureDataset("test2", "test2", "Test dataset editor with hard coded data. With row headers", feature, array, rowHeaderFeature) ;
+    return new ArrayFeatureDataset("test2"+index, "test2", "Test dataset editor with hard coded data. With row headers", feature, array, rowHeaderFeature) ;
   }
   
   /**
    * @return
    */
-  private static FeatureDataset createTestDataset3()
+  private static FeatureDataset createTestDataset3(int index)
   {           
     try
     {
-      return ArrayFeatureDataset.readFeatureDatasetFromTextFile(new File(DatasetClientMock.class.getResource(DATA_FILE3).toString()), FileType.CSV) ;
-
+      ArrayFeatureDataset dataset = (ArrayFeatureDataset)ArrayFeatureDataset.readFeatureDatasetFromTextFile(
+          new File(DATA_FILE3), FileType.CSV) ;
+      
+      dataset.setUniqueIdentifier("test3"+index);
+      
+      return dataset ;
     }
     catch (Exception e)
     {
@@ -124,11 +127,16 @@ public class DatasetClientMock implements DatasetClient
     return null ;
   }
   
-  private static final FeatureDataset createTestDataset4()
+  private static final FeatureDataset createTestDataset4(int index)
   {           
     try
     { 
-      return ArrayFeatureDataset.readFeatureDatasetFromTextFile(new File(DatasetClientMock.class.getResource(DATA_FILE4).toString()), FileType.CSV) ;
+      ArrayFeatureDataset dataset = (ArrayFeatureDataset)ArrayFeatureDataset.readFeatureDatasetFromTextFile(
+          new File(DATA_FILE4), FileType.CSV) ;
+      
+      dataset.setUniqueIdentifier("test4"+index);
+      
+      return dataset ;
     }
     catch (Exception e)
     {
@@ -136,22 +144,5 @@ public class DatasetClientMock implements DatasetClient
     }
     
     return null ;
-  }
-  
-  /**
-   * @param items
-   * @return
-   */
-  // TODO replace with DataUtils.createFeatures
-  private static List<Feature> createFeatures(List<ColumnFeature> items)
-  {
-    Iterator<ColumnFeature> iterator = items.iterator() ;
-    
-    List<Feature> features = new ArrayList<Feature>() ;
-    
-    while (iterator.hasNext())
-      features.add(new FeaturePojo(iterator.next())) ;
-    
-    return features;
   }
 }
