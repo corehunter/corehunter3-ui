@@ -16,7 +16,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
         <mars-repo.url>http://download.eclipse.org/releases/mars</mars-repo.url>
         <nebula.url>http://download.eclipse.org/technology/nebula/snapshot</nebula.url>
-        <gemini.url>http://download.eclipse.org/gemini/web/updates/3.0.0.RC1</gemini.url>
         <local-repo.url>file:///Users/daveneti/Repositories/informatics-ui/uno.informatics.ui.maven.osgi.convert/target/repository</local-repo.url>
     </properties>
 
@@ -29,11 +28,6 @@
         <repository>
             <id>nebula</id>
             <url>${nebula.url}</url>
-            <layout>p2</layout>
-        </repository>
-        <repository>
-            <id>gemini</id>
-            <url>${gemini-repo.url}</url>
             <layout>p2</layout>
         </repository>
         <repository>

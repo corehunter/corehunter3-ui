@@ -2,7 +2,7 @@ package org.corehunter.services;
 
 import java.util.List;
 
-public interface CorehunterRunClient
+public interface CorehunterRunServices
 {  
   public CorehunterRun executeCorehunter(CorehunterRunArguments arguments) ;
   

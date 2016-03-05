@@ -3,10 +3,12 @@ package org.corehunter.ui.mock;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.corehunter.services.DatasetClient;
+import org.corehunter.services.DatasetServices;
+import org.corehunter.services.DatasetType;
 
 import uno.informatics.common.io.FileType;
 import uno.informatics.data.DataType;
@@ -15,10 +17,12 @@ import uno.informatics.data.Dataset;
 import uno.informatics.data.Feature;
 import uno.informatics.data.FeatureDataset;
 import uno.informatics.data.ScaleType;
+import uno.informatics.data.SimpleEntity;
+import uno.informatics.data.dataset.DatasetException;
 import uno.informatics.data.feature.ColumnFeaturePojo;
 import uno.informatics.data.feature.array.ArrayFeatureDataset;
 
-public class DatasetClientMock implements DatasetClient
+public class DatasetServicesMock implements DatasetServices
 {
 
   private static final String DATA_FILE3 = "/Users/daveneti/Repositories/corehunter3-ui/bundles/org.corehunter.ui.mock/data/data3.csv";
@@ -27,14 +31,16 @@ public class DatasetClientMock implements DatasetClient
 
   private static List<Dataset> datasets = new LinkedList<Dataset>() ;
   
+  private static List<SimpleEntity> datasetIdenitifers = new LinkedList<SimpleEntity>() ;
+  
   static
   {
     for (int i = 0 ; i < 10 ; ++i)
     {
-      datasets.add(createTestDataset1(i)) ;
-      datasets.add(createTestDataset2(i)) ;
-      datasets.add(createTestDataset3(i)) ;
-      datasets.add(createTestDataset4(i)) ;
+      addDataset(createTestDataset1(i)) ;
+      addDataset(createTestDataset2(i)) ;
+      addDataset(createTestDataset3(i)) ;
+      addDataset(createTestDataset4(i)) ;
     }
   }
   
@@ -45,12 +51,48 @@ public class DatasetClientMock implements DatasetClient
   }
   
   @Override
-  public void addDataset(Path path, FileType fileType)
+  public void addDataset(Path path, FileType fileType, DatasetType datasetType) throws DatasetException
+  {
+    throw new DatasetException("Add dataset not support in Mock") ;
+  }
+  
+  @Override
+  public List<SimpleEntity> getDatasetIdenitifers()
+  {
+    return datasetIdenitifers;
+  }
+
+  @Override
+  public Dataset getDataset(String datasetId)
+  {
+    Iterator<Dataset> iterator = datasets.iterator() ;
+    
+    Dataset dataset = null ;
+    
+    while (iterator.hasNext() && dataset == null)
+    {
+      dataset = iterator.next() ;
+      
+      if (datasetId.equals(dataset.getUniqueIdentifier()))
+        dataset = null ;
+    }
+    
+    return dataset;
+  }
+
+  @Override
+  public void removeDataset(String datasetId)
   {
     // TODO Auto-generated method stub
     
   }
   
+  private static void addDataset(FeatureDataset dataset)
+  {
+    datasets.add(dataset) ;
+    datasetIdenitifers.add(dataset) ;
+  }
+
   private static FeatureDataset createTestDataset1(int index)
   {       
     Object[][] array = new Object[100][5];

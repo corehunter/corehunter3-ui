@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.corehunter.services.CorehunterRun;
 import org.corehunter.services.CorehunterRunArguments;
-import org.corehunter.services.CorehunterRunClient;
+import org.corehunter.services.CorehunterRunServices;
 
-public class CorehunterRunClientMock implements CorehunterRunClient
+public class CorehunterRunServicesMock implements CorehunterRunServices
 {
   
   private static List<CorehunterRun> runs = new LinkedList<CorehunterRun>() ;
