@@ -31,7 +31,7 @@ public class DatasetServicesMock implements DatasetServices
 
   private static List<Dataset> datasets = new LinkedList<Dataset>() ;
   
-  private static List<SimpleEntity> datasetIdenitifers = new LinkedList<SimpleEntity>() ;
+  private static List<SimpleEntity> datasetDescriptions = new LinkedList<SimpleEntity>() ;
   
   static
   {
@@ -57,9 +57,9 @@ public class DatasetServicesMock implements DatasetServices
   }
   
   @Override
-  public List<SimpleEntity> getDatasetIdenitifers()
+  public List<SimpleEntity> getDatasetDescriptions()
   {
-    return datasetIdenitifers;
+    return datasetDescriptions;
   }
 
   @Override
@@ -90,7 +90,7 @@ public class DatasetServicesMock implements DatasetServices
   private static void addDataset(FeatureDataset dataset)
   {
     datasets.add(dataset) ;
-    datasetIdenitifers.add(dataset) ;
+    datasetDescriptions.add(dataset) ;
   }
 
   private static FeatureDataset createTestDataset1(int index)

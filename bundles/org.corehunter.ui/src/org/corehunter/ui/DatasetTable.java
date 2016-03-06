@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import uno.informatics.data.Dataset;
+import uno.informatics.data.dataset.DatasetException;
 
 public class DatasetTable extends DatasetServiceClient
 {
@@ -80,7 +81,12 @@ public class DatasetTable extends DatasetServiceClient
 
   private void updateViewer()
   {
-    viewer.setInput(getDatasetServices().getAllDatasets());
+    try {
+        viewer.setInput(getDatasetServices().getAllDatasets());
+    } catch (DatasetException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
   }
 
   // This will create the columns for the table

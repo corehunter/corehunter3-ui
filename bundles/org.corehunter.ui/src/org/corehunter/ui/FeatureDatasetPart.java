@@ -8,6 +8,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import uno.informatics.data.FeatureDataset;
+import uno.informatics.data.dataset.DatasetException;
 
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.swt.SWT;
@@ -33,7 +34,12 @@ public class FeatureDatasetPart extends DatasetServiceClient
 	  
 	  featureDatasetViewer = new FeatureDatasetViewer() ;
 	  
-	  featureDatasetViewer.setValue((FeatureDataset)getDatasetServices().getDataset(datasetId));
+	  try {
+        featureDatasetViewer.setValue((FeatureDataset)getDatasetServices().getDataset(datasetId));
+    } catch (DatasetException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
 	  
 	  featureDatasetViewer.createPartControl(parent);
 	}
