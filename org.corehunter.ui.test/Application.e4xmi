@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmi:id="_fAAmwOK5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.ide.application" bindingContexts="_fAAmyeK5EeWCeLiKRZxKUA">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_fAAmweK5EeWCeLiKRZxKUA" label="org.corehunter.ui.test" width="500" height="400">
+    <children xsi:type="basic:PartStack" xmi:id="_wTdEgOK5EeWCeLiKRZxKUA" elementId="org.corehunter.ui.test.partstack.0">
+      <children xsi:type="basic:Part" xmi:id="_xfPiMOK5EeWCeLiKRZxKUA" elementId="org.corehunter.ui.test.part.MockFeatureDatasetPart" contributionURI="bundleclass://org.corehunter.ui.test/org.corehunter.ui.test.MockFeatureDatasetPart"/>
+    </children>
+  </children>
+  <rootContext xmi:id="_fAAmyeK5EeWCeLiKRZxKUA" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
+    <children xmi:id="_fAAmyuK5EeWCeLiKRZxKUA" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
+    <children xmi:id="_fAAmy-K5EeWCeLiKRZxKUA" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
+  </rootContext>
+  <addons xmi:id="_fAAmwuK5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
+  <addons xmi:id="_fAAmw-K5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
+  <addons xmi:id="_fAAmxOK5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
+  <addons xmi:id="_fAAmxeK5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.ui.workbench.commands.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.CommandProcessingAddon"/>
+  <addons xmi:id="_fAAmxuK5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+  <addons xmi:id="_fAAmx-K5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
+  <addons xmi:id="_fAAmyOK5EeWCeLiKRZxKUA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+</application:Application>
