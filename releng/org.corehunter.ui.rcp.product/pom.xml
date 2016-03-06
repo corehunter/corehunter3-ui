@@ -1,11 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>some-group-id</groupId>
-  <artifactId>target-definition-id</artifactId>
-  <version>target-definition-version</version>
-  <packaging>eclipse-target-definition</packaging>
+	<parent>
+		<groupId>org.corehunter.ui</groupId>
+		<artifactId>corehunter-ui-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../org.corehunter.ui.parent</relativePath>
+	</parent>
+
+	<artifactId>org.corehunter.ui.rcp.product</artifactId>
+
+	<packaging>eclipse-target-definition</packaging>
 
 </project>
