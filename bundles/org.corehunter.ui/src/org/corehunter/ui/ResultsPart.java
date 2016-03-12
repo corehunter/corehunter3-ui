@@ -18,10 +18,16 @@ package org.corehunter.ui;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.corehunter.services.CorehunterRun;
 import org.corehunter.services.CorehunterRunServices;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.osgi.framework.BundleContext;
@@ -30,10 +36,12 @@ import org.osgi.framework.ServiceReference;
 
 public class ResultsPart
 {
-  
-  @SuppressWarnings("unused")
   private CorehunterRunServices corehunterRunServices;
   private CorehunterRunTable  resultTable;
+  private Button btnRemove;
+  private Button btnView;
+  private Button btnClear;
+  private CorehunterRun selectedCorehunterRun;
   
   @Inject
   public ResultsPart()
@@ -57,9 +65,90 @@ public class ResultsPart
     resultTable = new CorehunterRunTable();
     
     resultTable.createPartControl(grpResults);
+    
+    resultTable.addSelectionChangedListener(new ISelectionChangedListener() {
+        public void selectionChanged(final SelectionChangedEvent event) {
+            resultsSelectionChanged();
+        }
+    });
+    
+    Composite composite = new Composite(parent, SWT.NONE);
+    composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+    composite.setLayout(new GridLayout(3, false));
+    
+    btnRemove = new Button(composite, SWT.NONE);
+    btnRemove.setText("Remove");
+    btnRemove.addSelectionListener(new SelectionAdapter() {
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            removeResult() ;
+        }
+    });
+    
+    btnView = new Button(composite, SWT.NONE);
+    btnView.setText("View");
+    btnView.addSelectionListener(new SelectionAdapter() {
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            viewResult() ;
+        }
+    });
+    
+    btnClear = new Button(composite, SWT.NONE);
+    btnClear.setText("Clear");
+    btnClear.addSelectionListener(new SelectionAdapter() {
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            clearSelection() ;
+        }
+    });
+    
+    updateButtons() ;
   }
   
-  private synchronized final void setResultClient(CorehunterRunServices corehunterRunServices)
+  protected void resultsSelectionChanged() {
+      selectedCorehunterRun = resultTable.getSelectedCorehunterRun() ;
+
+      updateButtons() ;
+}
+
+private void updateButtons() {
+    btnRemove.setEnabled(selectedCorehunterRun != null);
+    btnView.setEnabled(selectedCorehunterRun != null);
+    btnClear.setEnabled(selectedCorehunterRun != null);
+}
+
+private void updateViewer() {
+      resultTable.updateViewer();
+  }
+  
+    protected void clearSelection() {
+        resultTable.cleaerSelectedCorehunterRun();
+        selectedCorehunterRun = resultTable.getSelectedCorehunterRun() ;
+        updateButtons() ;
+    }
+
+    protected void removeResult() {
+        try {
+            corehunterRunServices.removeCorehunterRun(resultTable.getSelectedCorehunterRun().getUniqueIdentifier());
+            updateViewer();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            handleException(e);
+        }
+    }
+
+    protected void viewResult() {
+        // TODO Auto-generated method stub
+
+    }
+    
+    private void handleException(Exception e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+private synchronized final void setResultClient(CorehunterRunServices corehunterRunServices)
   {
     this.corehunterRunServices = corehunterRunServices;
   }

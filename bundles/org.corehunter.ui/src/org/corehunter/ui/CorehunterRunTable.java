@@ -23,6 +23,9 @@ import org.corehunter.services.CorehunterRunServices;
 import org.corehunter.services.CorehunterRun;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -56,6 +59,8 @@ public class CorehunterRunTable
   private CorehunterRunServices corehunterRunClient;
   
   private DateTimeFormatter dateTimeFormatter ;
+
+  private CorehunterRun selectedCorehunterRun;
   
   @Inject
   public CorehunterRunTable() 
@@ -97,9 +102,28 @@ public class CorehunterRunTable
     
     viewer.addFilter(corehunterRunFilter);
     
+    viewer.setContentProvider(new ArrayContentProvider());
+
+    viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+        public void selectionChanged(final SelectionChangedEvent event) {
+            IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+
+            selectedCorehunterRun = (CorehunterRun) selection.getFirstElement();
+        }
+    });
+    
     // Set the sorter for the table
     comparator = new CorehunterRunComparator();
     viewer.setComparator(comparator);
+  }
+  
+  public CorehunterRun getSelectedCorehunterRun() {
+
+      return selectedCorehunterRun;
+  }
+  
+  public void addSelectionChangedListener(ISelectionChangedListener listener) {
+      viewer.addSelectionChangedListener(listener); 
   }
 
   private void createViewer(Composite parent) {
@@ -123,7 +147,7 @@ public class CorehunterRunTable
     viewer.getControl().setLayoutData(gridData);
   }
 
-  private void updateViewer()
+  public void updateViewer()
   {
     viewer.setInput(corehunterRunClient.getAllCorehunterRuns());
   }
@@ -206,6 +230,11 @@ public class CorehunterRunTable
 
   public void setFocus() {
     viewer.getControl().setFocus();
+  }
+  
+  public void cleaerSelectedCorehunterRun() {
+      viewer.getTable().deselectAll(); 
+      selectedCorehunterRun = null ;
   }
   
   private synchronized final void setResultClient(CorehunterRunServices corehunterRunClient)

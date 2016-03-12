@@ -108,7 +108,7 @@ public class DatasetTable extends DatasetServiceClient {
         viewer.getControl().setLayoutData(gridData);
     }
 
-    private void updateViewer() {
+    public final void updateViewer() {
         try {
             viewer.setInput(getDatasetServices().getAllDatasets());
         } catch (DatasetException e) {

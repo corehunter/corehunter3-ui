@@ -23,6 +23,7 @@ import org.corehunter.services.DatasetType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
@@ -38,6 +39,7 @@ import org.eclipse.swt.widgets.Text;
 
 import uno.informatics.data.Dataset;
 import uno.informatics.data.FeatureDataset;
+import uno.informatics.data.dataset.DatasetException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -52,12 +54,13 @@ public class DatasetPart extends DatasetServiceClient {
     private Button btnAddDataset;
     private Spinner spinnerSize;
     private Spinner spinnerIntensity;
-    private Button btnStartButton;
-    private Button btnResetButton;
+    private Button btnStart;
+    private Button btnReset;
     private Dataset selectedDataset;
     private int selectedDatasetSize;
     private Button btnRemoveDataset;
     private Label lblDatasetSize;
+    private Button btnView;
 
     @Inject
     public DatasetPart() {
@@ -80,37 +83,37 @@ public class DatasetPart extends DatasetServiceClient {
         datasetTable.createPartControl(datasetTableComposite);
 
         Composite datasetButtonComposite = new Composite(grpDatasets, SWT.NONE);
-        datasetButtonComposite.setLayout(new GridLayout(2, false));
+        datasetButtonComposite.setLayout(new GridLayout(3, false));
 
         btnAddDataset = new Button(datasetButtonComposite, SWT.NONE);
         btnAddDataset.setText("Add");
 
-        btnAddDataset.addSelectionListener(new SelectionListener() {
+        btnAddDataset.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 addDataset();
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-
             }
         });
 
         btnRemoveDataset = new Button(datasetButtonComposite, SWT.NONE);
         btnRemoveDataset.setText("Remove");
 
-        btnRemoveDataset.addSelectionListener(new SelectionListener() {
+        btnRemoveDataset.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 removeDataset();
             }
-
+        });
+        
+        btnView = new Button(datasetButtonComposite, SWT.NONE);
+        btnView.setText("View");
+        
+        btnView.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-
+            public void widgetSelected(SelectionEvent e) {
+                viewDataset() ;
             }
         });
 
@@ -134,16 +137,10 @@ public class DatasetPart extends DatasetServiceClient {
 
         spinnerSize = new Spinner(corehunterRunArgumentsGroup, SWT.BORDER);
         
-        spinnerSize.addSelectionListener(new SelectionListener() {
+        spinnerSize.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 spinnerSizeUpdated() ;
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
-                
             }
         });
 
@@ -155,16 +152,10 @@ public class DatasetPart extends DatasetServiceClient {
         spinnerIntensity.setSelection(20); // TODO get from properties file
         spinnerIntensity.setMaximum(100);
         
-        spinnerIntensity.addSelectionListener(new SelectionListener() {
+        spinnerIntensity.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 spinnerIntensityUpdated() ;
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
-                
             }
         });
         
@@ -172,35 +163,25 @@ public class DatasetPart extends DatasetServiceClient {
         composite.setLayout(new GridLayout(2, false));
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-        btnStartButton = new Button(composite, SWT.NONE);
-        btnStartButton.setText("Start");
+        btnStart = new Button(composite, SWT.NONE);
+        btnStart.setText("Start");
 
-        btnStartButton.addSelectionListener(new SelectionListener() {
+        btnStart.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 startCorehunterRun();
             }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-
-            }
         });
 
-        btnResetButton = new Button(composite, SWT.NONE);
-        btnResetButton.setText("Reset");
+        btnReset = new Button(composite, SWT.NONE);
+        btnReset.setText("Reset");
 
-        btnResetButton.addSelectionListener(new SelectionListener() {
+        btnReset.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 resetArguments();
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-
             }
         });
 
@@ -208,6 +189,10 @@ public class DatasetPart extends DatasetServiceClient {
         updateDatasetSize() ;
         updateCorehunterArguments() ;
         updateStartButton();
+    }
+    
+    private void updateViewer() {
+        datasetTable.updateViewer();
     }
 
     protected void spinnerSizeUpdated() {
@@ -221,12 +206,21 @@ public class DatasetPart extends DatasetServiceClient {
     }
 
     private void removeDataset() {
-        // TODO Auto-generated method stub
+        try {
+            this.getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
+            updateViewer();
+        } catch (DatasetException e) {
+            // TODO Auto-generated catch block
+            handleException(e);
+        }
+    }
 
+    private void viewDataset() {
+        // TODO Auto-generated method stub
+        
     }
 
     private void addDataset() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -248,7 +242,7 @@ public class DatasetPart extends DatasetServiceClient {
     }
 
     private void updateStartButton() {
-        btnStartButton.setEnabled(datasetTable.getSelectedDataset() != null);
+        btnStart.setEnabled(datasetTable.getSelectedDataset() != null);
     }
 
     private void resetArguments() {
@@ -263,7 +257,6 @@ public class DatasetPart extends DatasetServiceClient {
         lblDatasetSize.setText("Dataset Size : " + selectedDatasetSize);
     }
 
-    
     private void updateCorehunterArguments() {
         if (selectedDatasetSize > 1)
         {
@@ -290,5 +283,10 @@ public class DatasetPart extends DatasetServiceClient {
     private void startCorehunterRun() {
         // TODO Auto-generated method stub
 
+    }
+    
+    private void handleException(DatasetException e) {
+        // TODO Auto-generated method stub
+        
     }
 }
