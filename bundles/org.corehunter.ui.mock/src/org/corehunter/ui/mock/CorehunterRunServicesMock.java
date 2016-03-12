@@ -58,6 +58,12 @@ public class CorehunterRunServicesMock implements CorehunterRunServices {
     }
 
     @Override
+    public boolean removeCorehunterRun(String arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
+    @Override
     public String getErrorMessage(String arg0) {
         // TODO Auto-generated method stub
         return null;
@@ -80,4 +86,5 @@ public class CorehunterRunServicesMock implements CorehunterRunServices {
         // TODO Auto-generated method stub
         return null;
     }
+
 }

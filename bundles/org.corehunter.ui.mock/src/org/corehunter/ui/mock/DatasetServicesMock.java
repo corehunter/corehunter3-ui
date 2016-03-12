@@ -24,7 +24,6 @@ import uno.informatics.data.feature.array.ArrayFeatureDataset;
 
 public class DatasetServicesMock implements DatasetServices
 {
-
     // TODO need relative path
   private static final String DATA_FILE3 = "/Users/daveneti/Repositories/corehunter3-ui/bundles/org.corehunter.ui.mock/data/data3.csv";
   // TODO need relative path
@@ -82,10 +81,9 @@ public class DatasetServicesMock implements DatasetServices
   }
 
   @Override
-  public void removeDataset(String datasetId)
+  public boolean removeDataset(String datasetId)
   {
-    // TODO Auto-generated method stub
-    
+      return false ;
   }
   
   private static void addDataset(FeatureDataset dataset)
