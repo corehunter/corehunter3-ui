@@ -1,18 +1,18 @@
 package org.corehunter.ui.mock;
 
-import java.util.Date;
-
 import org.corehunter.services.CorehunterRun;
+import org.corehunter.services.CorehunterRunStatus;
+import org.joda.time.DateTime;
 
 import uno.informatics.data.pojo.SimpleEntityPojo;
 
 public class CorehunterRunMock extends SimpleEntityPojo implements CorehunterRun
 {
-  private Date startDate;
-  private Date endDate;
-  private String status;
+  private DateTime startDate;
+  private DateTime endDate;
+  private CorehunterRunStatus status;
 
-  public CorehunterRunMock(String name, Date startDate, Date endDate, String status)
+  public CorehunterRunMock(String name, DateTime startDate, DateTime endDate, CorehunterRunStatus status)
   {
     super(name);
     this.startDate = startDate;
@@ -21,19 +21,19 @@ public class CorehunterRunMock extends SimpleEntityPojo implements CorehunterRun
   }
 
   @Override
-  public Date getStartDate()
+  public DateTime getStartDate()
   {
     return startDate ;
   }
 
   @Override
-  public Date getEndDate()
+  public DateTime getEndDate()
   {
     return endDate;
   }
 
   @Override
-  public String getStatus()
+  public CorehunterRunStatus getStatus()
   {
     return status;
   }

@@ -25,8 +25,9 @@ import uno.informatics.data.feature.array.ArrayFeatureDataset;
 public class DatasetServicesMock implements DatasetServices
 {
 
+    // TODO need relative path
   private static final String DATA_FILE3 = "/Users/daveneti/Repositories/corehunter3-ui/bundles/org.corehunter.ui.mock/data/data3.csv";
-
+  // TODO need relative path
   private static final String DATA_FILE4 = "/Users/daveneti/Repositories/corehunter3-ui/bundles/org.corehunter.ui.mock/data/data4.csv";
 
   private static List<Dataset> datasets = new LinkedList<Dataset>() ;
@@ -51,7 +52,7 @@ public class DatasetServicesMock implements DatasetServices
   }
   
   @Override
-  public void addDataset(Path path, FileType fileType, DatasetType datasetType) throws DatasetException
+  public String addDataset(Path path, FileType fileType, DatasetType datasetType) throws DatasetException
   {
     throw new DatasetException("Add dataset not support in Mock") ;
   }
@@ -144,7 +145,7 @@ public class DatasetServicesMock implements DatasetServices
     feature.add(new ColumnFeaturePojo("id14", "Col14", "Description14", DataTypeConstants.STRING_ID | DataTypeConstants.BOOLEAN_ID)) ;
     feature.add(new ColumnFeaturePojo("id15", "Col15", "Description15", DataTypeConstants.STRING_ID | DataTypeConstants.DATE_ID)) ;
     
-    return new ArrayFeatureDataset("test2"+index, "test2", "Test dataset editor with hard coded data. With row headers", feature, array, rowHeaderFeature) ;
+    return new ArrayFeatureDataset("test2"+index, "test2", "Test dataset editor with hard coded data. With row headers", feature, array, true) ;
   }
   
   /**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.corehunter.ui.mock.DatasetClientMock">
-   <implementation class="org.corehunter.ui.mock.DatasetServicesMock"/>
+   <implementation class="org.corehunter.ui.mock.FileBasedDatasetServicesMock"/>
    <service>
       <provide interface="org.corehunter.services.DatasetServices"/>
    </service>
