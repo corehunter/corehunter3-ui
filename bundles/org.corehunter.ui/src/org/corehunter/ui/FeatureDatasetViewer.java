@@ -143,7 +143,7 @@ public class FeatureDatasetViewer
 					gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName())) ;
 				}
 				
-				gridViewer.getGrid().setRowHeaderVisible(value.getRowHeaderFeature() != null) ;
+				gridViewer.getGrid().setRowHeaderVisible(value.hasRowHeaders()) ;
 				
 				gridViewer.setRowHeaderLabelProvider(new RowHeaderLabelProvider()) ;
 				

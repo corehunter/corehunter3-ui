@@ -23,7 +23,11 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -55,7 +59,21 @@ public class DatasetTable extends DatasetServiceClient {
         searchLabel.setText("Search: ");
         final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
         searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+        
         createViewer(parent);
+        
+        DatasetFilter datasetFilter = new DatasetFilter() ;
+        
+        searchText.addModifyListener(new ModifyListener(){
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                datasetFilter.setSearchText(searchText.getText());
+                viewer.refresh() ;
+            }});
+        
+        viewer.addFilter(datasetFilter);
+        
         // Set the sorter for the table
         comparator = new DatasetComparator();
         viewer.setComparator(comparator);
@@ -170,4 +188,36 @@ public class DatasetTable extends DatasetServiceClient {
     public void addSelectionChangedListener(ISelectionChangedListener listener) {
         viewer.addSelectionChangedListener(listener); 
     }
+    
+    private class DatasetFilter extends ViewerFilter {
+
+      private String searchString;
+
+      public void setSearchText(String s) {
+        // ensure that the value can be used for matching 
+        this.searchString = ".*" + s + ".*";
+      }
+
+      @Override
+      public boolean select(Viewer viewer, 
+          Object parentElement, 
+          Object element) {
+        if (searchString == null || searchString.length() == 0) {
+          return true;
+        }
+        Dataset dataset = (Dataset) element;
+        if (dataset.getName() != null && dataset.getName().matches(searchString)) {
+          return true;
+        }
+        if (dataset.getAbbreviation() != null && dataset.getAbbreviation().matches(searchString)) {
+          return true;
+        }
+        
+        if (dataset.getDescription() != null && dataset.getDescription().matches(searchString)) {
+            return true;
+          }
+
+        return false;
+      }
+    } 
 }

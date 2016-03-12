@@ -30,7 +30,7 @@ public class RowHeaderLabelProvider extends CellLabelProvider
   @Override
   public void update(ViewerCell cell) 
   {
-      cell.setText(((FeatureDatasetRow)cell.getElement()).getName());
+      cell.setText(((FeatureDatasetRow)cell.getElement()).getHeader().getName());
   }
 
 }

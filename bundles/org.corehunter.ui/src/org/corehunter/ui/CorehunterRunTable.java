@@ -25,7 +25,11 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -35,9 +39,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+
+import uno.informatics.data.Dataset;
 
 public class CorehunterRunTable
 {
@@ -47,7 +55,7 @@ public class CorehunterRunTable
 
   private CorehunterRunServices corehunterRunClient;
   
-  private DateFormat dataFormat ;
+  private DateTimeFormatter dateTimeFormatter ;
   
   @Inject
   public CorehunterRunTable() 
@@ -62,7 +70,7 @@ public class CorehunterRunTable
     setResultClient((CorehunterRunServices) bundleContext.
         getService(serviceReference)); 
     
-    dataFormat = DateFormat.getInstance() ;
+    dateTimeFormatter = DateTimeFormat.shortDateTime() ;
 
   }
 
@@ -74,11 +82,24 @@ public class CorehunterRunTable
     final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
     searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
         | GridData.HORIZONTAL_ALIGN_FILL));
+    
     createViewer(parent);
+    
+    CorehunterRunFilter corehunterRunFilter = new CorehunterRunFilter() ;
+    
+    searchText.addModifyListener(new ModifyListener(){
+
+        @Override
+        public void modifyText(ModifyEvent e) {
+            corehunterRunFilter.setSearchText(searchText.getText());
+            viewer.refresh() ;
+        }});
+    
+    viewer.addFilter(corehunterRunFilter);
+    
     // Set the sorter for the table
     comparator = new CorehunterRunComparator();
     viewer.setComparator(comparator);
-
   }
 
   private void createViewer(Composite parent) {
@@ -126,7 +147,7 @@ public class CorehunterRunTable
       @Override
       public String getText(Object element) {
         CorehunterRun corehunterRun = (CorehunterRun) element;
-        return dataFormat.format(corehunterRun.getStartDate()) ;
+        return dateTimeFormatter.print(corehunterRun.getStartDate()) ;
       }
     });
     
@@ -135,7 +156,7 @@ public class CorehunterRunTable
       @Override
       public String getText(Object element) {
         CorehunterRun corehunterRun = (CorehunterRun) element;
-        return dataFormat.format(corehunterRun.getEndDate()) ;
+        return dateTimeFormatter.print(corehunterRun.getEndDate()) ;
       }
     });
     
@@ -144,7 +165,7 @@ public class CorehunterRunTable
       @Override
       public String getText(Object element) {
         CorehunterRun corehunterRun = (CorehunterRun) element;
-        return corehunterRun.getStatus() ;
+        return corehunterRun.getStatus().getName() ;
       }
     });
 
@@ -191,5 +212,30 @@ public class CorehunterRunTable
   {
     this.corehunterRunClient = corehunterRunClient;
   } 
+  
+  private class CorehunterRunFilter extends ViewerFilter {
+
+      private String searchString;
+
+      public void setSearchText(String s) {
+        // ensure that the value can be used for matching 
+        this.searchString = ".*" + s + ".*";
+      }
+
+      @Override
+      public boolean select(Viewer viewer, 
+          Object parentElement, 
+          Object element) {
+        if (searchString == null || searchString.length() == 0) {
+          return true;
+        }
+        CorehunterRun corehunterRun = (CorehunterRun) element;
+        if (corehunterRun.getName() != null && corehunterRun.getName().matches(searchString)) {
+          return true;
+        }
+
+        return false;
+      }
+    } 
  
 }
