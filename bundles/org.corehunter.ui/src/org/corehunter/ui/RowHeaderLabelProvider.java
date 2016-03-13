@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
 package org.corehunter.ui;
 
 import org.eclipse.jface.viewers.CellLabelProvider;
@@ -24,13 +25,13 @@ import uno.informatics.data.FeatureDatasetRow;
  * @author Guy Davenport
  *
  */
-public class RowHeaderLabelProvider extends CellLabelProvider 
-{
+public class RowHeaderLabelProvider extends CellLabelProvider {
 
-  @Override
-  public void update(ViewerCell cell) 
-  {
-      cell.setText(((FeatureDatasetRow)cell.getElement()).getHeader().getName());
-  }
+    @Override
+    public void update(ViewerCell cell) {
+        if (((FeatureDatasetRow) cell.getElement()).getHeader() != null)
+            cell.setText(((FeatureDatasetRow) cell.getElement()).getHeader().getName());
+
+    }
 
 }

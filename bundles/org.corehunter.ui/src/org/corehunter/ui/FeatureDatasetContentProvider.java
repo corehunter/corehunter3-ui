@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
 package org.corehunter.ui;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -20,28 +21,24 @@ import org.eclipse.jface.viewers.Viewer;
 
 import uno.informatics.data.FeatureDataset;
 
-public class FeatureDatasetContentProvider implements IStructuredContentProvider
-{
-  
-  @Override
-  public void dispose()
-  {
- 
-  }
-  
-  @Override
-  public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
-  {
-  
-  }
+public class FeatureDatasetContentProvider implements IStructuredContentProvider {
 
-  @Override
-  public Object[] getElements(Object inputElement)
-  {
-    if (inputElement instanceof FeatureDataset)
-      return ((FeatureDataset)inputElement).getRowsAsArray();
-    else
-      return null ;
-  }
-  
+    @Override
+    public void dispose() {
+
+    }
+
+    @Override
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+
+    }
+
+    @Override
+    public Object[] getElements(Object inputElement) {
+        if (inputElement instanceof FeatureDataset)
+            return ((FeatureDataset) inputElement).getRowsAsArray();
+        else
+            return null;
+    }
+
 }

@@ -13,9 +13,12 @@ import uno.informatics.data.dataset.DatasetException;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 
 public class FeatureDatasetPart extends DatasetServiceClient {
+    
+    public final static String ID = FeatureDatasetPart.class.getName() ;
+    
     private FeatureDatasetViewer featureDatasetViewer;
 
-    private String datasetId;
+    private PartInput partInput;
 
     @Inject
     public FeatureDatasetPart() {
@@ -28,9 +31,11 @@ public class FeatureDatasetPart extends DatasetServiceClient {
         parent.setLayout(new GridLayout(1, true));
 
         featureDatasetViewer = new FeatureDatasetViewer();
+        
+        partInput = (PartInput)part.getTransientData().get(PartUtilitiies.INPUT) ;
 
         try {
-            featureDatasetViewer.setValue((FeatureDataset) getDatasetServices().getDataset(datasetId));
+            featureDatasetViewer.setValue((FeatureDataset) getDatasetServices().getDataset(partInput.getUniqueIdentifier()));
         } catch (DatasetException e) {
             e.printStackTrace();
         }
@@ -38,11 +43,7 @@ public class FeatureDatasetPart extends DatasetServiceClient {
         featureDatasetViewer.createPartControl(parent);
     }
 
-    public synchronized final String getDatasetId() {
-        return datasetId;
-    }
-
-    public synchronized final void setDatasetId(String datasetId) {
-        this.datasetId = datasetId;
+    public synchronized final PartInput getPartInput() {
+        return partInput;
     }
 }

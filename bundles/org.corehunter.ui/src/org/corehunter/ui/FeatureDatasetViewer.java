@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
 package org.corehunter.ui;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,145 +36,123 @@ import uno.informatics.data.FeatureDataset;
  * @author Guy Davenport
  *
  */
-public class FeatureDatasetViewer
-{
-	private static final int MIM_COLUMN_SIZE = 5 ;
-	private GridTableViewer gridViewer ;
-	
-	private FeatureDataset value ;
-	private Map<Integer, GridViewerColumn> viewerColumns;
-	
-	/**
-	 * @param parent
-	 * @param configuration
-	 */
-  public FeatureDatasetViewer()
-  {
-	  viewerColumns = new TreeMap<Integer, GridViewerColumn>() ;
-  }
+public class FeatureDatasetViewer {
+    private static final int MIM_COLUMN_SIZE = 5;
+    private GridTableViewer gridViewer;
 
-  public void setValue(FeatureDataset value)
-  {
-  	if (!ObjectUtils.equals(this.value, value))
-  	{
-	    this.value = value ;
-  	} 
-  }
+    private FeatureDataset value;
+    private Map<Integer, GridViewerColumn> viewerColumns;
 
-  public void createPartControl(Composite parent) 
-  {
-		gridViewer = new GridTableViewer(parent);
+    /**
+     * @param parent
+     * @param configuration
+     */
+    public FeatureDatasetViewer() {
+        viewerColumns = new TreeMap<Integer, GridViewerColumn>();
+    }
 
-		gridViewer.setContentProvider(new FeatureDatasetContentProvider()) ;
-		//gridViewer.setLabelProvider(new DatasetLabelProvider()) ;
-		gridViewer.getGrid().setHeaderVisible(true);
+    public void setValue(FeatureDataset value) {
+        if (!ObjectUtils.equals(this.value, value)) {
+            this.value = value;
+        }
+    }
 
-		gridViewer.getGrid().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true)) ;
+    public void createPartControl(Composite parent) {
+        gridViewer = new GridTableViewer(parent);
 
-		updateGridViewer() ;
-		
-		gridViewer.addSelectionChangedListener(new ISelectionChangedListener()
-		{
-			@Override
-      public void selectionChanged(SelectionChangedEvent event)
-      {
-				handleViewerSelectionChanged();
-      }
-		});
-		
-	}
+        gridViewer.setContentProvider(new FeatureDatasetContentProvider());
+        // gridViewer.setLabelProvider(new DatasetLabelProvider()) ;
+        gridViewer.getGrid().setHeaderVisible(true);
 
-	protected void handleViewerSelectionChanged()
-  {
- 
-  }
+        gridViewer.getGrid().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-  private void updateGridViewer()
-	{
-		if (value != null && !value.getFeatures().isEmpty())
-		{
-			if (gridViewer != null)
-			{
-				int oldColumnCount = viewerColumns.size() ;
-				int newColumnCount = value.getFeatures().size() ;
-						
-				// create new columns
-				if (newColumnCount > oldColumnCount)
-				{
-					for (int i = oldColumnCount ; i < newColumnCount; ++i)
-					{
-						viewerColumns.put(i, new GridViewerColumn(gridViewer, SWT.NONE, i)) ;
-					}
-				}
-				else
-				{
-					// remove columns
-					if (newColumnCount < oldColumnCount)
-					{    
-						for (int i = newColumnCount ; i > oldColumnCount ; --i)
-						{
-							GridViewerColumn gridViewerColumn = viewerColumns.get(i - 1) ;
-	
-							if (gridViewerColumn != null)
-								gridViewerColumn.getColumn().dispose() ;
-						}
-					}
-				}
-	
-				Iterator<Integer> iterator = viewerColumns.keySet().iterator() ;
-				GridViewerColumn gridViewerColumn ;
-	
-				int index = 0 ;
-				Feature feature ;
-	
-				while (iterator.hasNext())
-				{
-					index = iterator.next() ;
-					
-					feature = value.getFeatures().get(index);
-					
-					gridViewerColumn = viewerColumns.get(index) ;
-	
-					gridViewerColumn.getColumn().setText(feature.getName()) ;
-					
-					gridViewerColumn.setLabelProvider(new DatasetColumnLabelProvider(feature, index)) ;
-	
-					gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName())) ;
-				}
-				
-				gridViewer.getGrid().setRowHeaderVisible(value.hasRowHeaders()) ;
-				
-				gridViewer.setRowHeaderLabelProvider(new RowHeaderLabelProvider()) ;
-				
-				gridViewer.setInput(value) ;
-			}	
-		}
-		else
-		{
-			if (gridViewer != null)
-			{
-				Iterator<GridViewerColumn> iterator = viewerColumns.values().iterator() ;
-      
-				while (iterator.hasNext())
-					iterator.next().getColumn().dispose() ;
-      
-				viewerColumns.clear() ;
-      
-      	gridViewer.setInput(null) ;
-			}
-		}
-	}
+        updateGridViewer();
 
-	private int guessColumnWidth(String columnHeader)
-	{
-		int size = 0 ;
+        gridViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                handleViewerSelectionChanged();
+            }
+        });
 
-		if (columnHeader != null && columnHeader.length() > 0)
-			size = (columnHeader.length() * 10) + 10 ;
+    }
 
-		if (size < MIM_COLUMN_SIZE)
-			size = MIM_COLUMN_SIZE ;
+    protected void handleViewerSelectionChanged() {
 
-		return size ;
-	}
+    }
+
+    private void updateGridViewer() {
+        if (value != null && !value.getFeatures().isEmpty()) {
+            if (gridViewer != null) {
+                int oldColumnCount = viewerColumns.size();
+                int newColumnCount = value.getFeatures().size();
+
+                // create new columns
+                if (newColumnCount > oldColumnCount) {
+                    for (int i = oldColumnCount; i < newColumnCount; ++i) {
+                        viewerColumns.put(i, new GridViewerColumn(gridViewer, SWT.NONE, i));
+                    }
+                } else {
+                    // remove columns
+                    if (newColumnCount < oldColumnCount) {
+                        for (int i = newColumnCount; i > oldColumnCount; --i) {
+                            GridViewerColumn gridViewerColumn = viewerColumns.get(i - 1);
+
+                            if (gridViewerColumn != null)
+                                gridViewerColumn.getColumn().dispose();
+                        }
+                    }
+                }
+
+                Iterator<Integer> iterator = viewerColumns.keySet().iterator();
+                GridViewerColumn gridViewerColumn;
+
+                int index = 0;
+                Feature feature;
+
+                while (iterator.hasNext()) {
+                    index = iterator.next();
+
+                    feature = value.getFeatures().get(index);
+
+                    gridViewerColumn = viewerColumns.get(index);
+
+                    gridViewerColumn.getColumn().setText(feature.getName());
+
+                    gridViewerColumn.setLabelProvider(new DatasetColumnLabelProvider(feature, index));
+
+                    gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName()));
+                }
+
+                gridViewer.getGrid().setRowHeaderVisible(value.hasRowHeaders());
+
+                gridViewer.setRowHeaderLabelProvider(new RowHeaderLabelProvider());
+
+                gridViewer.setInput(value);
+            }
+        } else {
+            if (gridViewer != null) {
+                Iterator<GridViewerColumn> iterator = viewerColumns.values().iterator();
+
+                while (iterator.hasNext())
+                    iterator.next().getColumn().dispose();
+
+                viewerColumns.clear();
+
+                gridViewer.setInput(null);
+            }
+        }
+    }
+
+    private int guessColumnWidth(String columnHeader) {
+        int size = 0;
+
+        if (columnHeader != null && columnHeader.length() > 0)
+            size = (columnHeader.length() * 10) + 10;
+
+        if (size < MIM_COLUMN_SIZE)
+            size = MIM_COLUMN_SIZE;
+
+        return size;
+    }
 }

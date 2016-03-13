@@ -18,6 +18,7 @@ package org.corehunter.ui;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -59,21 +60,22 @@ public class DatasetTable extends DatasetServiceClient {
         searchLabel.setText("Search: ");
         final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
         searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
-        
+
         createViewer(parent);
-        
-        DatasetFilter datasetFilter = new DatasetFilter() ;
-        
-        searchText.addModifyListener(new ModifyListener(){
+
+        DatasetFilter datasetFilter = new DatasetFilter();
+
+        searchText.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
                 datasetFilter.setSearchText(searchText.getText());
-                viewer.refresh() ;
-            }});
-        
+                viewer.refresh();
+            }
+        });
+
         viewer.addFilter(datasetFilter);
-        
+
         // Set the sorter for the table
         comparator = new DatasetComparator();
         viewer.setComparator(comparator);
@@ -179,45 +181,49 @@ public class DatasetTable extends DatasetServiceClient {
 
         return selectedDataset;
     }
-    
+
     public void cleaerSelectedDataset() {
-        viewer.getTable().deselectAll(); 
-        selectedDataset = null ;
+        viewer.getTable().deselectAll();
+        selectedDataset = null;
     }
 
     public void addSelectionChangedListener(ISelectionChangedListener listener) {
-        viewer.addSelectionChangedListener(listener); 
+        if (viewer != null)
+            viewer.addSelectionChangedListener(listener);
     }
     
+    public void addDoubleClickListener(IDoubleClickListener listener) {
+        if (viewer != null)
+            viewer.addDoubleClickListener(listener);
+    }
+
     private class DatasetFilter extends ViewerFilter {
 
-      private String searchString;
+        private String searchString;
 
-      public void setSearchText(String s) {
-        // ensure that the value can be used for matching 
-        this.searchString = ".*" + s + ".*";
-      }
+        public void setSearchText(String s) {
+            // ensure that the value can be used for matching
+            this.searchString = ".*" + s + ".*";
+        }
 
-      @Override
-      public boolean select(Viewer viewer, 
-          Object parentElement, 
-          Object element) {
-        if (searchString == null || searchString.length() == 0) {
-          return true;
-        }
-        Dataset dataset = (Dataset) element;
-        if (dataset.getName() != null && dataset.getName().matches(searchString)) {
-          return true;
-        }
-        if (dataset.getAbbreviation() != null && dataset.getAbbreviation().matches(searchString)) {
-          return true;
-        }
-        
-        if (dataset.getDescription() != null && dataset.getDescription().matches(searchString)) {
-            return true;
-          }
+        @Override
+        public boolean select(Viewer viewer, Object parentElement, Object element) {
+            if (searchString == null || searchString.length() == 0) {
+                return true;
+            }
+            Dataset dataset = (Dataset) element;
+            if (dataset.getName() != null && dataset.getName().matches(searchString)) {
+                return true;
+            }
+            if (dataset.getAbbreviation() != null && dataset.getAbbreviation().matches(searchString)) {
+                return true;
+            }
 
-        return false;
-      }
-    } 
+            if (dataset.getDescription() != null && dataset.getDescription().matches(searchString)) {
+                return true;
+            }
+
+            return false;
+        }
+    }
 }

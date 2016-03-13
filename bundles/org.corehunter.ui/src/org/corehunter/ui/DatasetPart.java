@@ -19,35 +19,27 @@ package org.corehunter.ui;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.corehunter.services.DatasetType;
+import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Text;
 
 import uno.informatics.data.Dataset;
 import uno.informatics.data.FeatureDataset;
 import uno.informatics.data.dataset.DatasetException;
-
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.e4.ui.workbench.modeling.ISelectionListener;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 
 public class DatasetPart extends DatasetServiceClient {
     private DatasetTable datasetTable = null;
@@ -61,20 +53,25 @@ public class DatasetPart extends DatasetServiceClient {
     private Button btnRemoveDataset;
     private Label lblDatasetSize;
     private Button btnView;
+    private PartUtilitiies partUtilitiies;
 
     @Inject
     public DatasetPart() {
     }
 
     @PostConstruct
-    public void postConstruct(Composite parent) {
+    public void postConstruct(Composite parent, EPartService partService, EModelService modelService,
+            MApplication application) {
+
+        partUtilitiies = new PartUtilitiies(partService, modelService, application);
+
         parent.setLayout(new GridLayout(1, false));
 
         Group grpDatasets = new Group(parent, SWT.NONE);
         grpDatasets.setText("Datasets");
         grpDatasets.setLayout(new GridLayout(1, false));
         grpDatasets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
-        
+
         Composite datasetTableComposite = new Composite(grpDatasets, SWT.NONE);
         datasetTableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
@@ -106,20 +103,27 @@ public class DatasetPart extends DatasetServiceClient {
                 removeDataset();
             }
         });
-        
+
         btnView = new Button(datasetButtonComposite, SWT.NONE);
         btnView.setText("View");
-        
+
         btnView.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                viewDataset() ;
+                viewDataset();
             }
         });
 
         datasetTable.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(final SelectionChangedEvent event) {
                 databaseSelectionChanged();
+            }
+        });
+        
+        datasetTable.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                viewDataset();
             }
         });
 
@@ -136,11 +140,11 @@ public class DatasetPart extends DatasetServiceClient {
         lblCoreSize.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 
         spinnerSize = new Spinner(corehunterRunArgumentsGroup, SWT.BORDER);
-        
+
         spinnerSize.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                spinnerSizeUpdated() ;
+                spinnerSizeUpdated();
             }
         });
 
@@ -151,14 +155,14 @@ public class DatasetPart extends DatasetServiceClient {
         spinnerIntensity.setMinimum(0);
         spinnerIntensity.setSelection(20); // TODO get from properties file
         spinnerIntensity.setMaximum(100);
-        
+
         spinnerIntensity.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                spinnerIntensityUpdated() ;
+                spinnerIntensityUpdated();
             }
         });
-        
+
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -186,23 +190,23 @@ public class DatasetPart extends DatasetServiceClient {
         });
 
         updateDatasetButtons();
-        updateDatasetSize() ;
-        updateCorehunterArguments() ;
+        updateDatasetSize();
+        updateCorehunterArguments();
         updateStartButton();
     }
-    
+
     private void updateViewer() {
         datasetTable.updateViewer();
     }
 
     protected void spinnerSizeUpdated() {
-        spinnerIntensity.setSelection(getIntensityFromSize(selectedDatasetSize, spinnerSize.getSelection())); 
-        
+        spinnerIntensity.setSelection(getIntensityFromSize(selectedDatasetSize, spinnerSize.getSelection()));
+
     }
-    
+
     protected void spinnerIntensityUpdated() {
-        spinnerSize.setSelection(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection())); 
-        
+        spinnerSize.setSelection(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection()));
+
     }
 
     private void removeDataset() {
@@ -216,8 +220,7 @@ public class DatasetPart extends DatasetServiceClient {
     }
 
     private void viewDataset() {
-        // TODO Auto-generated method stub
-        
+        partUtilitiies.openPart(new PartInput(selectedDataset, FeatureDatasetPart.ID));
     }
 
     private void addDataset() {
@@ -230,15 +233,16 @@ public class DatasetPart extends DatasetServiceClient {
         if (selectedDataset instanceof FeatureDataset)
             selectedDatasetSize = ((FeatureDataset) selectedDataset).getRowCount();
         else
-            selectedDatasetSize = 0 ;
-        
-        updateDatasetSize() ;
-        updateDatasetButtons() ;
-        updateCorehunterArguments() ;
+            selectedDatasetSize = 0;
+
+        updateDatasetSize();
+        updateDatasetButtons();
+        updateCorehunterArguments();
     }
 
     private void updateDatasetButtons() {
         btnRemoveDataset.setEnabled(datasetTable.getSelectedDataset() != null);
+        btnView.setEnabled(datasetTable.getSelectedDataset() != null);
     }
 
     private void updateStartButton() {
@@ -247,46 +251,43 @@ public class DatasetPart extends DatasetServiceClient {
 
     private void resetArguments() {
         datasetTable.cleaerSelectedDataset();
-        selectedDatasetSize = 0 ;
+        selectedDatasetSize = 0;
         updateStartButton();
-        updateDatasetButtons() ;
-        updateCorehunterArguments() ;
+        updateDatasetButtons();
+        updateCorehunterArguments();
     }
-    
+
     private void updateDatasetSize() {
         lblDatasetSize.setText("Dataset Size : " + selectedDatasetSize);
     }
 
     private void updateCorehunterArguments() {
-        if (selectedDatasetSize > 1)
-        {
+        if (selectedDatasetSize > 1) {
             spinnerSize.setMaximum(selectedDatasetSize - 1);
-            spinnerSize.setSelection(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection())); 
-            
+            spinnerSize.setSelection(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection()));
+
             System.out.println(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection()));
-        }
-        else
-        {
+        } else {
             spinnerSize.setMinimum(0);
             spinnerSize.setSelection(0);
         }
     }
 
     private int getSizeFromIntensity(int datasetSize, int intensity) {
-        return (int)((double)datasetSize * ((double)intensity / 100.0));
+        return (int) ((double) datasetSize * ((double) intensity / 100.0));
     }
-    
+
     private int getIntensityFromSize(int datasetSize, int coreSize) {
-        return (int)(((double)coreSize / (double)datasetSize) * 100.0);
+        return (int) (((double) coreSize / (double) datasetSize) * 100.0);
     }
 
     private void startCorehunterRun() {
         // TODO Auto-generated method stub
 
     }
-    
+
     private void handleException(DatasetException e) {
         // TODO Auto-generated method stub
-        
+
     }
 }

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.corehunter.ui.mock.DatasetClientMock">
-   <implementation class="org.corehunter.ui.mock.FileBasedDatasetServicesMock"/>
+   <implementation class="org.corehunter.ui.mock.FileBasedDatasetServicesMock">
+    <property name="path" value="/Users/daveneti/Applications/Eclipse/tmp"/>
+   </implementation>
    <service>
       <provide interface="org.corehunter.services.DatasetServices"/>
    </service>

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
 package org.corehunter.ui;
 
 import java.text.DateFormat;
@@ -50,221 +51,205 @@ import org.osgi.framework.ServiceReference;
 
 import uno.informatics.data.Dataset;
 
-public class CorehunterRunTable
-{
-  private CorehunterRunComparator comparator;
+public class CorehunterRunTable {
+    private CorehunterRunComparator comparator;
 
-  private TableViewer viewer;
+    private TableViewer viewer;
 
-  private CorehunterRunServices corehunterRunClient;
-  
-  private DateTimeFormatter dateTimeFormatter ;
+    private CorehunterRunServices corehunterRunClient;
 
-  private CorehunterRun selectedCorehunterRun;
-  
-  @Inject
-  public CorehunterRunTable() 
-  {
-    BundleContext bundleContext = 
-        FrameworkUtil.
-        getBundle(this.getClass()).
-        getBundleContext(); 
+    private DateTimeFormatter dateTimeFormatter;
 
-    ServiceReference<?> serviceReference = bundleContext.
-        getServiceReference(CorehunterRunServices.class.getName());
-    setResultClient((CorehunterRunServices) bundleContext.
-        getService(serviceReference)); 
-    
-    dateTimeFormatter = DateTimeFormat.shortDateTime() ;
+    private CorehunterRun selectedCorehunterRun;
 
-  }
+    @Inject
+    public CorehunterRunTable() {
+        BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
-  public void createPartControl(Composite parent) {
-    GridLayout layout = new GridLayout(2, false);
-    parent.setLayout(layout);
-    Label searchLabel = new Label(parent, SWT.NONE);
-    searchLabel.setText("Search: ");
-    final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
-    searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-        | GridData.HORIZONTAL_ALIGN_FILL));
-    
-    createViewer(parent);
-    
-    CorehunterRunFilter corehunterRunFilter = new CorehunterRunFilter() ;
-    
-    searchText.addModifyListener(new ModifyListener(){
+        ServiceReference<?> serviceReference = bundleContext.getServiceReference(CorehunterRunServices.class.getName());
+        setResultClient((CorehunterRunServices) bundleContext.getService(serviceReference));
+
+        dateTimeFormatter = DateTimeFormat.shortDateTime();
+
+    }
+
+    public void createPartControl(Composite parent) {
+        GridLayout layout = new GridLayout(2, false);
+        parent.setLayout(layout);
+        Label searchLabel = new Label(parent, SWT.NONE);
+        searchLabel.setText("Search: ");
+        final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
+        searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+
+        createViewer(parent);
+
+        CorehunterRunFilter corehunterRunFilter = new CorehunterRunFilter();
+
+        searchText.addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                corehunterRunFilter.setSearchText(searchText.getText());
+                viewer.refresh();
+            }
+        });
+
+        viewer.addFilter(corehunterRunFilter);
+
+        viewer.setContentProvider(new ArrayContentProvider());
+
+        viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            public void selectionChanged(final SelectionChangedEvent event) {
+                IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+
+                selectedCorehunterRun = (CorehunterRun) selection.getFirstElement();
+            }
+        });
+
+        // Set the sorter for the table
+        comparator = new CorehunterRunComparator();
+        viewer.setComparator(comparator);
+    }
+
+    public CorehunterRun getSelectedCorehunterRun() {
+
+        return selectedCorehunterRun;
+    }
+
+    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+        viewer.addSelectionChangedListener(listener);
+    }
+
+    private void createViewer(Composite parent) {
+        viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+        createColumns(parent, viewer);
+        final Table table = viewer.getTable();
+        table.setHeaderVisible(true);
+        table.setLinesVisible(true);
+
+        viewer.setContentProvider(new ArrayContentProvider());
+
+        updateViewer();
+
+        GridData gridData = new GridData();
+        gridData.verticalAlignment = GridData.FILL;
+        gridData.horizontalSpan = 2;
+        gridData.grabExcessHorizontalSpace = true;
+        gridData.grabExcessVerticalSpace = true;
+        gridData.horizontalAlignment = GridData.FILL;
+        viewer.getControl().setLayoutData(gridData);
+    }
+
+    public void updateViewer() {
+        viewer.setInput(corehunterRunClient.getAllCorehunterRuns());
+    }
+
+    // This will create the columns for the table
+    private void createColumns(final Composite parent, final TableViewer viewer) {
+        String[] titles = { "Name", "Start", "End", "Status" };
+        int[] bounds = { 100, 100, 100, 100 };
+
+        TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
+        col.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                CorehunterRun corehunterRun = (CorehunterRun) element;
+                return corehunterRun.getName();
+            }
+        });
+
+        col = createTableViewerColumn(titles[1], bounds[1], 1);
+        col.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                CorehunterRun corehunterRun = (CorehunterRun) element;
+                return dateTimeFormatter.print(corehunterRun.getStartDate());
+            }
+        });
+
+        col = createTableViewerColumn(titles[2], bounds[2], 2);
+        col.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                CorehunterRun corehunterRun = (CorehunterRun) element;
+                return dateTimeFormatter.print(corehunterRun.getEndDate());
+            }
+        });
+
+        col = createTableViewerColumn(titles[3], bounds[3], 3);
+        col.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                CorehunterRun corehunterRun = (CorehunterRun) element;
+                return corehunterRun.getStatus().getName();
+            }
+        });
+
+    }
+
+    private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
+        final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+        final TableColumn column = viewerColumn.getColumn();
+        column.setText(title);
+        column.setWidth(bound);
+        column.setResizable(true);
+        column.setMoveable(true);
+        column.addSelectionListener(getSelectionAdapter(column, colNumber));
+        return viewerColumn;
+    }
+
+    private SelectionAdapter getSelectionAdapter(final TableColumn column, final int index) {
+        SelectionAdapter selectionAdapter = new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                comparator.setColumn(index);
+                int dir = comparator.getDirection();
+                viewer.getTable().setSortDirection(dir);
+                viewer.getTable().setSortColumn(column);
+                viewer.refresh();
+            }
+        };
+        return selectionAdapter;
+    }
+
+    /**
+     * Passing the focus request to the viewer's control.
+     */
+
+    public void setFocus() {
+        viewer.getControl().setFocus();
+    }
+
+    public void cleaerSelectedCorehunterRun() {
+        viewer.getTable().deselectAll();
+        selectedCorehunterRun = null;
+    }
+
+    private synchronized final void setResultClient(CorehunterRunServices corehunterRunClient) {
+        this.corehunterRunClient = corehunterRunClient;
+    }
+
+    private class CorehunterRunFilter extends ViewerFilter {
+
+        private String searchString;
+
+        public void setSearchText(String s) {
+            // ensure that the value can be used for matching
+            this.searchString = ".*" + s + ".*";
+        }
 
         @Override
-        public void modifyText(ModifyEvent e) {
-            corehunterRunFilter.setSearchText(searchText.getText());
-            viewer.refresh() ;
-        }});
-    
-    viewer.addFilter(corehunterRunFilter);
-    
-    viewer.setContentProvider(new ArrayContentProvider());
+        public boolean select(Viewer viewer, Object parentElement, Object element) {
+            if (searchString == null || searchString.length() == 0) {
+                return true;
+            }
+            CorehunterRun corehunterRun = (CorehunterRun) element;
+            if (corehunterRun.getName() != null && corehunterRun.getName().matches(searchString)) {
+                return true;
+            }
 
-    viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-        public void selectionChanged(final SelectionChangedEvent event) {
-            IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-
-            selectedCorehunterRun = (CorehunterRun) selection.getFirstElement();
+            return false;
         }
-    });
-    
-    // Set the sorter for the table
-    comparator = new CorehunterRunComparator();
-    viewer.setComparator(comparator);
-  }
-  
-  public CorehunterRun getSelectedCorehunterRun() {
+    }
 
-      return selectedCorehunterRun;
-  }
-  
-  public void addSelectionChangedListener(ISelectionChangedListener listener) {
-      viewer.addSelectionChangedListener(listener); 
-  }
-
-  private void createViewer(Composite parent) {
-    viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL
-        | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-    createColumns(parent, viewer);
-    final Table table = viewer.getTable();
-    table.setHeaderVisible(true);
-    table.setLinesVisible(true);
-
-    viewer.setContentProvider(new ArrayContentProvider());
-    
-    updateViewer() ;
-
-    GridData gridData = new GridData();
-    gridData.verticalAlignment = GridData.FILL;
-    gridData.horizontalSpan = 2;
-    gridData.grabExcessHorizontalSpace = true;
-    gridData.grabExcessVerticalSpace = true;
-    gridData.horizontalAlignment = GridData.FILL;
-    viewer.getControl().setLayoutData(gridData);
-  }
-
-  public void updateViewer()
-  {
-    viewer.setInput(corehunterRunClient.getAllCorehunterRuns());
-  }
-
-  // This will create the columns for the table
-  private void createColumns(final Composite parent, final TableViewer viewer) {
-    String[] titles = { "Name", "Start", "End", "Status" };
-    int[] bounds = { 100, 100, 100, 100};
-
-    TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
-    col.setLabelProvider(new ColumnLabelProvider() {
-      @Override
-      public String getText(Object element) {
-        CorehunterRun corehunterRun = (CorehunterRun) element;
-        return corehunterRun.getName();
-      }
-    });
-
-    col = createTableViewerColumn(titles[1], bounds[1], 1);
-    col.setLabelProvider(new ColumnLabelProvider() {
-      @Override
-      public String getText(Object element) {
-        CorehunterRun corehunterRun = (CorehunterRun) element;
-        return dateTimeFormatter.print(corehunterRun.getStartDate()) ;
-      }
-    });
-    
-    col = createTableViewerColumn(titles[2], bounds[2], 2);
-    col.setLabelProvider(new ColumnLabelProvider() {
-      @Override
-      public String getText(Object element) {
-        CorehunterRun corehunterRun = (CorehunterRun) element;
-        return dateTimeFormatter.print(corehunterRun.getEndDate()) ;
-      }
-    });
-    
-    col = createTableViewerColumn(titles[3], bounds[3], 3);
-    col.setLabelProvider(new ColumnLabelProvider() {
-      @Override
-      public String getText(Object element) {
-        CorehunterRun corehunterRun = (CorehunterRun) element;
-        return corehunterRun.getStatus().getName() ;
-      }
-    });
-
-  }
-
-  private TableViewerColumn createTableViewerColumn(String title, int bound,
-      final int colNumber) {
-    final TableViewerColumn viewerColumn = new TableViewerColumn(viewer,
-        SWT.NONE);
-    final TableColumn column = viewerColumn.getColumn();
-    column.setText(title);
-    column.setWidth(bound);
-    column.setResizable(true);
-    column.setMoveable(true);
-    column.addSelectionListener(getSelectionAdapter(column, colNumber));
-    return viewerColumn;
-  }
-
-  private SelectionAdapter getSelectionAdapter(final TableColumn column,
-      final int index) {
-    SelectionAdapter selectionAdapter = new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        comparator.setColumn(index);
-        int dir = comparator.getDirection();
-        viewer.getTable().setSortDirection(dir);
-        viewer.getTable().setSortColumn(column);
-        viewer.refresh();
-      }
-    };
-    return selectionAdapter;
-  }
-
-  
-/**
-   * Passing the focus request to the viewer's control.
-   */
-
-  public void setFocus() {
-    viewer.getControl().setFocus();
-  }
-  
-  public void cleaerSelectedCorehunterRun() {
-      viewer.getTable().deselectAll(); 
-      selectedCorehunterRun = null ;
-  }
-  
-  private synchronized final void setResultClient(CorehunterRunServices corehunterRunClient)
-  {
-    this.corehunterRunClient = corehunterRunClient;
-  } 
-  
-  private class CorehunterRunFilter extends ViewerFilter {
-
-      private String searchString;
-
-      public void setSearchText(String s) {
-        // ensure that the value can be used for matching 
-        this.searchString = ".*" + s + ".*";
-      }
-
-      @Override
-      public boolean select(Viewer viewer, 
-          Object parentElement, 
-          Object element) {
-        if (searchString == null || searchString.length() == 0) {
-          return true;
-        }
-        CorehunterRun corehunterRun = (CorehunterRun) element;
-        if (corehunterRun.getName() != null && corehunterRun.getName().matches(searchString)) {
-          return true;
-        }
-
-        return false;
-      }
-    } 
- 
 }

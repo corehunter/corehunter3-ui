@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package org.corehunter.ui;
 
+package org.corehunter.ui;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
@@ -27,37 +27,31 @@ import uno.informatics.data.FeatureDatasetRow;
  * @author Guy Davenport
  *
  */
-public class DatasetColumnLabelProvider extends ColumnLabelProvider
-{
-	private Feature feature ;
-  private int columnIndex;
-  
-	public DatasetColumnLabelProvider(Feature feature, int columnIndex)
-  {
-	  super();
-	  this.columnIndex = columnIndex;
-	  this.feature = feature;
-  }
-	
-  public final Feature getFeature()
-	{
-		return feature;
-	}
+public class DatasetColumnLabelProvider extends ColumnLabelProvider {
+    private Feature feature;
+    private int columnIndex;
 
-	public final int getColumnIndex()
-	{
-		return columnIndex;
-	}
+    public DatasetColumnLabelProvider(Feature feature, int columnIndex) {
+        super();
+        this.columnIndex = columnIndex;
+        this.feature = feature;
+    }
 
-	@Override
-  public String getText(Object element) 
-  {
-    return super.getText(((FeatureDatasetRow)element).getValue(columnIndex));
-  }
+    public final Feature getFeature() {
+        return feature;
+    }
 
-	@Override
-  protected void initialize(ColumnViewer viewer, ViewerColumn column) 
-  {
+    public final int getColumnIndex() {
+        return columnIndex;
+    }
 
-  }
+    @Override
+    public String getText(Object element) {
+        return super.getText(((FeatureDatasetRow) element).getValue(columnIndex));
+    }
+
+    @Override
+    protected void initialize(ColumnViewer viewer, ViewerColumn column) {
+
+    }
 }
