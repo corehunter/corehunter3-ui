@@ -42,8 +42,4 @@ public class FeatureDatasetPart extends DatasetServiceClient {
 
         featureDatasetViewer.createPartControl(parent);
     }
-
-    public synchronized final PartInput getPartInput() {
-        return partInput;
-    }
 }
