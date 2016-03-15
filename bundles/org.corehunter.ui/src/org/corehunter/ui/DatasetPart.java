@@ -266,7 +266,6 @@ public class DatasetPart extends DatasetServiceClient {
             spinnerSize.setMaximum(selectedDatasetSize - 1);
             spinnerSize.setSelection(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection()));
 
-            System.out.println(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection()));
         } else {
             spinnerSize.setMinimum(0);
             spinnerSize.setSelection(0);
