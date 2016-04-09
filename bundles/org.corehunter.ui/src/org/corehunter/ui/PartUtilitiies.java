@@ -70,19 +70,22 @@ public class PartUtilitiies {
         } else {
             part = partService.createPart(partInput.getPartId());
 
-            if (partInput instanceof Named)
-                part.setLabel(((Named) partInput).getName());
-
-            part.getTransientData().put(INPUT, partInput);
-
-            MPartStack stack = (MPartStack) getModelService().find(MAIN_STACK_ID, getApplication());
-
-            stack.getChildren().add(part); // Add part to stack
-
-            // show the part
-            part = getPartService().showPart(part, PartState.ACTIVATE);
-
-            parts.put(partInput.getUniqueIdentifier(), part);
+            if (part != null) {
+            
+                if (partInput instanceof Named)
+                    part.setLabel(((Named) partInput).getName());
+    
+                part.getTransientData().put(INPUT, partInput);
+    
+                MPartStack stack = (MPartStack) getModelService().find(MAIN_STACK_ID, getApplication());
+    
+                stack.getChildren().add(part); // Add part to stack
+    
+                // show the part
+                part = getPartService().showPart(part, PartState.ACTIVATE);
+    
+                parts.put(partInput.getUniqueIdentifier(), part);
+            }
 
         }
         return part;

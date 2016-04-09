@@ -111,12 +111,7 @@ public class DatasetTable extends DatasetServiceClient {
     }
 
     public final void updateViewer() {
-        try {
-            viewer.setInput(getDatasetServices().getAllDatasets());
-        } catch (DatasetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        viewer.setInput(getDatasetServices().getAllDatasets());
     }
 
     // This will create the columns for the table

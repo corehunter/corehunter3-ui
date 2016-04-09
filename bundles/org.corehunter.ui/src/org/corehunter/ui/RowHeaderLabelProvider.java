@@ -19,7 +19,7 @@ package org.corehunter.ui;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 
-import uno.informatics.data.FeatureDatasetRow;
+import uno.informatics.data.dataset.FeatureDataRow;
 
 /**
  * @author Guy Davenport
@@ -29,8 +29,8 @@ public class RowHeaderLabelProvider extends CellLabelProvider {
 
     @Override
     public void update(ViewerCell cell) {
-        if (((FeatureDatasetRow) cell.getElement()).getHeader() != null)
-            cell.setText(((FeatureDatasetRow) cell.getElement()).getHeader().getName());
+        if (((FeatureDataRow) cell.getElement()).getHeader() != null)
+            cell.setText(((FeatureDataRow) cell.getElement()).getHeader().getName());
 
     }
 

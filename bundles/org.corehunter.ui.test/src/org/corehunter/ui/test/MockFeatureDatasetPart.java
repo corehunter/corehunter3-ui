@@ -4,19 +4,18 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.corehunter.ui.DatasetServiceClient;
-import org.corehunter.ui.FeatureDatasetPart;
-import org.corehunter.ui.FeatureDatasetViewer;
+import org.corehunter.ui.DatasetPart;
+import org.corehunter.ui.FeatureDataViewer;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import uno.informatics.data.FeatureDataset;
-import uno.informatics.data.dataset.DatasetException;
+import uno.informatics.data.dataset.FeatureData;
 
 public class MockFeatureDatasetPart extends DatasetServiceClient {
     
-    public final static String ID = FeatureDatasetPart.class.getName() ;
+    public final static String ID = DatasetPart.class.getName() ;
     
-    private FeatureDatasetViewer featureDatasetViewer;
+    private FeatureDataViewer featureDatasetViewer;
 
     private String uniqueIdentifier;
 
@@ -30,13 +29,9 @@ public class MockFeatureDatasetPart extends DatasetServiceClient {
 
         parent.setLayout(new GridLayout(1, true));
 
-        featureDatasetViewer = new FeatureDatasetViewer();
+        featureDatasetViewer = new FeatureDataViewer();
 
-        try {
-            featureDatasetViewer.setValue((FeatureDataset) getDatasetServices().getDataset(uniqueIdentifier));
-        } catch (DatasetException e) {
-            e.printStackTrace();
-        }
+        featureDatasetViewer.setValue((FeatureData) getDatasetServices().getDataset(uniqueIdentifier));
 
         featureDatasetViewer.createPartControl(parent);
     }

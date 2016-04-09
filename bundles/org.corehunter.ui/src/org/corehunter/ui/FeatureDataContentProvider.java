@@ -19,9 +19,9 @@ package org.corehunter.ui;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import uno.informatics.data.FeatureDataset;
+import uno.informatics.data.dataset.FeatureData;
 
-public class FeatureDatasetContentProvider implements IStructuredContentProvider {
+public class FeatureDataContentProvider implements IStructuredContentProvider {
 
     @Override
     public void dispose() {
@@ -35,8 +35,8 @@ public class FeatureDatasetContentProvider implements IStructuredContentProvider
 
     @Override
     public Object[] getElements(Object inputElement) {
-        if (inputElement instanceof FeatureDataset)
-            return ((FeatureDataset) inputElement).getRowsAsArray();
+        if (inputElement instanceof FeatureData)
+            return ((FeatureData) inputElement).getRowsAsArray();
         else
             return null;
     }

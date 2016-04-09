@@ -21,7 +21,7 @@ import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ViewerColumn;
 
 import uno.informatics.data.Feature;
-import uno.informatics.data.FeatureDatasetRow;
+import uno.informatics.data.dataset.FeatureDataRow;
 
 /**
  * @author Guy Davenport
@@ -47,7 +47,7 @@ public class DatasetColumnLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getText(Object element) {
-        return super.getText(((FeatureDatasetRow) element).getValue(columnIndex));
+        return super.getText(((FeatureDataRow) element).getValue(columnIndex));
     }
 
     @Override

@@ -1,0 +1,40 @@
+<project default="build-plugins" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+	<property file="build.properties"/>
+
+	<property name="lib.dir" value="../target/lib" />
+	
+	<tstamp>
+		<format property="time" pattern="yyyyMMddhhmmss"
+	          offset="-5" unit="hour"/>
+	</tstamp>
+	
+	<path id="maven-ant-tasks.classpath" path="${lib.dir}/maven-ant-tasks-${maven.ant-tasks.version}.jar" />
+
+	<target name="build-plugins">
+
+		<mkdir dir="../target/lib"/>
+		<get src="http://apache.cu.be/maven/ant-tasks/${maven.ant-tasks.version}/binaries/maven-ant-tasks-${maven.ant-tasks.version}.jar" 
+		    dest="${lib.dir}/maven-ant-tasks-${maven.ant-tasks.version}.jar" 
+		    verbose="true"/>
+		
+	  <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+	             uri="antlib:org.apache.maven.artifact.ant"
+	             classpathref="maven-ant-tasks.classpath" />
+
+		<property name="converted.dir" value="${plugins.p2.dir}/converted" />
+
+		<artifact:mvn pom="../pom.xml" mavenHome="${maven.home}">
+			<arg value="clean"/>
+			<jvmarg value="-Dmaven.multiModuleProjectDirectory=${maven.home}"/>
+		</artifact:mvn>
+
+		<delete dir="${converted.dir}" quiet="true" includeemptydirs="true"/>
+
+		<mkdir dir="${converted.dir}"/>
+
+		<copy todir="${converted.dir}" includeEmptyDirs="true">
+			<fileset dir="../target/repository/plugins"/>
+		</copy>
+
+	</target>
+</project>

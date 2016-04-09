@@ -12,6 +12,7 @@ Require-Bundle: org.corehunter.services;bundle-version="1.0.0",
  org.corehunter.services-api,
  org.corehunter.services-simple;bundle-version="3.0.0",
  joda-time;bundle-version="2.9.2",
- org.jamesframework.james-core
+ org.jamesframework.james-core,
+ org.corehunter.base;bundle-version="3.0.0"
 Service-Component: OSGI-INF/*.xml
 Import-Package: org.corehunter.ui

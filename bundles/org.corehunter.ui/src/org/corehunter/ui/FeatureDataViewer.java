@@ -30,28 +30,28 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import uno.informatics.data.Feature;
-import uno.informatics.data.FeatureDataset;
+import uno.informatics.data.dataset.FeatureData;
 
 /**
  * @author Guy Davenport
  *
  */
-public class FeatureDatasetViewer {
+public class FeatureDataViewer {
     private static final int MIM_COLUMN_SIZE = 5;
     private GridTableViewer gridViewer;
 
-    private FeatureDataset value;
+    private FeatureData value;
     private Map<Integer, GridViewerColumn> viewerColumns;
 
     /**
      * @param parent
      * @param configuration
      */
-    public FeatureDatasetViewer() {
+    public FeatureDataViewer() {
         viewerColumns = new TreeMap<Integer, GridViewerColumn>();
     }
 
-    public void setValue(FeatureDataset value) {
+    public void setValue(FeatureData value) {
         if (!ObjectUtils.equals(this.value, value)) {
             this.value = value;
         }
@@ -60,7 +60,7 @@ public class FeatureDatasetViewer {
     public void createPartControl(Composite parent) {
         gridViewer = new GridTableViewer(parent);
 
-        gridViewer.setContentProvider(new FeatureDatasetContentProvider());
+        gridViewer.setContentProvider(new FeatureDataContentProvider());
         // gridViewer.setLabelProvider(new DatasetLabelProvider()) ;
         gridViewer.getGrid().setHeaderVisible(true);
 
@@ -124,7 +124,7 @@ public class FeatureDatasetViewer {
                     gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName()));
                 }
 
-                gridViewer.getGrid().setRowHeaderVisible(value.hasRowHeaders());
+                gridViewer.getGrid().setRowHeaderVisible(true);
 
                 gridViewer.setRowHeaderLabelProvider(new RowHeaderLabelProvider());
 
