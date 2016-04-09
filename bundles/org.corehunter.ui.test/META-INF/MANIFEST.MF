@@ -14,7 +14,7 @@ Require-Bundle: javax.inject;bundle-version="1.0.0",
  org.eclipse.e4.ui.di;bundle-version="1.1.0",
  org.eclipse.e4.core.contexts;bundle-version="1.4.0",
  org.corehunter.ui;bundle-version="1.0.0",
- org.corehunter.services,
+ org.corehunter.ui.services,
  uno.informatics.common.informatics-data-api;bundle-version="1.0.0",
  org.corehunter.services-api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

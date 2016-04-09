@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Services
-Bundle-SymbolicName: org.corehunter.services
+Bundle-SymbolicName: org.corehunter.ui.services
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.corehunter.services.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

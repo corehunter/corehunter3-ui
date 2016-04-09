@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.corehunter.ui.mock
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.corehunter.services;bundle-version="1.0.0",
+Require-Bundle: org.corehunter.ui.services;bundle-version="1.0.0",
  uno.informatics.common.informatics-data-api;bundle-version="1.0.0",
  uno.informatics.common.informatics-data-impl;bundle-version="1.0.0",
  uno.informatics.common.informatics-utils;bundle-version="1.0.0",
