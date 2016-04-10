@@ -14,4 +14,5 @@ Require-Bundle: uno.informatics.common.informatics-data-api;bundle-version="1.0.
  org.jamesframework.james-core,
  org.corehunter.base;bundle-version="3.0.0"
 Service-Component: OSGI-INF/*.xml
-Import-Package: org.corehunter.ui
+Import-Package: org.corehunter.ui,
+ org.eclipse.core.runtime;version="3.5.0"
