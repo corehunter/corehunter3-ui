@@ -96,39 +96,42 @@ public class DatasetPart extends DatasetServiceClient {
                 FeatureData phenotypes = null ;
                 DistanceMatrixData distances = null ;
                 
-                genotypes = data.getGenotypicData();
-                phenotypes = data.getPhenotypicData() ;
-                distances = data.getDistancesData();
+                if (data != null)
+                {  
+                    genotypes = data.getGenotypicData();
+                    phenotypes = data.getPhenotypicData() ;
+                    distances = data.getDistancesData();
 
-                if (genotypes != null) {
-    
-                    TabItem tbtmGenotypes = new TabItem(tabFolder, SWT.NONE);
-                    tbtmGenotypes.setText(genotypes.getName());
+                    if (genotypes != null) {
+        
+                        TabItem tbtmGenotypes = new TabItem(tabFolder, SWT.NONE);
+                        tbtmGenotypes.setText(genotypes.getName());
+                        
+                        //genotypesDataViewer.createPartControl(parent);
+                    }
                     
-                    //genotypesDataViewer.createPartControl(parent);
-                }
-                
-                if (phenotypes != null) {
-                    featureDatasetViewer = new FeatureDataViewer() ;
+                    if (phenotypes != null) {
+                        featureDatasetViewer = new FeatureDataViewer() ;
+                        
+                        TabItem tbtmPhenotypes = new TabItem(tabFolder, SWT.NONE);
+                        tbtmPhenotypes.setText(phenotypes.getName());
+                        
+                        Composite phenotypesComposite = new Composite(tabFolder, SWT.NONE);
+                        phenotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+                        tbtmPhenotypes.setControl(phenotypesComposite);
+                        
+                        featureDatasetViewer.setValue(phenotypes);
+                        
+                        featureDatasetViewer.createPartControl(phenotypesComposite);
+                    }
                     
-                    TabItem tbtmPhenotypes = new TabItem(tabFolder, SWT.NONE);
-                    tbtmPhenotypes.setText(phenotypes.getName());
-                    
-                    Composite phenotypesComposite = new Composite(tabFolder, SWT.NONE);
-                    phenotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-                    tbtmPhenotypes.setControl(phenotypesComposite);
-                    
-                    featureDatasetViewer.setValue(phenotypes);
-                    
-                    featureDatasetViewer.createPartControl(phenotypesComposite);
-                }
-                
-                if (distances != null) {
-    
-                    TabItem tbtmDistances = new TabItem(tabFolder, SWT.NONE);
-                    tbtmDistances.setText(distances.getName());
-                    
-                    //distanceDataViewer.createPartControl(parent);
+                    if (distances != null) {
+        
+                        TabItem tbtmDistances = new TabItem(tabFolder, SWT.NONE);
+                        tbtmDistances.setText(distances.getName());
+                        
+                        //distanceDataViewer.createPartControl(parent);
+                    }
                 }
             }
         } catch (DatasetException e) {
