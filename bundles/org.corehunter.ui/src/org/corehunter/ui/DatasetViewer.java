@@ -119,8 +119,8 @@ public class DatasetViewer extends DatasetServiceClient {
 
     // This will create the columns for the table
     private void createColumns(final Composite parent, final TableViewer viewer) {
-        String[] titles = { "Name", "Size", "Description",  };
-        int[] bounds = { 100, 30, 400 };
+        String[] titles = { "Name", "Size", "Description"};
+        int[] bounds = { 150, 75, 275 };
 
         TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
         col.setLabelProvider(new ColumnLabelProvider() {

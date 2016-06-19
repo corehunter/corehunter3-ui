@@ -16,6 +16,11 @@
 
 package org.corehunter.ui;
 
+import java.util.List;
+
+import org.corehunter.CoreHunterMeasure;
+import org.corehunter.CoreHunterObjective;
+import org.corehunter.CoreHunterObjectiveType;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -43,11 +48,11 @@ import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
 
 public class ObjectiveViewer extends DatasetServiceClient {
-    private DatasetComparator comparator;
-
     private TableViewer viewer;
 
-    protected Dataset selectedDataset;
+    private List<CoreHunterObjective> objectives;
+
+    private CoreHunterObjective selectedObjective;
 
     public ObjectiveViewer() {
 
@@ -76,7 +81,7 @@ public class ObjectiveViewer extends DatasetServiceClient {
             public void selectionChanged(final SelectionChangedEvent event) {
                 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
-                selectedDataset = (Dataset) selection.getFirstElement();
+                selectedObjective = (CoreHunterObjective) selection.getFirstElement();
             }
         });
 
@@ -92,20 +97,30 @@ public class ObjectiveViewer extends DatasetServiceClient {
     }
 
     public final void updateViewer() {
-        viewer.setInput(getDatasetServices().getAllDatasets());
+        viewer.setInput(objectives);
+    }
+    
+    public final List<CoreHunterObjective> getObjectives() {
+        return objectives;
+    }
+
+    public final void setObjectives(List<CoreHunterObjective> objectives) {
+        this.objectives = objectives;
+        updateViewer();
     }
 
     // This will create the columns for the table
     private void createColumns(final Composite parent, final TableViewer viewer) {
-        String[] titles = { "Name", "Description" };
-        int[] bounds = { 100, 200 };
+        String[] titles = { "Objective", "Measure", "Weight" };
+        
+        int[] bounds = { 200, 200, 50};
 
         TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                Dataset dataset = (Dataset) element;
-                return dataset.getName();
+                CoreHunterObjective objective = (CoreHunterObjective) element;
+                return objective.getObjectiveType().getName() ;
             }
         });
 
@@ -113,8 +128,17 @@ public class ObjectiveViewer extends DatasetServiceClient {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                Dataset dataset = (Dataset) element;
-                return dataset.getDescription();
+                CoreHunterObjective objective = (CoreHunterObjective) element;
+                return objective.getMeasure().getName() ;
+            }
+        });
+        
+        col = createTableViewerColumn(titles[2], bounds[2], 1);
+        col.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                CoreHunterObjective objective = (CoreHunterObjective) element;
+                return String.format("%e", objective.getWeight());
             }
         });
 
@@ -138,14 +162,14 @@ public class ObjectiveViewer extends DatasetServiceClient {
         viewer.getControl().setFocus();
     }
 
-    public Dataset getSelectedDataset() {
+    public CoreHunterObjective getSelectedObjective() {
 
-        return selectedDataset;
+        return selectedObjective;
     }
 
-    public void cleaerSelectedDataset() {
+    public void cleaerSelectedObjective() {
         viewer.getTable().deselectAll();
-        selectedDataset = null;
+        selectedObjective = null;
     }
 
     public void addSelectionChangedListener(ISelectionChangedListener listener) {
@@ -157,4 +181,22 @@ public class ObjectiveViewer extends DatasetServiceClient {
         if (viewer != null)
             viewer.addDoubleClickListener(listener);
     }
+    
+    public void addObjective(CoreHunterObjective objective) {
+        if (objective != null) {
+            objectives.remove(objective) ;
+            
+            updateViewer(); 
+        } 
+    }
+    
+    public void removeSelectedObjective() {
+        if (selectedObjective != null) {
+            objectives.remove(selectedObjective) ;
+            
+            updateViewer(); 
+        }
+    }
+
+
 }

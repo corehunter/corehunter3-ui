@@ -51,8 +51,8 @@ import org.osgi.framework.ServiceReference;
 
 import uno.informatics.data.Dataset;
 
-public class CorehunterRunTable {
-    private CorehunterRunComparator comparator;
+public class CoreHunterRunTable {
+    private CoreHunterRunComparator comparator;
 
     private TableViewer viewer;
 
@@ -63,7 +63,7 @@ public class CorehunterRunTable {
     private CoreHunterRun selectedCorehunterRun;
 
     @Inject
-    public CorehunterRunTable() {
+    public CoreHunterRunTable() {
         BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
         ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
@@ -107,7 +107,7 @@ public class CorehunterRunTable {
         });
 
         // Set the sorter for the table
-        comparator = new CorehunterRunComparator();
+        comparator = new CoreHunterRunComparator();
         viewer.setComparator(comparator);
     }
 

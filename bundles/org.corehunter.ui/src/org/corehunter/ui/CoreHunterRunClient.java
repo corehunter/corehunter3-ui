@@ -7,10 +7,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-public class CorehunterRunClient {
+public class CoreHunterRunClient {
     private CoreHunterRunServices corehunterRunServices;
 
-    public CorehunterRunClient() {
+    public CoreHunterRunClient() {
         BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
         ServiceReference<?> serviceReference = bundleContext.getServiceReference(DatasetServices.class.getName());

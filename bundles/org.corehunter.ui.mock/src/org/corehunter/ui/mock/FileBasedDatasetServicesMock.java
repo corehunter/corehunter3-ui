@@ -40,7 +40,7 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
         
         addDataset(new DatasetPojo("dataset1", "Phenotypic dataset", "This is a Phenotypic Dataset!")) ;
         
-        /*addDataset(new DatasetPojo("dataset2a", "Biparental Genotypic Dataset", "This is a Biparental Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset2a", "Biparental Genotypic Dataset", "This is a Biparental Genotypic Dataset!")) ;
         addDataset(new DatasetPojo("dataset2b1", "Frequency Genotypic dataset", "This is a Frequency Genotypic Dataset!")) ;
         addDataset(new DatasetPojo("dataset2b2", "Frequency Alt Genotypic dataset", "This is a Alternative Frequency Genotypic Dataset!")) ;
         addDataset(new DatasetPojo("dataset2c", "Diploid Genotypic  Dataset", "This is a Diploid Genotypic Dataset!")) ;
@@ -64,7 +64,7 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
         addDataset(new DatasetPojo("dataset7b", "Phenotypic, Distances and Frequency Genotypic dataset", "This is a Phenotypic, Distances and Frequency Genotypic Dataset!")) ;
         addDataset(new DatasetPojo("dataset7c", "Phenotypic, Distances and Diploid Genotypic dataset", "This is a Phenotypic, Distances and Diploid Genotypic Dataset!")) ;
         addDataset(new DatasetPojo("dataset7d", "Phenotypic, Distances and Homozygous Genotypic dataset", "This is a Phenotypic, Distances and Homozygous Genotypic Dataset!")) ;
-        */
+        
         Path phenotypc_data = createTempFile(PHENOTYPIC_DATA) ;
         Path biparental_genotypic_data = createTempFile(BIPARENTAL_GENOTYPE_DATA) ;
         Path frequency_genotypic_data = createTempFile(FREQUENCY_GENOTYPE_DATA) ;
@@ -75,7 +75,7 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
         
         loadData(getDataset("dataset1"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
         
-        /*loadData(getDataset("dataset2a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
+        loadData(getDataset("dataset2a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
         loadData(getDataset("dataset2b1"), frequency_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);
         loadData(getDataset("dataset2b2"), frequency_alt_genotypic_data, FileType.TXT, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);   
         loadData(getDataset("dataset2c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);       
@@ -115,7 +115,7 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
         loadData(getDataset("dataset7c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);    
         loadData(getDataset("dataset7d"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
         loadData(getDataset("dataset7d"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
-        loadData(getDataset("dataset7d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);*/
+        loadData(getDataset("dataset7d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);
     }
 
 

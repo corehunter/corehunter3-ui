@@ -21,12 +21,12 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.corehunter.services.CoreHunterRun;
 
-public class CorehunterRunComparator extends ViewerComparator {
+public class CoreHunterRunComparator extends ViewerComparator {
     private int propertyIndex;
     private static final int DESCENDING = 1;
     private int direction = DESCENDING;
 
-    public CorehunterRunComparator() {
+    public CoreHunterRunComparator() {
         this.propertyIndex = 0;
         direction = DESCENDING;
     }

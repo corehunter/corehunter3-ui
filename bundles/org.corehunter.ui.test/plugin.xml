@@ -8,10 +8,6 @@
             name="org.corehunter.ui.test"
             application="org.eclipse.e4.ui.workbench.swt.E4Application">
          <property
-               name="applicationCSS"
-               value="platform:/plugin/org.corehunter.ui.test/css/default.css">
-         </property>
-         <property
                name="appName"
                value="org.corehunter.ui.test">
          </property>

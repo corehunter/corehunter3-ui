@@ -37,7 +37,7 @@ import org.osgi.framework.ServiceReference;
 
 public class ResultsPart {
     private CoreHunterRunServices corehunterRunServices;
-    private CorehunterRunTable resultTable;
+    private CoreHunterRunTable resultTable;
     private Button btnRemove;
     private Button btnView;
     private Button btnClear;
@@ -60,7 +60,7 @@ public class ResultsPart {
         grpResults.setLayout(new GridLayout(1, false));
         grpResults.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-        resultTable = new CorehunterRunTable();
+        resultTable = new CoreHunterRunTable();
 
         resultTable.createPartControl(grpResults);
 
