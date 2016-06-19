@@ -13,7 +13,7 @@
 	<target name="build-plugins">
 
 		<mkdir dir="../target/lib"/>
-		<get src="http://apache.cu.be/maven/ant-tasks/${maven.ant-tasks.version}/binaries/maven-ant-tasks-${maven.ant-tasks.version}.jar" 
+		<get src="http://central.maven.org/maven2/org/apache/maven/maven-ant-tasks/${maven.ant-tasks.version}/maven-ant-tasks-${maven.ant-tasks.version}.jar" 
 		    dest="${lib.dir}/maven-ant-tasks-${maven.ant-tasks.version}.jar" 
 		    verbose="true"/>
 		
@@ -23,10 +23,10 @@
 
 		<property name="converted.dir" value="${plugins.p2.dir}/converted" />
 
-		<artifact:mvn pom="../pom.xml" mavenHome="${maven.home}">
+		<!--artifact:mvn pom="../pom.xml" mavenHome="${maven.home}">
 			<arg value="clean"/>
 			<jvmarg value="-Dmaven.multiModuleProjectDirectory=${maven.home}"/>
-		</artifact:mvn>
+		</artifact:mvn-->
 
 		<delete dir="${converted.dir}" quiet="true" includeemptydirs="true"/>
 
