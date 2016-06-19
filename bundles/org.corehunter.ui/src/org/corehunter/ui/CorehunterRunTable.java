@@ -20,8 +20,8 @@ import java.text.DateFormat;
 
 import javax.inject.Inject;
 
-import org.corehunter.services.CorehunterRunServices;
-import org.corehunter.services.CorehunterRun;
+import org.corehunter.services.CoreHunterRunServices;
+import org.corehunter.services.CoreHunterRun;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -56,18 +56,18 @@ public class CorehunterRunTable {
 
     private TableViewer viewer;
 
-    private CorehunterRunServices corehunterRunClient;
+    private CoreHunterRunServices corehunterRunClient;
 
     private DateTimeFormatter dateTimeFormatter;
 
-    private CorehunterRun selectedCorehunterRun;
+    private CoreHunterRun selectedCorehunterRun;
 
     @Inject
     public CorehunterRunTable() {
         BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
-        ServiceReference<?> serviceReference = bundleContext.getServiceReference(CorehunterRunServices.class.getName());
-        setResultClient((CorehunterRunServices) bundleContext.getService(serviceReference));
+        ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
+        setResultClient((CoreHunterRunServices) bundleContext.getService(serviceReference));
 
         dateTimeFormatter = DateTimeFormat.shortDateTime();
 
@@ -102,7 +102,7 @@ public class CorehunterRunTable {
             public void selectionChanged(final SelectionChangedEvent event) {
                 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
-                selectedCorehunterRun = (CorehunterRun) selection.getFirstElement();
+                selectedCorehunterRun = (CoreHunterRun) selection.getFirstElement();
             }
         });
 
@@ -111,7 +111,7 @@ public class CorehunterRunTable {
         viewer.setComparator(comparator);
     }
 
-    public CorehunterRun getSelectedCorehunterRun() {
+    public CoreHunterRun getSelectedCorehunterRun() {
 
         return selectedCorehunterRun;
     }
@@ -141,7 +141,7 @@ public class CorehunterRunTable {
     }
 
     public void updateViewer() {
-        viewer.setInput(corehunterRunClient.getAllCorehunterRuns());
+        viewer.setInput(corehunterRunClient.getAllCoreHunterRuns());
     }
 
     // This will create the columns for the table
@@ -153,7 +153,7 @@ public class CorehunterRunTable {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                CorehunterRun corehunterRun = (CorehunterRun) element;
+                CoreHunterRun corehunterRun = (CoreHunterRun) element;
                 return corehunterRun.getName();
             }
         });
@@ -162,7 +162,7 @@ public class CorehunterRunTable {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                CorehunterRun corehunterRun = (CorehunterRun) element;
+                CoreHunterRun corehunterRun = (CoreHunterRun) element;
                 return dateTimeFormatter.print(corehunterRun.getStartDate());
             }
         });
@@ -171,7 +171,7 @@ public class CorehunterRunTable {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                CorehunterRun corehunterRun = (CorehunterRun) element;
+                CoreHunterRun corehunterRun = (CoreHunterRun) element;
                 return dateTimeFormatter.print(corehunterRun.getEndDate());
             }
         });
@@ -180,7 +180,7 @@ public class CorehunterRunTable {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                CorehunterRun corehunterRun = (CorehunterRun) element;
+                CoreHunterRun corehunterRun = (CoreHunterRun) element;
                 return corehunterRun.getStatus().getName();
             }
         });
@@ -225,7 +225,7 @@ public class CorehunterRunTable {
         selectedCorehunterRun = null;
     }
 
-    private synchronized final void setResultClient(CorehunterRunServices corehunterRunClient) {
+    private synchronized final void setResultClient(CoreHunterRunServices corehunterRunClient) {
         this.corehunterRunClient = corehunterRunClient;
     }
 
@@ -243,7 +243,7 @@ public class CorehunterRunTable {
             if (searchString == null || searchString.length() == 0) {
                 return true;
             }
-            CorehunterRun corehunterRun = (CorehunterRun) element;
+            CoreHunterRun corehunterRun = (CoreHunterRun) element;
             if (corehunterRun.getName() != null && corehunterRun.getName().matches(searchString)) {
                 return true;
             }

@@ -9,101 +9,113 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.corehunter.data.CoreHunterDataType;
 import org.corehunter.data.DistanceMatrixData;
+import org.corehunter.data.GenotypeDataFormat;
 import org.corehunter.data.simple.SimpleDistanceMatrixData;
-import org.corehunter.data.simple.SimpleGenotypeVariantData;
-import org.corehunter.distance.GowersDistanceMatrixGenerator;
-import org.corehunter.services.DataType;
 import org.corehunter.services.simple.FileBasedDatasetServices;
 import org.eclipse.core.runtime.FileLocator;
 
-import uno.informatics.common.io.FileType;
 import uno.informatics.data.Data;
 import uno.informatics.data.dataset.DatasetException;
 import uno.informatics.data.feature.array.ArrayFeatureData;
+import uno.informatics.data.io.FileType;
 import uno.informatics.data.pojo.DatasetPojo;
 
 public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
 
   private static final String PHENOTYPIC_DATA = "/phenotypic_data.csv";
-  private static final String BIALLELIC_GENOTYPE_DATA = "/biallelic_genotypic_data.csv";
+  private static final String BIPARENTAL_GENOTYPE_DATA = "/biparental_genotypic_data.csv";
+  private static final String FREQUENCY_GENOTYPE_DATA = "/frequency_genotypic_data.csv";
+  private static final String FREQUENCY_ALT_GENOTYPE_DATA = "/frequency_alt_genotypic_data.txt";
   private static final String DIPLOID_GENOTYPE_DATA = "/diploid_genotypic_data.csv";
-  private static final String GENOTYPE_DATA = "/genotypic_data.csv";
-  private static final String DISTANCES_DATA = "/distances_data.txt";
+  private static final String HOMOZYGOUS_GENOTYPE_DATA = "/homozygous_genotypic_data.csv";
+  private static final String DISTANCES_DATA = "/distances_data.csv";
 
   
     public FileBasedDatasetServicesMock() throws DatasetException, IOException, URISyntaxException {
         super(Files.createTempDirectory(null));
         
         addDataset(new DatasetPojo("dataset0", "Empty dataset", "This is a empty Dataset!")) ;
+        
         addDataset(new DatasetPojo("dataset1", "Phenotypic dataset", "This is a Phenotypic Dataset!")) ;
-        addDataset(new DatasetPojo("dataset2", "Biallelic Genotypic Dataset", "This is a Biallelic Genotypic Dataset!")) ;
-        addDataset(new DatasetPojo("dataset3", "Genotypic dataset", "This is a Genotypic Dataset!")) ;
-        addDataset(new DatasetPojo("dataset4", "Distances Dataset", "This is a Distances Dataset!")) ;
         
-        addDataset(new DatasetPojo("dataset5", "Phenotypic and Biallelic Genotypic dataset", "This is a Phenotypic and Biallelic Genotypic Dataset!")) ;
-        addDataset(new DatasetPojo("dataset6", "Phenotypic and Genotypic dataset", "This is a Phenotypic and Genotypic Dataset!")) ;
-        addDataset(new DatasetPojo("dataset7", "Phenotypic and Distances dataset","This is a Phenotypic and Distances Dataset!")) ;
+        /*addDataset(new DatasetPojo("dataset2a", "Biparental Genotypic Dataset", "This is a Biparental Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset2b1", "Frequency Genotypic dataset", "This is a Frequency Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset2b2", "Frequency Alt Genotypic dataset", "This is a Alternative Frequency Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset2c", "Diploid Genotypic  Dataset", "This is a Diploid Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset2d", "Homozygous Genotypic  Dataset", "This is a Homozygous Genotypic Dataset!")) ;
         
-        addDataset(new DatasetPojo("dataset8", "Biallelic Genotypic and Distances dataset", "This is a Phenotypic and Distances Dataset!")) ;
+        addDataset(new DatasetPojo("dataset3", "Distances Dataset", "This is a Distances Dataset!")) ;
         
-        addDataset(new DatasetPojo("dataset9", "Genotypic and Distances dataset", "This is a Genotypic and Distances Dataset!")) ;
+        addDataset(new DatasetPojo("dataset4a", "Phenotypic and Biparental Genotypic dataset", "This is a Phenotypic and Biparental Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset4b", "Phenotypic and Frequency Genotypic dataset", "This is a Phenotypic and Frequency Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset4c", "Phenotypic and Diploid Genotypic dataset", "This is a Phenotypic and Diploid Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset4d", "Phenotypic and Homozygous Genotypic dataset", "This is a Phenotypic and Homozygous Genotypic Dataset!")) ;
         
-        addDataset(new DatasetPojo("dataset10", "Genotypic, Distances and Phenotypic dataset", "This is a Genotypic, Distances and Genotypic Dataset!")) ;
-        addDataset(new DatasetPojo("dataset11", "Biallelic Genotypic, Distances and Phenotypic dataset", "This is a Biallelic Genotypic, Distances and Genotypic Dataset!")) ;
-    
+        addDataset(new DatasetPojo("dataset5", "Phenotypic and Distances dataset","This is a Phenotypic and Distances Dataset!")) ;
+        
+        addDataset(new DatasetPojo("dataset6a", "Distances and Biparental Genotypic dataset", "This is a Distances and Biparental Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset6b", "Distances and Frequency Genotypic dataset", "This is a Distances and Frequency Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset6c", "Distances and Diploid Genotypic dataset", "This is a Distances and Diploid Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset6d", "Distances and Homozygous Genotypic dataset", "This is a Distances and Homozygous Genotypic Dataset!")) ;
+        
+        addDataset(new DatasetPojo("dataset7a", "Phenotypic, Distances and Biparental Genotypic dataset", "This is a Phenotypic, Distances and Biparental Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset7b", "Phenotypic, Distances and Frequency Genotypic dataset", "This is a Phenotypic, Distances and Frequency Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset7c", "Phenotypic, Distances and Diploid Genotypic dataset", "This is a Phenotypic, Distances and Diploid Genotypic Dataset!")) ;
+        addDataset(new DatasetPojo("dataset7d", "Phenotypic, Distances and Homozygous Genotypic dataset", "This is a Phenotypic, Distances and Homozygous Genotypic Dataset!")) ;
+        */
         Path phenotypc_data = createTempFile(PHENOTYPIC_DATA) ;
+        Path biparental_genotypic_data = createTempFile(BIPARENTAL_GENOTYPE_DATA) ;
+        Path frequency_genotypic_data = createTempFile(FREQUENCY_GENOTYPE_DATA) ;
+        Path frequency_alt_genotypic_data = createTempFile(FREQUENCY_ALT_GENOTYPE_DATA) ;
         Path diplod_genotypic_data = createTempFile(DIPLOID_GENOTYPE_DATA) ;
-        Path biallelic_genotypic_data = createTempFile(BIALLELIC_GENOTYPE_DATA) ;
-        Path genotypic_data = createTempFile(GENOTYPE_DATA) ;
+        Path homozyous_genotypic_data = createTempFile(HOMOZYGOUS_GENOTYPE_DATA) ;
         Path distance_data = createTempFile(DISTANCES_DATA) ;
         
-        //SimpleGenotypeVariantData data = SimpleGenotypeVariantData.readDiploidData(diplod_genotypic_data, FileType.CSV) ;
+        loadData(getDataset("dataset1"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
         
-        //Files.delete(diplod_genotypic_data);
+        /*loadData(getDataset("dataset2a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
+        loadData(getDataset("dataset2b1"), frequency_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);
+        loadData(getDataset("dataset2b2"), frequency_alt_genotypic_data, FileType.TXT, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);   
+        loadData(getDataset("dataset2c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);       
+        loadData(getDataset("dataset2d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);
         
-        //SimpleGenotypeVariantData.writeData(diplod_genotypic_data, data, FileType.CSV);
+        loadData(getDataset("dataset3"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
         
-        //Path phenotype_data = createTempFile(PHENOTYPIC_DATA) ;
+        loadData(getDataset("dataset4a"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset4a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
+        loadData(getDataset("dataset4b"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset4b"), frequency_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);
+        loadData(getDataset("dataset4c"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset4c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);    
+        loadData(getDataset("dataset4d"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset4d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);
         
-        //ArrayFeatureData data = ArrayFeatureData.readData(phenotype_data, FileType.CSV) ;
+        loadData(getDataset("dataset5"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset5"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
         
-        //GowersDistanceMatrixGenerator generator = new GowersDistanceMatrixGenerator(data) ;
+        loadData(getDataset("dataset6a"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset6a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
+        loadData(getDataset("dataset6b"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset6b"), frequency_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);
+        loadData(getDataset("dataset6c"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset6c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);    
+        loadData(getDataset("dataset6d"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset6d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);
         
-        //SimpleDistanceMatrixData distanceData = (SimpleDistanceMatrixData)generator.generateDistanceMatrix() ;
-        
-        //Files.delete(phenotype_data);
-        
-        //SimpleDistanceMatrixData.writeData(phenotype_data, distanceData, FileType.CSV); 
-        
-        loadData(getDataset("dataset1"), phenotypc_data, FileType.CSV, DataType.PHENOTYPIC);
-        loadData(getDataset("dataset2"), biallelic_genotypic_data, FileType.CSV, DataType.BI_ALLELIC_GENOTYPIC);
-        loadData(getDataset("dataset3"), genotypic_data, FileType.CSV, DataType.GENOTYPIC);
-        loadData(getDataset("dataset4"), distance_data, FileType.CSV, DataType.DISTANCES);
-        
-        
-        loadData(getDataset("dataset5"), phenotypc_data, FileType.CSV, DataType.PHENOTYPIC);
-        //loadData(getDataset("dataset5"), biallelic_genotypic_data, FileType.CSV, DataType.BI_ALLELIC_GENOTYPIC);
-        
-        loadData(getDataset("dataset6"), phenotypc_data, FileType.CSV, DataType.PHENOTYPIC);
-        loadData(getDataset("dataset6"), genotypic_data, FileType.CSV, DataType.GENOTYPIC);
-        
-        loadData(getDataset("dataset7"), phenotypc_data, FileType.CSV, DataType.PHENOTYPIC);   
-        loadData(getDataset("dataset7"), distance_data, FileType.CSV, DataType.DISTANCES);
-        
-        //loadData(getDataset("dataset8"), biallelic_genotypic_data, FileType.CSV, DataType.BI_ALLELIC_GENOTYPIC);
-        loadData(getDataset("dataset8"), distance_data, FileType.CSV, DataType.DISTANCES);
-        
-        loadData(getDataset("dataset9"), genotypic_data, FileType.CSV, DataType.GENOTYPIC);
-        loadData(getDataset("dataset9"), distance_data, FileType.CSV, DataType.DISTANCES);     
-        
-        loadData(getDataset("dataset10"), genotypic_data, FileType.CSV, DataType.GENOTYPIC);
-        loadData(getDataset("dataset10"), distance_data, FileType.CSV, DataType.DISTANCES);   
-        loadData(getDataset("dataset10"), phenotypc_data, FileType.CSV, DataType.PHENOTYPIC); 
-        
-        //loadData(getDataset("dataset11"), biallelic_genotypic_data, FileType.CSV, DataType.BI_ALLELIC_GENOTYPIC);
-        loadData(getDataset("dataset11"), distance_data, FileType.CSV, DataType.DISTANCES);   
-        loadData(getDataset("dataset11"), phenotypc_data, FileType.CSV, DataType.PHENOTYPIC); 
+        loadData(getDataset("dataset7a"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset7a"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset7a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
+        loadData(getDataset("dataset7b"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset7b"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset7b"), frequency_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);
+        loadData(getDataset("dataset7c"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset7c"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset7c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);    
+        loadData(getDataset("dataset7d"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
+        loadData(getDataset("dataset7d"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
+        loadData(getDataset("dataset7d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);*/
     }
 
 

@@ -19,8 +19,8 @@ package org.corehunter.ui;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.corehunter.services.CorehunterRun;
-import org.corehunter.services.CorehunterRunServices;
+import org.corehunter.services.CoreHunterRun;
+import org.corehunter.services.CoreHunterRunServices;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -36,19 +36,19 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
 public class ResultsPart {
-    private CorehunterRunServices corehunterRunServices;
+    private CoreHunterRunServices corehunterRunServices;
     private CorehunterRunTable resultTable;
     private Button btnRemove;
     private Button btnView;
     private Button btnClear;
-    private CorehunterRun selectedCorehunterRun;
+    private CoreHunterRun selectedCorehunterRun;
 
     @Inject
     public ResultsPart() {
         BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
-        ServiceReference<?> serviceReference = bundleContext.getServiceReference(CorehunterRunServices.class.getName());
-        setResultClient((CorehunterRunServices) bundleContext.getService(serviceReference));
+        ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
+        setResultClient((CoreHunterRunServices) bundleContext.getService(serviceReference));
     }
 
     @PostConstruct
@@ -128,7 +128,7 @@ public class ResultsPart {
 
     protected void removeResult() {
         try {
-            corehunterRunServices.removeCorehunterRun(resultTable.getSelectedCorehunterRun().getUniqueIdentifier());
+            corehunterRunServices.removeCoreHunterRun(resultTable.getSelectedCorehunterRun().getUniqueIdentifier());
             updateViewer();
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -146,7 +146,7 @@ public class ResultsPart {
 
     }
 
-    private synchronized final void setResultClient(CorehunterRunServices corehunterRunServices) {
+    private synchronized final void setResultClient(CoreHunterRunServices corehunterRunServices) {
         this.corehunterRunServices = corehunterRunServices;
     }
 

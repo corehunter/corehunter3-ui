@@ -16,9 +16,13 @@
 
 package org.corehunter.ui;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.corehunter.CoreHunterObjective;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
@@ -26,6 +30,7 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -40,11 +45,9 @@ import org.eclipse.swt.widgets.Spinner;
 import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
 import uno.informatics.data.dataset.FeatureData;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.widgets.Table;
 
 public class DatasetsPart extends DatasetServiceClient {
-    private DatasetTable datasetTable = null;
+    private DatasetViewer datasetViewer = null;
     private Button btnAddDataset;
     private Spinner spinnerSize;
     private Spinner spinnerIntensity;
@@ -56,12 +59,15 @@ public class DatasetsPart extends DatasetServiceClient {
     private Label lblDatasetSize;
     private Button btnView;
     private PartUtilitiies partUtilitiies;
-    private Table table;
+    private ObjectiveViewer objectiveViewer;
     private Button btnAddObjective;
     private Button btnRemoveObjective;
+    private List<CoreHunterObjective> objectives;
 
     @Inject
     public DatasetsPart() {
+        
+        objectives = new LinkedList<CoreHunterObjective>() ;
     }
 
     @PostConstruct
@@ -77,12 +83,12 @@ public class DatasetsPart extends DatasetServiceClient {
         grpDatasets.setLayout(new GridLayout(1, false));
         grpDatasets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
-        Composite datasetTableComposite = new Composite(grpDatasets, SWT.NONE);
-        datasetTableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        Composite datasetViewerComposite = new Composite(grpDatasets, SWT.NONE);
+        datasetViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
-        datasetTable = new DatasetTable();
+        datasetViewer = new DatasetViewer();
 
-        datasetTable.createPartControl(datasetTableComposite);
+        datasetViewer.createPartControl(datasetViewerComposite);
 
         Composite datasetButtonComposite = new Composite(grpDatasets, SWT.NONE);
         datasetButtonComposite.setLayout(new GridLayout(3, false));
@@ -119,23 +125,23 @@ public class DatasetsPart extends DatasetServiceClient {
             }
         });
 
-        datasetTable.addSelectionChangedListener(new ISelectionChangedListener() {
+        datasetViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(final SelectionChangedEvent event) {
                 databaseSelectionChanged();
             }
         });
         
-        datasetTable.addDoubleClickListener(new IDoubleClickListener() {
+        datasetViewer.addDoubleClickListener(new IDoubleClickListener() {
             @Override
             public void doubleClick(DoubleClickEvent event) {
                 viewDataset();
             }
         });
 
-        Group corehunterRunArgumentsGroup = new Group(parent, SWT.BORDER | SWT.SHADOW_IN);
-        corehunterRunArgumentsGroup.setLayout(new GridLayout(5, false));
-        corehunterRunArgumentsGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        Group corehunterRunArgumentsGroup = new Group(parent, SWT.NONE);
         corehunterRunArgumentsGroup.setText("Core Hunter Arguments");
+        corehunterRunArgumentsGroup.setLayout(new GridLayout(5, false));
+        corehunterRunArgumentsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
         lblDatasetSize = new Label(corehunterRunArgumentsGroup, SWT.NONE);
         lblDatasetSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -168,20 +174,42 @@ public class DatasetsPart extends DatasetServiceClient {
             }
         });
         
-        table = new Table(corehunterRunArgumentsGroup, SWT.BORDER | SWT.FULL_SELECTION);
-        table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1));
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
-        
         btnAddObjective = new Button(corehunterRunArgumentsGroup, SWT.NONE);
         btnAddObjective.setText("Add Objective");
         
+        btnAddObjective.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                addSelectedObjective();
+            }
+        });
+        
         btnRemoveObjective = new Button(corehunterRunArgumentsGroup, SWT.NONE);
         btnRemoveObjective.setText("Remove Objective");
-        new Label(corehunterRunArgumentsGroup, SWT.NONE);
-        new Label(corehunterRunArgumentsGroup, SWT.NONE);
-        new Label(corehunterRunArgumentsGroup, SWT.NONE);
+        
+        btnView.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                removeSelectedObjective();
+            }
+        });
+        
+        Composite objectiveViewerComposite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
+        objectiveViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1));
 
+        objectiveViewer = new ObjectiveViewer();
+        
+        objectiveViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                objectivesViewerSelectionChanged();
+            }
+            
+        });
+
+        objectiveViewer.createPartControl(objectiveViewerComposite);
+        
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -209,13 +237,32 @@ public class DatasetsPart extends DatasetServiceClient {
         });
 
         updateDatasetButtons();
+        updateObjectiveButtons() ;
         updateDatasetSize();
         updateCorehunterArguments();
         updateStartButton();
     }
 
+    protected void addSelectedObjective() {
+        objectives.add(createNewObjective()) ;
+    }
+
+    private CoreHunterObjective createNewObjective() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    protected void removeSelectedObjective() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    protected void objectivesViewerSelectionChanged() {
+        updateObjectiveButtons();
+    }
+
     private void updateViewer() {
-        datasetTable.updateViewer();
+        datasetViewer.updateViewer();
     }
 
     protected void spinnerSizeUpdated() {
@@ -247,37 +294,43 @@ public class DatasetsPart extends DatasetServiceClient {
     }
 
     private void databaseSelectionChanged() {
-        selectedDataset = datasetTable.getSelectedDataset();
+        selectedDataset = datasetViewer.getSelectedDataset();
 
         if (selectedDataset instanceof FeatureData)
             selectedDatasetSize = ((FeatureData) selectedDataset).getRowCount();
         else
             selectedDatasetSize = 0;
 
-        updateDatasetSize();
         updateDatasetButtons();
-        updateCorehunterArguments();
+        updateObjectiveButtons();
     }
 
     private void updateDatasetButtons() {
-        btnRemoveDataset.setEnabled(datasetTable.getSelectedDataset() != null);
-        btnView.setEnabled(datasetTable.getSelectedDataset() != null);
+        btnRemoveDataset.setEnabled(datasetViewer.getSelectedDataset() != null);
+        btnView.setEnabled(datasetViewer.getSelectedDataset() != null);
+    }
+    
+
+    private void updateObjectiveButtons() {
+        btnAddObjective.setEnabled(datasetViewer.getSelectedDataset() != null);
+        //btnRemoveObjective.setEnabled(objectiveViewer.getSelectedObjective() != null);
     }
 
     private void updateStartButton() {
-        btnStart.setEnabled(datasetTable.getSelectedDataset() != null);
+        btnStart.setEnabled(datasetViewer.getSelectedDataset() != null);
     }
 
     private void resetArguments() {
-        datasetTable.cleaerSelectedDataset();
+        datasetViewer.cleaerSelectedDataset();
         selectedDatasetSize = 0;
         updateStartButton();
         updateDatasetButtons();
+        updateObjectiveButtons();
         updateCorehunterArguments();
     }
 
     private void updateDatasetSize() {
-        lblDatasetSize.setText("Dataset Size : " + selectedDatasetSize);
+        lblDatasetSize.setText(String.format("Dataset Size : %d ", selectedDatasetSize));
     }
 
     private void updateCorehunterArguments() {

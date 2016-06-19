@@ -19,7 +19,7 @@ package org.corehunter.ui;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
-import org.corehunter.services.CorehunterRun;
+import org.corehunter.services.CoreHunterRun;
 
 public class CorehunterRunComparator extends ViewerComparator {
     private int propertyIndex;
@@ -48,8 +48,8 @@ public class CorehunterRunComparator extends ViewerComparator {
 
     @Override
     public int compare(Viewer viewer, Object e1, Object e2) {
-        CorehunterRun run1 = (CorehunterRun) e1;
-        CorehunterRun run2 = (CorehunterRun) e2;
+        CoreHunterRun run1 = (CoreHunterRun) e1;
+        CoreHunterRun run2 = (CoreHunterRun) e2;
         int rc = 0;
         switch (propertyIndex) {
             case 0:

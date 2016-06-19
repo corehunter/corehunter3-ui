@@ -6,9 +6,8 @@ import javax.inject.Inject;
 
 import org.corehunter.data.CoreHunterData;
 import org.corehunter.data.DistanceMatrixData;
-import org.corehunter.data.GenotypeVariantData;
+import org.corehunter.data.GenotypeData;
 
-import org.corehunter.services.DataType;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -90,9 +89,9 @@ public class DatasetPart extends DatasetServiceClient {
                 if (dataset.getDescription() != null)
                     textDescription.setText(dataset.getDescription());
                 
-                CoreHunterData data = getDatasetServices().getData(partInput.getUniqueIdentifier()) ;
+                CoreHunterData data = getDatasetServices().getCoreHunterData(partInput.getUniqueIdentifier()) ;
                 
-                GenotypeVariantData genotypes = null ;
+                GenotypeData genotypes = null ;
                 FeatureData phenotypes = null ;
                 DistanceMatrixData distances = null ;
                 
