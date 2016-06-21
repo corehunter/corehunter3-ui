@@ -8,9 +8,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.corehunter.ui</groupId>
-    <artifactId>org.corehunter.ui.bundles</artifactId>
+    <artifactId>org.corehunter.ui.features</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>org.corehunter.ui</artifactId>
-  <packaging>eclipse-plugin</packaging>
+  <artifactId>org.corehunter.ui.rcp.feature</artifactId>
+  <packaging>eclipse-feature</packaging>
 </project> 

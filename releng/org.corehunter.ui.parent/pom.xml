@@ -67,10 +67,6 @@
 	</dependencies>
 
 	<modules>
-    <module>../../bundles/org.corehunter.ui</module>
-    <!-- module>org.corehunter.ui.rcp</module-->
-    <module>../../bundles/org.corehunter.ui.mock</module>
-		<!-- module>org.corehunter.ui.rcp.product</module-->
-    <!-- module>org.corehunter.convert</module-->
-  </modules>
+	  <module>../..</module>
+	</modules>
 </project>

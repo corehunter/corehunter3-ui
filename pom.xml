@@ -15,8 +15,10 @@
   <artifactId>org.corehunter.ui.root</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>releng</module>
     <module>bundles</module>
+    <module>features</module>
+    <module>releng</module>
     <module>products</module>
+    
   </modules>
 </project> 
