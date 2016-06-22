@@ -17,5 +17,7 @@
     <modules>
       <!-- module>org.corehunter.ui.rcp.feature</module>
       <module>org.corehunter.ui.rcp.mock.feature</module -->
+      <module>org.corehunter.ui.rcp.feature</module>
+      <module>org.corehunter.ui.rcp.mock.feature</module>
     </modules>
 </project>

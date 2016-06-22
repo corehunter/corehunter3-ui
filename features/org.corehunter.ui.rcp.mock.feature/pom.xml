@@ -12,6 +12,6 @@
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../../releng/org.corehunter.ui.parent</relativePath>
   </parent>
-  <artifactId>org.corehunter.ui.rcp</artifactId>
+  <artifactId>org.corehunter.ui.rcp.mock.feature</artifactId>
   <packaging>eclipse-feature</packaging>
 </project> 
