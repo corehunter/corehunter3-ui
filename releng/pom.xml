@@ -16,5 +16,6 @@
     </parent>
     <modules>
       <module>org.corehunter.ui.update</module>
+      <module>org.corehunter.ui.rcp.product</module>
     </modules>
 </project>

@@ -5,7 +5,7 @@
          id="product"
          point="org.eclipse.core.runtime.products">
       <product
-            name="Core Hunter"
+            name="org.corehunter.ui.rcp"
             application="org.eclipse.e4.ui.workbench.swt.E4Application">
          <property
                name="lifeCycleURI"
@@ -17,7 +17,7 @@
          </property>
          <property
                name="appName"
-               value="Core Hunter">
+               value="org.corehunter.ui.rcp">
          </property>
          <property
                name="applicationXMI"
