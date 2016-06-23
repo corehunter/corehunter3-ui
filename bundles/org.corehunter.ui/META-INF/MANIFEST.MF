@@ -16,10 +16,7 @@ Require-Bundle: org.apache.commons.lang3,
  uno.informatics.common.informatics-data-api;bundle-version="1.0.4",
  uno.informatics.common.informatics-data-impl;bundle-version="1.0.4"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.annotation;version="1.0.0";resolution:=optional,
- javax.inject;version="1.0.0",
- org.corehunter;version="3.0.0",
- org.eclipse.swt,
+Import-Package: org.eclipse.swt,
  org.eclipse.swt.events,
  org.eclipse.swt.layout,
  org.eclipse.swt.widgets

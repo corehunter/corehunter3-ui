@@ -16,43 +16,23 @@
       [Enter License Description here.]
    </license>
 
-   <plugin
-         id="org.corehunter.base"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="org.corehunter.ui.rcp.feature"
+         version="0.0.0"/>
 
-   <plugin
-         id="org.corehunter.services-api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.corehunter.services-simple"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.corehunter.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <requires>
+      <import plugin="uno.informatics.common.informatics-data-api" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="uno.informatics.common.informatics-data-impl" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.corehunter.services-api"/>
+      <import plugin="org.corehunter.services-simple" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="joda-time" version="2.9.2" match="greaterOrEqual"/>
+      <import plugin="org.jamesframework.james-core"/>
+      <import plugin="org.corehunter.base" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.runtime" version="3.11.1" match="greaterOrEqual"/>
+   </requires>
 
    <plugin
          id="org.corehunter.ui.mock"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.corehunter.ui.rcp"
          download-size="0"
          install-size="0"
          version="0.0.0"
