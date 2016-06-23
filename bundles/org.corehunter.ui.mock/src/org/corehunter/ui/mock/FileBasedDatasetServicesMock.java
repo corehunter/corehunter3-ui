@@ -2,23 +2,16 @@ package org.corehunter.ui.mock;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.corehunter.data.CoreHunterDataType;
-import org.corehunter.data.DistanceMatrixData;
 import org.corehunter.data.GenotypeDataFormat;
-import org.corehunter.data.simple.SimpleDistanceMatrixData;
 import org.corehunter.services.simple.FileBasedDatasetServices;
-import org.eclipse.core.runtime.FileLocator;
 
-import uno.informatics.data.Data;
 import uno.informatics.data.dataset.DatasetException;
-import uno.informatics.data.feature.array.ArrayFeatureData;
 import uno.informatics.data.io.FileType;
 import uno.informatics.data.pojo.DatasetPojo;
 
@@ -121,6 +114,10 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
 
     private Path createTempFile(String file) throws IOException {
         InputStream stream = FileBasedDatasetServicesMock.class.getResourceAsStream(file) ;
+        
+        if (stream == null) {
+            throw new IOException(String.format("Can not open stream for %s",file)) ;
+        }
         
         Path path = Files.createTempFile(getPath(), null, null) ;
         
