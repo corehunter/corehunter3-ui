@@ -28,7 +28,9 @@ import org.corehunter.CoreHunterMeasure;
 import org.corehunter.CoreHunterObjective;
 import org.corehunter.CoreHunterObjectiveType;
 import org.corehunter.data.CoreHunterData;
+import org.corehunter.services.simple.CoreHunterRunArgumentsPojo;
 import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -38,6 +40,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -49,7 +52,7 @@ import org.eclipse.swt.widgets.Spinner;
 import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
 
-public class ExecuteCoreHunterPart extends DatasetServiceClient {
+public class ExecuteCoreHunterPart {
     private static final CoreHunterObjectiveType DEFAULT_OBJECTIVE = CoreHunterObjectiveType.AV_ACCESSION_TO_NEAREST_ENTRY ;
     private static final CoreHunterMeasure DEFAULT_GENOTYPE_MEASURE = CoreHunterMeasure.MODIFIED_ROGERS;
     
@@ -68,7 +71,7 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
     private ObjectiveViewer objectiveViewer;
     private Button btnAddObjective;
     private Button btnRemoveObjective;
-    
+
     private Map<String, List<CoreHunterObjective>> objectivesMap;
     private List<CoreHunterObjective> objectives;
 
@@ -83,13 +86,11 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
             MApplication application) {
 
         partUtilitiies = new PartUtilitiies(partService, modelService, application);
-
-        parent.setLayout(new GridLayout(1, false));
+        parent.setLayout(new FillLayout(SWT.VERTICAL));
 
         Group grpDatasets = new Group(parent, SWT.NONE);
         grpDatasets.setText("Datasets");
         grpDatasets.setLayout(new GridLayout(1, false));
-        grpDatasets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
         Composite datasetViewerComposite = new Composite(grpDatasets, SWT.NONE);
         datasetViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -149,7 +150,6 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
         Group corehunterRunArgumentsGroup = new Group(parent, SWT.NONE);
         corehunterRunArgumentsGroup.setText("Core Hunter Arguments");
         corehunterRunArgumentsGroup.setLayout(new GridLayout(5, false));
-        corehunterRunArgumentsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 
         lblDatasetSize = new Label(corehunterRunArgumentsGroup, SWT.NONE);
         lblDatasetSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -201,6 +201,9 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
                 removeSelectedObjective();
             }
         });
+        new Label(corehunterRunArgumentsGroup, SWT.NONE);
+        new Label(corehunterRunArgumentsGroup, SWT.NONE);
+        new Label(corehunterRunArgumentsGroup, SWT.NONE);
         
         Composite objectiveViewerComposite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
         objectiveViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1));
@@ -218,9 +221,8 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
 
         objectiveViewer.createPartControl(objectiveViewerComposite);
         
-        Composite composite = new Composite(parent, SWT.NONE);
+        Composite composite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
-        composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         btnStart = new Button(composite, SWT.NONE);
         btnStart.setText("Start");
@@ -292,7 +294,7 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
 
     private void removeDataset() {
         try {
-            getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
+            Activator.getDefault().getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
             updateViewer();
         } catch (DatasetException e) {
             // TODO Auto-generated catch block
@@ -310,15 +312,8 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
 
     private void databaseSelectionChanged() {
         selectedDataset = datasetViewer.getSelectedDataset();
-
-        if (selectedDataset != null) {
-            selectedDatasetSize = selectedDataset.getSize() ;
-        } else {
-            selectedDatasetSize = 0;
-        }
         
-        objectiveViewer.setObjectives(getObjectives(selectedDataset));
-
+        updateObjectiveViewer() ;
         updateDatasetButtons();
         updateDatasetSize() ;
         updateCorehunterArguments();
@@ -347,7 +342,7 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
         List<CoreHunterObjective> objectives = new LinkedList<CoreHunterObjective>() ;
         
         try {
-            CoreHunterData coreHunterData = getDatasetServices().getCoreHunterData(dataset.getUniqueIdentifier()) ;
+            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices().getCoreHunterData(dataset.getUniqueIdentifier()) ;
             
             if (coreHunterData != null) {
                 double count = 0.0 ;
@@ -389,20 +384,20 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
     private CoreHunterObjective createNewObjective(Dataset dataset) {
         
         try {
-            CoreHunterData coreHunterData = getDatasetServices().getCoreHunterData(dataset.getUniqueIdentifier()) ;
+            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices().getCoreHunterData(dataset.getUniqueIdentifier()) ;
             
             if (coreHunterData != null) {
             
                 if (coreHunterData.hasPhenotypes()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 0.0) ;
+                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 1.0) ;
                 }
                 
                 if (coreHunterData.hasGenotypes()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 0.0) ;
+                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 1.0) ;
                 }
                 
                 if (coreHunterData.hasDistances()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE, 0.0) ;
+                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE, 1.0) ;
                 }
             }
         } catch (DatasetException e) {
@@ -412,6 +407,17 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
         return null ;
     }
 
+    private void updateObjectiveViewer() {
+        if (selectedDataset != null) {
+            selectedDatasetSize = selectedDataset.getSize() ;
+        } else {
+            selectedDatasetSize = 0;
+        }
+        
+        objectiveViewer.setObjectives(getObjectives(selectedDataset));
+
+    }
+    
     private void updateDatasetButtons() {
         btnRemoveDataset.setEnabled(datasetViewer.getSelectedDataset() != null);
         btnView.setEnabled(datasetViewer.getSelectedDataset() != null);
@@ -429,8 +435,9 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
 
     private void resetArguments() {
         datasetViewer.cleaerSelectedDataset();
-        selectedDatasetSize = 0;
-        
+        selectedDataset = null ;
+
+        updateObjectiveViewer() ;
         updateDatasetButtons();
         updateDatasetSize() ;
         updateCorehunterArguments();
@@ -465,8 +472,17 @@ public class ExecuteCoreHunterPart extends DatasetServiceClient {
     }
 
     private void startCorehunterRun() {
-        // TODO Auto-generated method stub
+        Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(
+               new CoreHunterRunArgumentsPojo(createRunName(), selectedDatasetSize, selectedDataset.getUniqueIdentifier(), objectives)) ;
+       
+       MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID) ;
+       
+       partUtilitiies.getPartService().activate(part);
+    }
 
+    private String createRunName() {
+        // TODO Auto-generated method stub
+        return String.format("Run for %s", selectedDataset.getName()) ;
     }
 
     private void handleException(DatasetException e) {

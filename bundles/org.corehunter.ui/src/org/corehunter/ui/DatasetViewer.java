@@ -31,7 +31,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -39,10 +38,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-import uno.informatics.data.Dataset;
-import uno.informatics.data.dataset.DatasetException;
 
-public class DatasetViewer extends DatasetServiceClient {
+import uno.informatics.data.Dataset;
+
+public class DatasetViewer {
     private DatasetComparator comparator;
 
     private TableViewer viewer;
@@ -114,7 +113,7 @@ public class DatasetViewer extends DatasetServiceClient {
     }
 
     public final void updateViewer() {
-        viewer.setInput(getDatasetServices().getAllDatasets());
+        viewer.setInput(Activator.getDefault().getDatasetServices().getAllDatasets());
     }
 
     // This will create the columns for the table

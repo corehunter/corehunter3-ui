@@ -16,12 +16,10 @@
 
 package org.corehunter.ui;
 
-import java.text.DateFormat;
-
 import javax.inject.Inject;
 
-import org.corehunter.services.CoreHunterRunServices;
 import org.corehunter.services.CoreHunterRun;
+import org.corehunter.services.CoreHunterRunServices;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -48,8 +46,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
-
-import uno.informatics.data.Dataset;
 
 public class CoreHunterRunTable {
     private CoreHunterRunComparator comparator;

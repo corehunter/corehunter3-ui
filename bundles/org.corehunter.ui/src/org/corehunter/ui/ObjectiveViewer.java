@@ -18,9 +18,7 @@ package org.corehunter.ui;
 
 import java.util.List;
 
-import org.corehunter.CoreHunterMeasure;
 import org.corehunter.CoreHunterObjective;
-import org.corehunter.CoreHunterObjectiveType;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -29,25 +27,14 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
-import uno.informatics.data.Dataset;
-import uno.informatics.data.dataset.DatasetException;
 
-public class ObjectiveViewer extends DatasetServiceClient {
+public class ObjectiveViewer {
     private TableViewer viewer;
 
     private List<CoreHunterObjective> objectives;
@@ -89,7 +76,6 @@ public class ObjectiveViewer extends DatasetServiceClient {
 
         GridData gridData = new GridData();
         gridData.verticalAlignment = GridData.FILL;
-        gridData.horizontalSpan = 2;
         gridData.grabExcessHorizontalSpace = true;
         gridData.grabExcessVerticalSpace = true;
         gridData.horizontalAlignment = GridData.FILL;
@@ -184,7 +170,7 @@ public class ObjectiveViewer extends DatasetServiceClient {
     
     public void addObjective(CoreHunterObjective objective) {
         if (objective != null) {
-            objectives.remove(objective) ;
+            objectives.add(objective) ;
             
             updateViewer(); 
         } 

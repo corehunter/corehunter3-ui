@@ -16,10 +16,10 @@
 
 package org.corehunter.ui;
 
+import org.corehunter.services.CoreHunterRun;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
-import org.corehunter.services.CoreHunterRun;
 
 public class CoreHunterRunComparator extends ViewerComparator {
     private int propertyIndex;

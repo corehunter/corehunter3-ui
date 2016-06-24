@@ -68,7 +68,7 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
         
         loadData(getDataset("dataset1"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
         
-        loadData(getDataset("dataset2a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
+        /*loadData(getDataset("dataset2a"), biparental_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.BIPARENTAL);
         loadData(getDataset("dataset2b1"), frequency_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);
         loadData(getDataset("dataset2b2"), frequency_alt_genotypic_data, FileType.TXT, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);   
         loadData(getDataset("dataset2c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);       
@@ -108,7 +108,7 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
         loadData(getDataset("dataset7c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);    
         loadData(getDataset("dataset7d"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
         loadData(getDataset("dataset7d"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
-        loadData(getDataset("dataset7d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);
+        loadData(getDataset("dataset7d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);*/
     }
 
 

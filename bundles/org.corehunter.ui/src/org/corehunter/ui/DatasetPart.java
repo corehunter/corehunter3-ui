@@ -7,23 +7,22 @@ import javax.inject.Inject;
 import org.corehunter.data.CoreHunterData;
 import org.corehunter.data.DistanceMatrixData;
 import org.corehunter.data.GenotypeData;
-
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Text;
 
 import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
 import uno.informatics.data.dataset.FeatureData;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.layout.GridData;
 
-public class DatasetPart extends DatasetServiceClient {
+public class DatasetPart {
     
     public final static String ID = DatasetPart.class.getName() ;
     
@@ -81,7 +80,7 @@ public class DatasetPart extends DatasetServiceClient {
                 
             if (partInput != null)
             {               
-                Dataset dataset = getDatasetServices().getDataset(partInput.getUniqueIdentifier()) ;
+                Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(partInput.getUniqueIdentifier()) ;
                 
                 textName.setText(dataset.getName());
                 if (dataset.getAbbreviation() != null)
@@ -89,7 +88,7 @@ public class DatasetPart extends DatasetServiceClient {
                 if (dataset.getDescription() != null)
                     textDescription.setText(dataset.getDescription());
                 
-                CoreHunterData data = getDatasetServices().getCoreHunterData(partInput.getUniqueIdentifier()) ;
+                CoreHunterData data = Activator.getDefault().getDatasetServices().getCoreHunterData(partInput.getUniqueIdentifier()) ;
                 
                 GenotypeData genotypes = null ;
                 FeatureData phenotypes = null ;

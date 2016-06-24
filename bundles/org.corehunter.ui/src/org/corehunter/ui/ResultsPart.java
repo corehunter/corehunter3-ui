@@ -31,11 +31,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 
 public class ResultsPart {
+    
+    public static final String ID = "org.corehunter.ui.part.results" ;
+    
     private CoreHunterRunServices corehunterRunServices;
     private CoreHunterRunTable resultTable;
     private Button btnRemove;
@@ -45,10 +45,8 @@ public class ResultsPart {
 
     @Inject
     public ResultsPart() {
-        BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-
-        ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
-        setResultClient((CoreHunterRunServices) bundleContext.getService(serviceReference));
+        
+ 
     }
 
     @PostConstruct
