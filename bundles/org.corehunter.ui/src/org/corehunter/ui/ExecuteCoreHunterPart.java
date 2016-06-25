@@ -16,6 +16,10 @@
 
 package org.corehunter.ui;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,20 +27,27 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.corehunter.CoreHunterMeasure;
 import org.corehunter.CoreHunterObjective;
 import org.corehunter.CoreHunterObjectiveType;
 import org.corehunter.data.CoreHunterData;
+import org.corehunter.data.CoreHunterDataType;
 import org.corehunter.services.simple.CoreHunterRunArgumentsPojo;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -47,15 +58,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
+import uno.informatics.data.io.FileType;
 
 public class ExecuteCoreHunterPart {
-    private static final CoreHunterObjectiveType DEFAULT_OBJECTIVE = CoreHunterObjectiveType.AV_ACCESSION_TO_NEAREST_ENTRY ;
+    private static final CoreHunterObjectiveType DEFAULT_OBJECTIVE = CoreHunterObjectiveType.AV_ACCESSION_TO_NEAREST_ENTRY;
     private static final CoreHunterMeasure DEFAULT_GENOTYPE_MEASURE = CoreHunterMeasure.MODIFIED_ROGERS;
-    
+
     private DatasetViewer datasetViewer = null;
     private Button btnAddDataset;
     private Spinner spinnerSize;
@@ -72,18 +85,22 @@ public class ExecuteCoreHunterPart {
     private Button btnAddObjective;
     private Button btnRemoveObjective;
 
+    private Shell shell;
+
     private Map<String, List<CoreHunterObjective>> objectivesMap;
     private List<CoreHunterObjective> objectives;
 
     @Inject
     public ExecuteCoreHunterPart() {
-        
-        objectivesMap = new HashMap<String, List<CoreHunterObjective>>() ;
+
+        objectivesMap = new HashMap<String, List<CoreHunterObjective>>();
     }
 
     @PostConstruct
     public void postConstruct(Composite parent, EPartService partService, EModelService modelService,
             MApplication application) {
+
+        shell = parent.getShell();
 
         partUtilitiies = new PartUtilitiies(partService, modelService, application);
         parent.setLayout(new FillLayout(SWT.VERTICAL));
@@ -139,7 +156,7 @@ public class ExecuteCoreHunterPart {
                 databaseSelectionChanged();
             }
         });
-        
+
         datasetViewer.addDoubleClickListener(new IDoubleClickListener() {
             @Override
             public void doubleClick(DoubleClickEvent event) {
@@ -181,20 +198,20 @@ public class ExecuteCoreHunterPart {
                 spinnerIntensityUpdated();
             }
         });
-        
+
         btnAddObjective = new Button(corehunterRunArgumentsGroup, SWT.NONE);
         btnAddObjective.setText("Add Objective");
-        
+
         btnAddObjective.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 addNewObjective();
             }
         });
-        
+
         btnRemoveObjective = new Button(corehunterRunArgumentsGroup, SWT.NONE);
         btnRemoveObjective.setText("Remove Objective");
-        
+
         btnView.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -204,23 +221,23 @@ public class ExecuteCoreHunterPart {
         new Label(corehunterRunArgumentsGroup, SWT.NONE);
         new Label(corehunterRunArgumentsGroup, SWT.NONE);
         new Label(corehunterRunArgumentsGroup, SWT.NONE);
-        
+
         Composite objectiveViewerComposite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
         objectiveViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1));
 
         objectiveViewer = new ObjectiveViewer();
-        
+
         objectiveViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
             @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 objectivesViewerSelectionChanged();
             }
-            
+
         });
 
         objectiveViewer.createPartControl(objectiveViewerComposite);
-        
+
         Composite composite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
 
@@ -247,30 +264,30 @@ public class ExecuteCoreHunterPart {
         });
 
         updateDatasetButtons();
-        updateObjectiveButtons() ;
+        updateObjectiveButtons();
         updateDatasetSize();
         updateCorehunterArguments();
         updateStartButton();
     }
 
     private void addNewObjective() {
-        
-        CoreHunterObjective newObjective = createNewObjective(selectedDataset) ;
-        
+
+        CoreHunterObjective newObjective = createNewObjective(selectedDataset);
+
         if (newObjective != null) {
-            objectiveViewer.addObjective(newObjective) ;
-            
-            objectives = objectiveViewer.getObjectives() ;   
-    
+            objectiveViewer.addObjective(newObjective);
+
+            objectives = objectiveViewer.getObjectives();
+
             updateObjectiveButtons();
         }
     }
 
     private void removeSelectedObjective() {
-        objectiveViewer.removeSelectedObjective() ;
-        
-        objectives = objectiveViewer.getObjectives() ;
-        
+        objectiveViewer.removeSelectedObjective();
+
+        objectives = objectiveViewer.getObjectives();
+
         updateObjectiveButtons();
     }
 
@@ -292,13 +309,48 @@ public class ExecuteCoreHunterPart {
 
     }
 
+    private void addDataset() {
+
+        CreateDatasetDialog dialog = new CreateDatasetDialog(shell);
+        dialog.create();
+        if (dialog.open() == Window.OK) {
+            try {
+                Activator.getDefault().getDatasetServices().addDataset(dialog.getDataset());
+                
+                Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
+                        Paths.get(dialog.getPhenotypicDataPath()), dialog.getPhenotypicDataType(), CoreHunterDataType.PHENOTYPIC) ;
+                Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
+                        Paths.get(dialog.getGenotypicDataPath()), dialog.getGenotypicDataType(), CoreHunterDataType.GENOTYPIC, dialog.getGenotypeDataFormat()) ;
+                Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
+                        Paths.get(dialog.getDistancesDataPath()), dialog.getDistancesDataType(), CoreHunterDataType.DISTANCES) ;
+                                         
+                updateViewer();
+            } catch (Exception e) {
+                handleException("Dataset not be added!",
+                        "Dataset could not be added, see error message for more details!", e);
+                
+                if (dialog.getDataset() != null && dialog.getDataset().getUniqueIdentifier() != null) {
+                    Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(dialog.getDataset().getUniqueIdentifier()) ;
+                    
+                    if (dataset != null)
+                        try {
+                            Activator.getDefault().getDatasetServices().removeDataset(dataset.getUniqueIdentifier()) ;
+                        } catch (DatasetException e1) {
+                            handleException("Dataset not be removed!",
+                                    "Dataset was added, but load failed, and now dataset can not be removed, see error message for more details!", e);
+                        }
+                }
+            }
+        }
+    }
+
     private void removeDataset() {
         try {
             Activator.getDefault().getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
             updateViewer();
         } catch (DatasetException e) {
-            // TODO Auto-generated catch block
-            handleException(e);
+            handleException("Dataset not be removed!",
+                    "Dataset could not be remove, see error message for more details!", e);
         }
     }
 
@@ -306,16 +358,12 @@ public class ExecuteCoreHunterPart {
         partUtilitiies.openPart(new PartInput(selectedDataset, DatasetPart.ID));
     }
 
-    private void addDataset() {
-
-    }
-
     private void databaseSelectionChanged() {
         selectedDataset = datasetViewer.getSelectedDataset();
-        
-        updateObjectiveViewer() ;
+
+        updateObjectiveViewer();
         updateDatasetButtons();
-        updateDatasetSize() ;
+        updateDatasetSize();
         updateCorehunterArguments();
         updateObjectiveButtons();
         updateStartButton();
@@ -323,110 +371,114 @@ public class ExecuteCoreHunterPart {
 
     private List<CoreHunterObjective> getObjectives(Dataset dataset) {
         if (dataset != null) {
-            List<CoreHunterObjective> objectives = objectivesMap.get(dataset.getUniqueIdentifier()) ;
-            
+            List<CoreHunterObjective> objectives = objectivesMap.get(dataset.getUniqueIdentifier());
+
             if (objectives == null) {
-                objectives = createDefaultObjectives(dataset) ;
-                
-                objectivesMap.put(dataset.getUniqueIdentifier(), objectives) ;
+                objectives = createDefaultObjectives(dataset);
+
+                objectivesMap.put(dataset.getUniqueIdentifier(), objectives);
             }
-            
-            return objectives ;
-            
+
+            return objectives;
+
         } else {
-            return new LinkedList<CoreHunterObjective>() ;
+            return new LinkedList<CoreHunterObjective>();
         }
     }
 
     private List<CoreHunterObjective> createDefaultObjectives(Dataset dataset) {
-        List<CoreHunterObjective> objectives = new LinkedList<CoreHunterObjective>() ;
-        
+        List<CoreHunterObjective> objectives = new LinkedList<CoreHunterObjective>();
+
         try {
-            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices().getCoreHunterData(dataset.getUniqueIdentifier()) ;
-            
+            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
+                    .getCoreHunterData(dataset.getUniqueIdentifier());
+
             if (coreHunterData != null) {
-                double count = 0.0 ;
-                
+                double count = 0.0;
+
                 if (coreHunterData.hasPhenotypes()) {
-                    ++count ;
+                    ++count;
                 }
-                
+
                 if (coreHunterData.hasGenotypes()) {
-                    ++count ;
+                    ++count;
                 }
-                
+
                 if (coreHunterData.hasDistances()) {
-                    ++count ;
+                    ++count;
                 }
-                
+
                 if (coreHunterData.hasPhenotypes()) {
-                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 1.0 / count)) ;
+                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 1.0 / count));
                 }
-                
+
                 if (coreHunterData.hasGenotypes()) {
-                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 1.0 / count)) ;
+                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 1.0 / count));
                 }
-                
+
                 if (coreHunterData.hasDistances()) {
-                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE, 1.0 / count)) ;
+                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE,
+                            1.0 / count));
                 }
             }
-            
-        } catch (DatasetException e) {
 
-            e.printStackTrace();      
+        } catch (DatasetException e) {
+            handleException("Can not create objective!",
+                    "Objective could not be created, see error message for more details!", e);
         }
-        
+
         return objectives;
     }
-    
 
     private CoreHunterObjective createNewObjective(Dataset dataset) {
-        
+
         try {
-            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices().getCoreHunterData(dataset.getUniqueIdentifier()) ;
-            
+            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
+                    .getCoreHunterData(dataset.getUniqueIdentifier());
+
             if (coreHunterData != null) {
-            
+
                 if (coreHunterData.hasPhenotypes()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 1.0) ;
+                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 1.0);
                 }
-                
+
                 if (coreHunterData.hasGenotypes()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 1.0) ;
+                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 1.0);
                 }
-                
+
                 if (coreHunterData.hasDistances()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE, 1.0) ;
+                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE, 1.0);
                 }
             }
         } catch (DatasetException e) {
-            e.printStackTrace();
+            handleException("Can not create objective!",
+                    "Objective could not be created, see error message for more details!", e);
         }
-        
-        return null ;
+
+        return null;
     }
 
     private void updateObjectiveViewer() {
         if (selectedDataset != null) {
-            selectedDatasetSize = selectedDataset.getSize() ;
+            selectedDatasetSize = selectedDataset.getSize();
         } else {
             selectedDatasetSize = 0;
         }
-        
+
         objectiveViewer.setObjectives(getObjectives(selectedDataset));
 
     }
-    
+
     private void updateDatasetButtons() {
         btnRemoveDataset.setEnabled(datasetViewer.getSelectedDataset() != null);
         btnView.setEnabled(datasetViewer.getSelectedDataset() != null);
     }
-    
 
     private void updateObjectiveButtons() {
-        btnAddObjective.setEnabled(datasetViewer.getSelectedDataset() != null && datasetViewer.getSelectedDataset().getSize() > 1);
-        btnRemoveObjective.setEnabled(objectiveViewer.getSelectedObjective() != null && objectiveViewer.getObjectives().size() > 1);
+        btnAddObjective.setEnabled(
+                datasetViewer.getSelectedDataset() != null && datasetViewer.getSelectedDataset().getSize() > 1);
+        btnRemoveObjective.setEnabled(
+                objectiveViewer.getSelectedObjective() != null && objectiveViewer.getObjectives().size() > 1);
     }
 
     private void updateStartButton() {
@@ -435,11 +487,11 @@ public class ExecuteCoreHunterPart {
 
     private void resetArguments() {
         datasetViewer.cleaerSelectedDataset();
-        selectedDataset = null ;
+        selectedDataset = null;
 
-        updateObjectiveViewer() ;
+        updateObjectiveViewer();
         updateDatasetButtons();
-        updateDatasetSize() ;
+        updateDatasetSize();
         updateCorehunterArguments();
         updateObjectiveButtons();
         updateStartButton();
@@ -472,21 +524,42 @@ public class ExecuteCoreHunterPart {
     }
 
     private void startCorehunterRun() {
-        Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(
-               new CoreHunterRunArgumentsPojo(createRunName(), selectedDatasetSize, selectedDataset.getUniqueIdentifier(), objectives)) ;
-       
-       MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID) ;
-       
-       partUtilitiies.getPartService().activate(part);
+        Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(new CoreHunterRunArgumentsPojo(
+                createRunName(), selectedDatasetSize, selectedDataset.getUniqueIdentifier(), objectives));
+
+        MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID);
+
+        partUtilitiies.getPartService().activate(part);
     }
 
     private String createRunName() {
         // TODO Auto-generated method stub
-        return String.format("Run for %s", selectedDataset.getName()) ;
+        return String.format("Run for %s", selectedDataset.getName());
     }
 
-    private void handleException(DatasetException e) {
-        // TODO Auto-generated method stub
+    private void handleException(String dialogTitle, String message, Exception e) {
 
+        if (shell != null) {
+
+            MultiStatus status = createMultiStatus(e.getLocalizedMessage(), e);
+
+            ErrorDialog.openError(shell, dialogTitle, message, status);
+        }
+
+    }
+
+    private static MultiStatus createMultiStatus(String msg, Throwable t) {
+
+        List<Status> childStatuses = new ArrayList<>();
+        StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
+
+        for (StackTraceElement stackTrace : stackTraces) {
+            Status status = new Status(IStatus.ERROR, "org.corehunter.ui", stackTrace.toString());
+            childStatuses.add(status);
+        }
+
+        MultiStatus ms = new MultiStatus("com.example.e4.rcp.todo", IStatus.ERROR,
+                childStatuses.toArray(new Status[] {}), t.toString(), t);
+        return ms;
     }
 }
