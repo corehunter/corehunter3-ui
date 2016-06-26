@@ -36,7 +36,7 @@ import uno.informatics.data.dataset.FeatureData;
  * @author Guy Davenport
  *
  */
-public class FeatureDataViewer {
+public class GenotypeDataViewer {
     private static final int MIM_COLUMN_SIZE = 5;
     private GridTableViewer gridViewer;
 
@@ -47,7 +47,7 @@ public class FeatureDataViewer {
      * @param parent
      * @param configuration
      */
-    public FeatureDataViewer() {
+    public GenotypeDataViewer() {
         viewerColumns = new TreeMap<Integer, GridViewerColumn>();
     }
 

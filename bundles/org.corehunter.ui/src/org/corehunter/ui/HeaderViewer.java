@@ -16,8 +16,14 @@
 
 package org.corehunter.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.CheckStateChangedEvent;
+import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -39,17 +45,21 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 
-import uno.informatics.data.Dataset;
+import uno.informatics.data.SimpleEntity;
 
-public class DatasetViewer {
-    private DatasetComparator comparator;
+public class HeaderViewer {
+    private SimpleEntityComparator comparator;
 
-    private TableViewer viewer;
+    private CheckboxTableViewer viewer;
 
-    protected Dataset selectedDataset;
+    protected SimpleEntity[] headers;
+    
+    protected List<SimpleEntity> checkedHeaders;
 
-    public DatasetViewer() {
+    protected SimpleEntity selectedHeader;
 
+    public HeaderViewer() {
+        
     }
 
     /**
@@ -65,27 +75,29 @@ public class DatasetViewer {
 
         createViewer(parent);
 
-        DatasetFilter datasetFilter = new DatasetFilter();
+        SimpleEntityFilter filter = new SimpleEntityFilter();
 
         searchText.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
-                datasetFilter.setSearchText(searchText.getText());
+                filter.setSearchText(searchText.getText());
                 viewer.refresh();
+                
+                // TODO need to maintain check on filter.
             }
         });
 
-        viewer.addFilter(datasetFilter);
+        viewer.addFilter(filter);
 
         // Set the sorter for the table
-        comparator = new DatasetComparator();
+        comparator = new SimpleEntityComparator();
         viewer.setComparator(comparator);
 
     }
 
     private void createViewer(Composite parent) {
-        viewer = new TableViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+        viewer = CheckboxTableViewer.newCheckList(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
         createColumns(parent, viewer);
         final Table table = viewer.getTable();
         table.setHeaderVisible(true);
@@ -96,11 +108,25 @@ public class DatasetViewer {
         viewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(final SelectionChangedEvent event) {
                 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-
-                selectedDataset = (Dataset) selection.getFirstElement();
+                
+                selectedHeader = (SimpleEntity)selection.getFirstElement() ;
             }
+  
         });
 
+        viewer.addCheckStateListener(new ICheckStateListener() {
+
+            @Override
+            public void checkStateChanged(CheckStateChangedEvent event) {
+                
+                if (event.getChecked()) {
+                    checkedHeaders.add((SimpleEntity)event.getElement()) ;
+                } else {
+                    checkedHeaders.remove((SimpleEntity)event.getElement()) ;
+                }
+                
+            }});
+        
         updateViewer();
 
         GridData gridData = new GridData();
@@ -113,20 +139,20 @@ public class DatasetViewer {
     }
 
     public final void updateViewer() {
-        viewer.setInput(Activator.getDefault().getDatasetServices().getAllDatasets());
+        viewer.setInput(headers);
     }
 
     // This will create the columns for the table
     private void createColumns(final Composite parent, final TableViewer viewer) {
-        String[] titles = { "Name", "Size", "Description"};
-        int[] bounds = { 150, 75, 275 };
+        String[] titles = { "ID", "Name"};
+        int[] bounds = { 150, 150 };
 
         TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                Dataset dataset = (Dataset) element;
-                return dataset.getName();
+                SimpleEntity header = (SimpleEntity) element;
+                return header.getUniqueIdentifier();
             }
         });
 
@@ -134,17 +160,8 @@ public class DatasetViewer {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                Dataset dataset = (Dataset) element;
-                return String.format("%d", dataset.getSize()) ;
-            }
-        });
-        
-        col = createTableViewerColumn(titles[2], bounds[2], 1);
-        col.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                Dataset dataset = (Dataset) element;
-                return dataset.getDescription();
+                SimpleEntity header = (SimpleEntity) element;
+                return header.getName();
             }
         });
     }
@@ -181,15 +198,25 @@ public class DatasetViewer {
     public void setFocus() {
         viewer.getControl().setFocus();
     }
-
-    public Dataset getSelectedDataset() {
-
-        return selectedDataset;
+    
+    public final SimpleEntity[] getHeaders() {
+        return headers;
     }
 
-    public void cleaerSelectedDataset() {
+    public final void setHeaders(SimpleEntity[] headers) {
+       this.headers = headers ;
+       checkedHeaders = new ArrayList<SimpleEntity>(headers.length) ;
+       updateViewer(); 
+    }
+
+    public final SimpleEntity getSelectedHeader() {
+
+        return selectedHeader;
+    }
+
+    public void cleaerSelectedHeader() {
         viewer.getTable().deselectAll();
-        selectedDataset = null;
+        selectedHeader = null;
     }
 
     public void addSelectionChangedListener(ISelectionChangedListener listener) {
@@ -202,7 +229,7 @@ public class DatasetViewer {
             viewer.addDoubleClickListener(listener);
     }
 
-    private class DatasetFilter extends ViewerFilter {
+    private class SimpleEntityFilter extends ViewerFilter {
 
         private String searchString;
 
@@ -216,15 +243,13 @@ public class DatasetViewer {
             if (searchString == null || searchString.length() == 0) {
                 return true;
             }
-            Dataset dataset = (Dataset) element;
-            if (dataset.getName() != null && dataset.getName().matches(searchString)) {
+            
+            SimpleEntity entity = (SimpleEntity) element;
+            if (entity.getName() != null && entity.getName().matches(searchString)) {
                 return true;
             }
-            if (dataset.getAbbreviation() != null && dataset.getAbbreviation().matches(searchString)) {
-                return true;
-            }
-
-            if (dataset.getDescription() != null && dataset.getDescription().matches(searchString)) {
+            
+            if (entity.getUniqueIdentifier() != null && entity.getUniqueIdentifier().matches(searchString)) {
                 return true;
             }
 

@@ -27,11 +27,11 @@ import uno.informatics.data.dataset.FeatureDataRow;
  * @author Guy Davenport
  *
  */
-public class DatasetColumnLabelProvider extends ColumnLabelProvider {
+public class FeatureDataLabelProvider extends ColumnLabelProvider {
     private Feature feature;
     private int columnIndex;
 
-    public DatasetColumnLabelProvider(Feature feature, int columnIndex) {
+    public FeatureDataLabelProvider(Feature feature, int columnIndex) {
         super();
         this.columnIndex = columnIndex;
         this.feature = feature;

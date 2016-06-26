@@ -105,10 +105,10 @@ public class FileBasedDatasetServicesMock extends FileBasedDatasetServices {
         loadData(getDataset("dataset7b"), frequency_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.FREQUENCY);
         loadData(getDataset("dataset7c"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
         loadData(getDataset("dataset7c"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
-        loadData(getDataset("dataset7c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);    
+        loadData(getDataset("dataset7c"), diplod_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);    */
         loadData(getDataset("dataset7d"), distance_data, FileType.CSV, CoreHunterDataType.DISTANCES);
         loadData(getDataset("dataset7d"), phenotypc_data, FileType.CSV, CoreHunterDataType.PHENOTYPIC);
-        loadData(getDataset("dataset7d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);*/
+        loadData(getDataset("dataset7d"), homozyous_genotypic_data, FileType.CSV, CoreHunterDataType.GENOTYPIC, GenotypeDataFormat.DEFAULT);
     }
 
 

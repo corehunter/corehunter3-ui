@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.nebula.jface.gridviewer.GridTableViewer;
@@ -29,29 +30,28 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
-import uno.informatics.data.Feature;
-import uno.informatics.data.dataset.FeatureData;
+import uno.informatics.data.matrix.array.ArrayMatrixData;
 
 /**
  * @author Guy Davenport
  *
  */
-public class FeatureDataViewer {
+public abstract class ArrayMatrixDataViewer<ValueType extends Object>  {
     private static final int MIM_COLUMN_SIZE = 5;
     private GridTableViewer gridViewer;
 
-    private FeatureData value;
+    private ArrayMatrixData<ValueType> value;
     private Map<Integer, GridViewerColumn> viewerColumns;
 
     /**
      * @param parent
      * @param configuration
      */
-    public FeatureDataViewer() {
+    public ArrayMatrixDataViewer() {
         viewerColumns = new TreeMap<Integer, GridViewerColumn>();
     }
 
-    public void setValue(FeatureData value) {
+    public void setValue(ArrayMatrixData<ValueType> value) {
         if (!ObjectUtils.equals(this.value, value)) {
             this.value = value;
         }
@@ -60,7 +60,7 @@ public class FeatureDataViewer {
     public void createPartControl(Composite parent) {
         gridViewer = new GridTableViewer(parent);
 
-        gridViewer.setContentProvider(new FeatureDataContentProvider());
+        gridViewer.setContentProvider(new ArrayMatrixDataContentProvider());
         // gridViewer.setLabelProvider(new DatasetLabelProvider()) ;
         gridViewer.getGrid().setHeaderVisible(true);
 
@@ -82,10 +82,10 @@ public class FeatureDataViewer {
     }
 
     private void updateGridViewer() {
-        if (value != null && !value.getFeatures().isEmpty()) {
+        if (value != null && value.getSize() > 0) {
             if (gridViewer != null) {
                 int oldColumnCount = viewerColumns.size();
-                int newColumnCount = value.getFeatures().size();
+                int newColumnCount = value.getSize() ;
 
                 // create new columns
                 if (newColumnCount > oldColumnCount) {
@@ -104,24 +104,21 @@ public class FeatureDataViewer {
                     }
                 }
 
-                Iterator<Integer> iterator = viewerColumns.keySet().iterator();
                 GridViewerColumn gridViewerColumn;
+                
+                String headerName ;
 
-                int index = 0;
-                Feature feature;
-
-                while (iterator.hasNext()) {
-                    index = iterator.next();
-
-                    feature = value.getFeatures().get(index);
-
+                for (int index = 0 ; index < value.getSize() ; ++index) {
+                    
                     gridViewerColumn = viewerColumns.get(index);
+                    
+                    headerName = value.getHeader(index).getName() ;
 
-                    gridViewerColumn.getColumn().setText(feature.getName());
+                    gridViewerColumn.getColumn().setText(headerName);
 
-                    gridViewerColumn.setLabelProvider(new FeatureDataLabelProvider(feature, index));
+                    gridViewerColumn.setLabelProvider(createLabelProvider(index));
 
-                    gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName()));
+                    gridViewerColumn.getColumn().setWidth(guessColumnWidth(headerName));
                 }
 
                 gridViewer.getGrid().setRowHeaderVisible(true);
@@ -143,6 +140,8 @@ public class FeatureDataViewer {
             }
         }
     }
+
+    protected abstract CellLabelProvider createLabelProvider(int columnIndex) ;
 
     private int guessColumnWidth(String columnHeader) {
         int size = 0;
