@@ -16,11 +16,15 @@
 
 package org.corehunter.ui;
 
+import static org.corehunter.ui.Constants.CORE_HUNTER_OBJECTIVE_TYPES;
+
 import java.util.List;
 
+import org.corehunter.API;
 import org.corehunter.CoreHunterMeasure;
 import org.corehunter.CoreHunterObjective;
 import org.corehunter.CoreHunterObjectiveType;
+import org.corehunter.data.CoreHunterData;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -32,14 +36,13 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import static org.corehunter.ui.Constants.CORE_HUNTER_OBJECTIVE_TYPES;
-import static org.corehunter.ui.Constants.CORE_HUNTER_MEASURES ;
 
 public class ObjectiveViewer {
     private TableViewer viewer;
@@ -48,10 +51,18 @@ public class ObjectiveViewer {
 
     private CoreHunterObjective selectedObjective;
     
-    private CoreHunterObjectiveType[] validObjectiveTypes ;
+    private CoreHunterData coreHunterData ;
 
     public ObjectiveViewer() {
-        this.validObjectiveTypes = CORE_HUNTER_OBJECTIVE_TYPES ; 
+
+    }
+    
+    public final CoreHunterData getCoreHunterData() {
+        return coreHunterData;
+    }
+
+    public final void setCoreHunterData(CoreHunterData coreHunterData) {
+        this.coreHunterData = coreHunterData;
     }
 
     /**
@@ -62,20 +73,7 @@ public class ObjectiveViewer {
         parent.setLayout(layout);
         
         createViewer(parent);
-    }   
-
-    public final CoreHunterObjectiveType[] getValidObjectiveTypes() {
-        return validObjectiveTypes;
-    }
-
-    public final void setValidObjectiveTypes(CoreHunterObjectiveType[] validObjectiveTypes) {
-        if (validObjectiveTypes != null) {
-            this.validObjectiveTypes = validObjectiveTypes ;
-        } else {
-            this.validObjectiveTypes = CORE_HUNTER_OBJECTIVE_TYPES ;            
-        }
-        
-    }
+    }  
 
     private void createViewer(Composite parent) {
         viewer = new TableViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
@@ -128,7 +126,7 @@ public class ObjectiveViewer {
             @Override
             public String getText(Object element) {
                 CoreHunterObjective objective = (CoreHunterObjective) element;
-                return objective.getObjectiveType().getName() ;
+                return objective.getObjectiveType() != null ? objective.getObjectiveType().getName()  : "";
             }
         });
         col.setEditingSupport(new ObjectiveTypeEditingSupport(viewer)); 
@@ -138,9 +136,10 @@ public class ObjectiveViewer {
             @Override
             public String getText(Object element) {
                 CoreHunterObjective objective = (CoreHunterObjective) element;
-                return objective.getMeasure().getName() ;
+                return objective.getMeasure() != null ? objective.getMeasure().getName() : "";
             }
         });
+        col.setEditingSupport(new MeasureEditingSupport(viewer)); 
         
         col = createTableViewerColumn(titles[2], bounds[2], 1);
         col.setLabelProvider(new ColumnLabelProvider() {
@@ -150,6 +149,7 @@ public class ObjectiveViewer {
                 return String.format("%e", objective.getWeight());
             }
         });
+        col.setEditingSupport(new WeightEditingSupport(viewer)); 
 
     }
 
@@ -217,7 +217,88 @@ public class ObjectiveViewer {
           this.viewer = viewer;
           this.editor = new ComboBoxViewerCellEditor(viewer.getTable());
           this.editor.setContentProvider(new ArrayContentProvider());
-          this.editor.setInput(validObjectiveTypes);
+        }
+
+        @Override
+        protected CellEditor getCellEditor(Object element) {
+            if (coreHunterData != null)
+                this.editor.setInput(API.getAllowedObjectives(coreHunterData));
+            return editor;
+        }
+
+        @Override
+        protected boolean canEdit(Object element) {
+          return true;
+        }
+
+        @Override
+        protected Object getValue(Object element) {
+          return ((CoreHunterObjective) element).getObjectiveType();
+        }
+
+        @Override
+        protected void setValue(Object element, Object userInputValue) {
+            CoreHunterObjective objective = ((CoreHunterObjective) element) ;
+            objective.setObjectiveType((CoreHunterObjectiveType)userInputValue);
+           
+           List<CoreHunterMeasure> measures = API.getAllowedMeasures(coreHunterData, objective.getObjectiveType()) ;
+           
+           if (measures.isEmpty()) {
+               objective.setMeasure(null);
+           } else {   
+               if (objective.getMeasure() == null || !measures.contains(objective.getMeasure())) {
+                   objective.setMeasure(measures.get(0));
+               }
+           }
+        
+          viewer.update(element, null);
+        }
+      } 
+    
+    public class MeasureEditingSupport extends EditingSupport {
+
+        private final TableViewer viewer;
+        private final ComboBoxViewerCellEditor editor;
+
+        public MeasureEditingSupport(TableViewer viewer) {
+          super(viewer);
+          this.viewer = viewer;
+          this.editor = new ComboBoxViewerCellEditor(viewer.getTable());
+          this.editor.setContentProvider(new ArrayContentProvider()) ;
+        }
+
+        @Override
+        protected CellEditor getCellEditor(Object element) {
+          editor.setInput(API.getAllowedMeasures(coreHunterData, ((CoreHunterObjective) element).getObjectiveType()));
+          return editor;
+        }
+
+        @Override
+        protected boolean canEdit(Object element) {
+          return true;
+        }
+
+        @Override
+        protected Object getValue(Object element) {
+          return ((CoreHunterObjective) element).getObjectiveType();
+        }
+
+        @Override
+        protected void setValue(Object element, Object userInputValue) {
+           ((CoreHunterObjective) element).setMeasure((CoreHunterMeasure)userInputValue);
+          viewer.update(element, null);
+        }
+      } 
+    
+    public class WeightEditingSupport extends EditingSupport {
+
+        private final TableViewer viewer;
+        private final TextCellEditor editor;
+
+        public WeightEditingSupport(TableViewer viewer) {
+          super(viewer);
+          this.viewer = viewer;
+          this.editor = new TextCellEditor(viewer.getTable());
         }
 
         @Override
@@ -237,10 +318,8 @@ public class ObjectiveViewer {
 
         @Override
         protected void setValue(Object element, Object userInputValue) {
-           /// ((CoreHunterObjective) element).setObjectiveType((CoreHunterObjectiveType)userInputValue);
+           ((CoreHunterObjective) element).setMeasure((CoreHunterMeasure)userInputValue);
           viewer.update(element, null);
         }
       } 
-    
-
 }

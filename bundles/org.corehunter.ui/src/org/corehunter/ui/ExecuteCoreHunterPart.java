@@ -222,6 +222,8 @@ public class ExecuteCoreHunterPart {
 
         objectiveViewer = new ObjectiveViewer();
 
+        objectiveViewer.createPartControl(objectiveViewerComposite);
+        
         objectiveViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
             @Override
@@ -230,8 +232,6 @@ public class ExecuteCoreHunterPart {
             }
 
         });
-
-        objectiveViewer.createPartControl(objectiveViewerComposite);
 
         Composite composite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
         composite.setLayout(new GridLayout(2, false));
@@ -423,6 +423,16 @@ public class ExecuteCoreHunterPart {
         }
 
         objectiveViewer.setObjectives(getObjectives(selectedDataset));
+
+        try {
+            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
+                    .getCoreHunterData(selectedDataset.getUniqueIdentifier());
+            objectiveViewer.setCoreHunterData(coreHunterData);
+
+        } catch (DatasetException e) {
+            handleException("Can not update objective viewer!",
+                    "Can not update objective viewer, see error message for more details!", e);
+        }
 
     }
 
