@@ -23,15 +23,10 @@ import uno.informatics.data.Dataset;
 import uno.informatics.data.io.FileType;
 import uno.informatics.data.pojo.DatasetPojo;
 import org.eclipse.swt.widgets.Combo;
+import static org.corehunter.ui.Constants.* ;
 
 public class CreateDatasetDialog extends TitleAreaDialog {
     
-    private static final FileType[] FILE_TYPES = new FileType[] {FileType.CSV, FileType.TXT};
-    private static final String[] FILE_TYPE_NAMES = new String[] {FileType.CSV.getName(), FileType.TXT.getName()};
-    
-    private static final GenotypeDataFormat[] GENOTYPE_DATA_FORMATS = new GenotypeDataFormat[] {GenotypeDataFormat.BIPARENTAL, GenotypeDataFormat.FREQUENCY, GenotypeDataFormat.DEFAULT};
-    private static final String[] GENOTYPE_DATA_FORMAT_NAMES = new String[] {GenotypeDataFormat.BIPARENTAL.name(), GenotypeDataFormat.FREQUENCY.name(), GenotypeDataFormat.DEFAULT.name()};
-
     private Text datasetNameText;
     private Text datasetDescriptionText;
     private Text datasetAbbreviationText;

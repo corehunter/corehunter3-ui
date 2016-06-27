@@ -16,8 +16,6 @@
 
 package org.corehunter.ui;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +25,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.inject.Named;
 
+import org.corehunter.API;
 import org.corehunter.CoreHunterMeasure;
 import org.corehunter.CoreHunterObjective;
 import org.corehunter.CoreHunterObjectiveType;
@@ -63,11 +61,8 @@ import org.eclipse.swt.widgets.Spinner;
 
 import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
-import uno.informatics.data.io.FileType;
 
 public class ExecuteCoreHunterPart {
-    private static final CoreHunterObjectiveType DEFAULT_OBJECTIVE = CoreHunterObjectiveType.AV_ACCESSION_TO_NEAREST_ENTRY;
-    private static final CoreHunterMeasure DEFAULT_GENOTYPE_MEASURE = CoreHunterMeasure.MODIFIED_ROGERS;
 
     private DatasetViewer datasetViewer = null;
     private Button btnAddDataset;
@@ -387,75 +382,37 @@ public class ExecuteCoreHunterPart {
     }
 
     private List<CoreHunterObjective> createDefaultObjectives(Dataset dataset) {
-        List<CoreHunterObjective> objectives = new LinkedList<CoreHunterObjective>();
-
+        
         try {
+
             CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
                     .getCoreHunterData(dataset.getUniqueIdentifier());
-
-            if (coreHunterData != null) {
-                double count = 0.0;
-
-                if (coreHunterData.hasPhenotypes()) {
-                    ++count;
-                }
-
-                if (coreHunterData.hasGenotypes()) {
-                    ++count;
-                }
-
-                if (coreHunterData.hasDistances()) {
-                    ++count;
-                }
-
-                if (coreHunterData.hasPhenotypes()) {
-                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 1.0 / count));
-                }
-
-                if (coreHunterData.hasGenotypes()) {
-                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 1.0 / count));
-                }
-
-                if (coreHunterData.hasDistances()) {
-                    objectives.add(new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE,
-                            1.0 / count));
-                }
-            }
+            
+            return API.createDefaultObjectives(coreHunterData) ;
 
         } catch (DatasetException e) {
             handleException("Can not create objective!",
                     "Objective could not be created, see error message for more details!", e);
+            
+            return new LinkedList<CoreHunterObjective>();
         }
-
-        return objectives;
     }
-
+    
     private CoreHunterObjective createNewObjective(Dataset dataset) {
-
+        
         try {
+
             CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
                     .getCoreHunterData(dataset.getUniqueIdentifier());
+            
+            return API.createDefaultObjective(coreHunterData) ;
 
-            if (coreHunterData != null) {
-
-                if (coreHunterData.hasPhenotypes()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.GOWERS, 1.0);
-                }
-
-                if (coreHunterData.hasGenotypes()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, DEFAULT_GENOTYPE_MEASURE, 1.0);
-                }
-
-                if (coreHunterData.hasDistances()) {
-                    return new CoreHunterObjective(DEFAULT_OBJECTIVE, CoreHunterMeasure.PRECOMPUTED_DISTANCE, 1.0);
-                }
-            }
         } catch (DatasetException e) {
             handleException("Can not create objective!",
                     "Objective could not be created, see error message for more details!", e);
+            
+            return null ;
         }
-
-        return null;
     }
 
     private void updateObjectiveViewer() {
@@ -533,7 +490,6 @@ public class ExecuteCoreHunterPart {
     }
 
     private String createRunName() {
-        // TODO Auto-generated method stub
         return String.format("Run for %s", selectedDataset.getName());
     }
 
