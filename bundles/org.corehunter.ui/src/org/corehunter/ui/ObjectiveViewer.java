@@ -25,22 +25,35 @@ import org.corehunter.CoreHunterMeasure;
 import org.corehunter.CoreHunterObjective;
 import org.corehunter.CoreHunterObjectiveType;
 import org.corehunter.data.CoreHunterData;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITableColorProvider;
+import org.eclipse.jface.viewers.ITableFontProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
@@ -91,6 +104,12 @@ public class ObjectiveViewer {
                 selectedObjective = (CoreHunterObjective) selection.getFirstElement();
             }
         });
+        
+        viewer.getTable().addListener(SWT.MeasureItem, new Listener() {
+            public void handleEvent(Event event) {
+               event.height = 20;
+            }
+         });
 
         updateViewer();
 
@@ -119,8 +138,8 @@ public class ObjectiveViewer {
     private void createColumns(final Composite parent, final TableViewer viewer) {
         String[] titles = { "Objective", "Measure", "Weight" };
         
-        int[] bounds = { 200, 200, 50};
-
+        int[] bounds = { 250, 200, 50};
+        
         TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override

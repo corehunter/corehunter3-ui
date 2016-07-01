@@ -7,4 +7,3 @@ Bundle-Activator: org.corehunter.services.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.corehunter.services-simple;bundle-version="3.0.0"
-Export-Package: org.corehunter.services

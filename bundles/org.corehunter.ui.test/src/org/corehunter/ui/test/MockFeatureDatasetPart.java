@@ -3,15 +3,15 @@ package org.corehunter.ui.test;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.corehunter.ui.DatasetServiceClient;
 import org.corehunter.ui.DatasetPart;
 import org.corehunter.ui.FeatureDataViewer;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.corehunter.ui.Activator;
 
 import uno.informatics.data.dataset.FeatureData;
 
-public class MockFeatureDatasetPart extends DatasetServiceClient {
+public class MockFeatureDatasetPart {
     
     public final static String ID = DatasetPart.class.getName() ;
     
@@ -31,7 +31,7 @@ public class MockFeatureDatasetPart extends DatasetServiceClient {
 
         featureDatasetViewer = new FeatureDataViewer();
 
-        featureDatasetViewer.setValue((FeatureData) getDatasetServices().getDataset(uniqueIdentifier));
+        featureDatasetViewer.setValue((FeatureData) Activator.getDefault().getDatasetServices().getDataset(uniqueIdentifier));
 
         featureDatasetViewer.createPartControl(parent);
     }
