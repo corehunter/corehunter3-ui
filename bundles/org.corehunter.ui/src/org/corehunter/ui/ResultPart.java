@@ -186,7 +186,7 @@ public class ResultPart {
                         Activator.getDefault().getCoreHunterRunServices().getArguments(coreHunterRun.getUniqueIdentifier()) ;
                 dataset = Activator.getDefault().getDatasetServices().getDataset(arguments.getDatasetId());
                 CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
-                        .getCoreHunterData(partInput.getUniqueIdentifier());
+                        .getCoreHunterData(arguments.getDatasetId());
                 headerViewer.setHeaders(getHeaders(coreHunterData));
             } catch (Exception e) {
                 this.shellUtilitiies.handleError("Can not get dataset!", "Can not find the dataset for this result",

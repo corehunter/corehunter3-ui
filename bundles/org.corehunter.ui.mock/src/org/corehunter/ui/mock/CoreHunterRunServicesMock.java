@@ -20,6 +20,7 @@
 package org.corehunter.ui.mock;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -110,7 +111,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 
     @Override
     public CoreHunterRun getCoreHunterRun(String uniqueIdentifier) {
-        CoreHunterRunnable corehunterRunnable = corehunterRunnableMap.remove(uniqueIdentifier);
+        CoreHunterRunnable corehunterRunnable = corehunterRunnableMap.get(uniqueIdentifier);
 
         if (corehunterRunnable != null) {
             return new CoreHunterRunFromRunnable(corehunterRunnable);
@@ -257,10 +258,10 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
             type = random.nextInt(4);
 
             outputStream = new ByteArrayOutputStream();
-            outputWriter = new PrintWriter(outputStream);
+            outputWriter = new PrintWriter(outputStream, true);
 
             errorStream = new ByteArrayOutputStream();
-            errorWriter = new PrintWriter(errorStream);
+            errorWriter = new PrintWriter(errorStream, true);
         }
 
         public final String getOutputStream() {
@@ -338,7 +339,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
                 outputWriter.println(String.format("Data Name: %s ", data.getName()));
                 outputWriter.println(String.format("Data size %d ", data.getSize()));
 
-                SubsetProblem<CoreHunterData> problem = new SubsetProblem(data, null,
+                SubsetProblem<CoreHunterData> problem = new SubsetProblem(data, new MockObjective(),
                         coreHunterRunArguments.getSubsetSize());
 
                 subsetSolution = problem.createRandomSolution(random);
@@ -362,7 +363,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
             } catch (Exception e) {
                 status = CoreHunterRunStatus.FAILED;
                 errorMessage = e.getLocalizedMessage();
-
+                outputWriter.println(String.format("Error: %s ", errorMessage));
                 e.printStackTrace(errorWriter);
             }
 

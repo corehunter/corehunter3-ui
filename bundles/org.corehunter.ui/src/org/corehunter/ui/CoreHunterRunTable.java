@@ -16,6 +16,8 @@
 
 package org.corehunter.ui;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.corehunter.services.CoreHunterRun;
@@ -58,6 +60,8 @@ public class CoreHunterRunTable {
     private DateTimeFormatter dateTimeFormatter;
 
     private CoreHunterRun selectedCorehunterRun;
+
+    private boolean isEmpty;
 
     @Inject
     public CoreHunterRunTable() {
@@ -142,8 +146,10 @@ public class CoreHunterRunTable {
         viewer.getControl().setLayoutData(gridData);
     }
 
-    public void updateViewer() {
-        viewer.setInput(corehunterRunClient.getAllCoreHunterRuns());
+    public void updateViewer() {       
+        List<CoreHunterRun> runs = corehunterRunClient.getAllCoreHunterRuns() ;
+        isEmpty = runs == null || runs.isEmpty() ;
+        viewer.setInput(runs);
     }
 
     // This will create the columns for the table
@@ -252,6 +258,10 @@ public class CoreHunterRunTable {
 
             return false;
         }
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
     }
 
 }

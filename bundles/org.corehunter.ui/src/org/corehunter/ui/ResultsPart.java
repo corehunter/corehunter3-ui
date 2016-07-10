@@ -35,6 +35,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 
 public class ResultsPart {
     
@@ -47,6 +48,7 @@ public class ResultsPart {
     private CoreHunterRun selectedCorehunterRun;
     private PartUtilitiies partUtilitiies;
     private ShellUtilitiies shellUtilitiies;
+    private Button btnRefresh;
 
     @Inject
     public ResultsPart() {
@@ -87,7 +89,7 @@ public class ResultsPart {
 
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        composite.setLayout(new GridLayout(3, false));
+        composite.setLayout(new GridLayout(4, false));
 
         btnRemove = new Button(composite, SWT.NONE);
         btnRemove.setText("Remove");
@@ -109,10 +111,21 @@ public class ResultsPart {
 
         btnClear = new Button(composite, SWT.NONE);
         btnClear.setText("Clear");
+        
         btnClear.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 clearSelection();
+            }
+        });
+        
+        btnRefresh = new Button(composite, SWT.NONE);
+        btnRefresh.setText("Refresh");
+        
+        btnRefresh.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateViewer();
             }
         });
 
@@ -129,6 +142,7 @@ public class ResultsPart {
         btnRemove.setEnabled(selectedCorehunterRun != null);
         btnView.setEnabled(selectedCorehunterRun != null);
         btnClear.setEnabled(selectedCorehunterRun != null);
+        btnRefresh.setEnabled(!resultTable.isEmpty());
     }
 
     private void updateViewer() {
