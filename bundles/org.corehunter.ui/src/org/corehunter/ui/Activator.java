@@ -20,12 +20,16 @@ public class Activator implements BundleActivator {
         
         if (serviceReference != null) {
             setDatasetServices((DatasetServices) context.getService(serviceReference));
+        } else {
+            throw new Exception("Unable to get database service!") ;
         }
         
         serviceReference = context.getServiceReference(CoreHunterRunServices.class.getName());
         
         if (serviceReference != null) {
             setCorehunterRunServices((CoreHunterRunServices) context.getService(serviceReference));
+        } else {
+            throw new Exception("Unable to get Core Hunter service!") ;
         }
     }
 

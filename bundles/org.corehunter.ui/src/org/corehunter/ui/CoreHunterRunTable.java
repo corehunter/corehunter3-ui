@@ -22,6 +22,7 @@ import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.CoreHunterRunServices;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -114,6 +115,11 @@ public class CoreHunterRunTable {
 
     public void addSelectionChangedListener(ISelectionChangedListener listener) {
         viewer.addSelectionChangedListener(listener);
+    }
+    
+    public void addDoubleClickListener(IDoubleClickListener listener) {
+        if (viewer != null)
+            viewer.addDoubleClickListener(listener);
     }
 
     private void createViewer(Composite parent) {

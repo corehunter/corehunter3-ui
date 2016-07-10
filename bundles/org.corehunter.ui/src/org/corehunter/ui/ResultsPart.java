@@ -20,7 +20,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.corehunter.services.CoreHunterRun;
-import org.corehunter.services.CoreHunterRunServices;
+import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -36,12 +40,13 @@ public class ResultsPart {
     
     public static final String ID = "org.corehunter.ui.part.results" ;
     
-    private CoreHunterRunServices corehunterRunServices;
     private CoreHunterRunTable resultTable;
     private Button btnRemove;
     private Button btnView;
     private Button btnClear;
     private CoreHunterRun selectedCorehunterRun;
+    private PartUtilitiies partUtilitiies;
+    private ShellUtilitiies shellUtilitiies;
 
     @Inject
     public ResultsPart() {
@@ -50,7 +55,12 @@ public class ResultsPart {
     }
 
     @PostConstruct
-    public void postConstruct(Composite parent) {
+    public void postConstruct(Composite parent, EPartService partService, EModelService modelService,
+            MApplication application) {
+        
+        shellUtilitiies = new ShellUtilitiies(parent.getShell()) ;
+        partUtilitiies = new PartUtilitiies(partService, modelService, application);
+        
         parent.setLayout(new GridLayout(1, false));
 
         Group grpResults = new Group(parent, SWT.NONE);
@@ -65,6 +75,13 @@ public class ResultsPart {
         resultTable.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(final SelectionChangedEvent event) {
                 resultsSelectionChanged();
+            }
+        });
+        
+        resultTable.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                viewResult();
             }
         });
 
@@ -126,26 +143,15 @@ public class ResultsPart {
 
     protected void removeResult() {
         try {
-            corehunterRunServices.removeCoreHunterRun(resultTable.getSelectedCorehunterRun().getUniqueIdentifier());
+            Activator.getDefault().getCoreHunterRunServices().removeCoreHunterRun(resultTable.getSelectedCorehunterRun().getUniqueIdentifier());
             updateViewer();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            handleException(e);
+            shellUtilitiies.handleError("Can not remove result!",
+                    "Result could not be removed, see error message for more details!", e);
         }
     }
 
     protected void viewResult() {
-        // TODO Auto-generated method stub
-
+        partUtilitiies.openPart(new PartInput(selectedCorehunterRun, ResultPart.ID));
     }
-
-    private void handleException(Exception e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    private synchronized final void setResultClient(CoreHunterRunServices corehunterRunServices) {
-        this.corehunterRunServices = corehunterRunServices;
-    }
-
 }

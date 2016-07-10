@@ -10,7 +10,8 @@
     <children xmi:id="_MTr4yrCsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
     <children xmi:id="_MTr4y7CsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
   </rootContext>
-  <descriptors xmi:id="_JmiVMOkDEeW_KKSjA1GJeA" elementId="org.corehunter.ui.DatasetPart" allowMultiple="true" closeable="true" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.DatasetPart"/>
+  <descriptors xmi:id="_JmiVMOkDEeW_KKSjA1GJeA" elementId="org.corehunter.ui.part.dataset" label="Dataset Part" allowMultiple="true" closeable="true" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.DatasetPart"/>
+  <descriptors xmi:id="_eWRowEXLEeaD3rbWbstGcw" elementId="org.corehunter.ui.part.result" label="Result Part" allowMultiple="true" closeable="true" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.ResultPart"/>
   <addons xmi:id="_MTr4wrCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_MTr4w7CsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_MTr4xLCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>

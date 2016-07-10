@@ -6,8 +6,6 @@ import javax.inject.Inject;
 
 import org.corehunter.data.CoreHunterData;
 import org.corehunter.data.CoreHunterDataType;
-import org.corehunter.data.DistanceMatrixData;
-import org.corehunter.data.GenotypeData;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -25,13 +23,12 @@ import uno.informatics.data.Dataset;
 import uno.informatics.data.SimpleEntity;
 import uno.informatics.data.dataset.DatasetException;
 import uno.informatics.data.dataset.FeatureData;
-import uno.informatics.data.dataset.FeatureDataRow;
 import uno.informatics.data.matrix.array.DoubleArrayMatrixData;
 import uno.informatics.data.matrix.array.ObjectArrayMatrixData;
 
 public class DatasetPart {
 
-    public final static String ID = DatasetPart.class.getName();
+    public static final String ID = "org.corehunter.ui.part.dataset" ;
 
     private FeatureDataViewer phenotypeDatasetViewer;
 

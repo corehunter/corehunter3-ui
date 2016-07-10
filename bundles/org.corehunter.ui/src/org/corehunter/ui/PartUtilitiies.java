@@ -49,7 +49,7 @@ public class PartUtilitiies {
 
             @Override
             public void partHidden(MPart part) {
-                System.out.println("partHidden part="+part);
+                //System.out.println("partHidden part="+part);
                 
                 parts.remove(getPartInput(part)) ;
             }

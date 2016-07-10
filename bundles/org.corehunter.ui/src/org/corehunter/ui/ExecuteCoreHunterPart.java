@@ -17,7 +17,6 @@
 package org.corehunter.ui;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,20 +26,14 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.corehunter.API;
-import org.corehunter.CoreHunterMeasure;
 import org.corehunter.CoreHunterObjective;
-import org.corehunter.CoreHunterObjectiveType;
 import org.corehunter.data.CoreHunterData;
 import org.corehunter.data.CoreHunterDataType;
 import org.corehunter.services.simple.CoreHunterRunArgumentsPojo;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -56,7 +49,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import uno.informatics.data.Dataset;
@@ -64,6 +56,8 @@ import uno.informatics.data.dataset.DatasetException;
 
 public class ExecuteCoreHunterPart {
 
+    public static final String ID = "org.corehunter.ui.part.executeCoreHunter" ;
+    
     private DatasetViewer datasetViewer = null;
     private Button btnAddDataset;
     private Spinner spinnerSize;
@@ -75,13 +69,13 @@ public class ExecuteCoreHunterPart {
     private Button btnRemoveDataset;
     private Label lblDatasetSize;
     private Button btnView;
-    private PartUtilitiies partUtilitiies;
     private ObjectiveViewer objectiveViewer;
     private Button btnAddObjective;
     private Button btnRemoveObjective;
 
-    private Shell shell;
-
+    private ShellUtilitiies shellUtilitiies;
+    private PartUtilitiies partUtilitiies;
+    
     private Map<String, List<CoreHunterObjective>> objectivesMap;
     private List<CoreHunterObjective> objectives;
 
@@ -95,9 +89,8 @@ public class ExecuteCoreHunterPart {
     public void postConstruct(Composite parent, EPartService partService, EModelService modelService,
             MApplication application) {
 
-        shell = parent.getShell();
-
         partUtilitiies = new PartUtilitiies(partService, modelService, application);
+        shellUtilitiies = new ShellUtilitiies(parent.getShell()) ;
         parent.setLayout(new FillLayout(SWT.VERTICAL));
 
         Group grpDatasets = new Group(parent, SWT.NONE);
@@ -145,17 +138,17 @@ public class ExecuteCoreHunterPart {
                 viewDataset();
             }
         });
-
-        datasetViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-            public void selectionChanged(final SelectionChangedEvent event) {
-                databaseSelectionChanged();
-            }
-        });
-
+        
         datasetViewer.addDoubleClickListener(new IDoubleClickListener() {
             @Override
             public void doubleClick(DoubleClickEvent event) {
                 viewDataset();
+            }
+        });
+
+        datasetViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            public void selectionChanged(final SelectionChangedEvent event) {
+                databaseSelectionChanged();
             }
         });
 
@@ -207,7 +200,7 @@ public class ExecuteCoreHunterPart {
         btnRemoveObjective = new Button(corehunterRunArgumentsGroup, SWT.NONE);
         btnRemoveObjective.setText("Remove Objective");
 
-        btnView.addSelectionListener(new SelectionAdapter() {
+        btnRemoveObjective.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 removeSelectedObjective();
@@ -306,7 +299,7 @@ public class ExecuteCoreHunterPart {
 
     private void addDataset() {
 
-        CreateDatasetDialog dialog = new CreateDatasetDialog(shell);
+        CreateDatasetDialog dialog = new CreateDatasetDialog(shellUtilitiies.getShell());
         dialog.create();
         if (dialog.open() == Window.OK) {
             try {
@@ -321,7 +314,7 @@ public class ExecuteCoreHunterPart {
                                          
                 updateViewer();
             } catch (Exception e) {
-                handleException("Dataset not be added!",
+                shellUtilitiies.handleError("Dataset not be added!",
                         "Dataset could not be added, see error message for more details!", e);
                 
                 if (dialog.getDataset() != null && dialog.getDataset().getUniqueIdentifier() != null) {
@@ -331,7 +324,7 @@ public class ExecuteCoreHunterPart {
                         try {
                             Activator.getDefault().getDatasetServices().removeDataset(dataset.getUniqueIdentifier()) ;
                         } catch (DatasetException e1) {
-                            handleException("Dataset not be removed!",
+                            shellUtilitiies.handleError("Dataset not be removed!",
                                     "Dataset was added, but load failed, and now dataset can not be removed, see error message for more details!", e);
                         }
                 }
@@ -344,7 +337,7 @@ public class ExecuteCoreHunterPart {
             Activator.getDefault().getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
             updateViewer();
         } catch (DatasetException e) {
-            handleException("Dataset not be removed!",
+            shellUtilitiies.handleError("Dataset not be removed!",
                     "Dataset could not be remove, see error message for more details!", e);
         }
     }
@@ -391,7 +384,7 @@ public class ExecuteCoreHunterPart {
             return API.createDefaultObjectives(coreHunterData) ;
 
         } catch (DatasetException e) {
-            handleException("Can not create objective!",
+            shellUtilitiies.handleError("Can not create objective!",
                     "Objective could not be created, see error message for more details!", e);
             
             return new LinkedList<CoreHunterObjective>();
@@ -408,7 +401,7 @@ public class ExecuteCoreHunterPart {
             return API.createDefaultObjective(coreHunterData) ;
 
         } catch (DatasetException e) {
-            handleException("Can not create objective!",
+            shellUtilitiies.handleError("Can not create objective!",
                     "Objective could not be created, see error message for more details!", e);
             
             return null ;
@@ -430,7 +423,7 @@ public class ExecuteCoreHunterPart {
             objectiveViewer.setCoreHunterData(coreHunterData);
 
         } catch (DatasetException e) {
-            handleException("Can not update objective viewer!",
+            shellUtilitiies.handleError("Can not update objective viewer!",
                     "Can not update objective viewer, see error message for more details!", e);
         }
 
@@ -501,31 +494,5 @@ public class ExecuteCoreHunterPart {
 
     private String createRunName() {
         return String.format("Run for %s", selectedDataset.getName());
-    }
-
-    private void handleException(String dialogTitle, String message, Exception e) {
-
-        if (shell != null) {
-
-            MultiStatus status = createMultiStatus(e.getLocalizedMessage(), e);
-
-            ErrorDialog.openError(shell, dialogTitle, message, status);
-        }
-
-    }
-
-    private static MultiStatus createMultiStatus(String msg, Throwable t) {
-
-        List<Status> childStatuses = new ArrayList<>();
-        StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
-
-        for (StackTraceElement stackTrace : stackTraces) {
-            Status status = new Status(IStatus.ERROR, "org.corehunter.ui", stackTrace.toString());
-            childStatuses.add(status);
-        }
-
-        MultiStatus ms = new MultiStatus("com.example.e4.rcp.todo", IStatus.ERROR,
-                childStatuses.toArray(new Status[] {}), t.toString(), t);
-        return ms;
     }
 }
