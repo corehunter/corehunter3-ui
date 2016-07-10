@@ -1,6 +1,10 @@
 
 package org.corehunter.ui;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -11,6 +15,7 @@ import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.IPartListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -24,7 +29,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
+import org.jamesframework.core.subset.SubsetSolution;
 
+import uno.informatics.data.Data;
 import uno.informatics.data.Dataset;
 import uno.informatics.data.SimpleEntity;
 
@@ -32,6 +39,7 @@ public class ResultPart {
 
     public static final String ID = "org.corehunter.ui.part.result" ;
 
+    private MPart part ;
     private PartInput partInput;
     private Text textName;
     private Text textStartDate;
@@ -52,6 +60,10 @@ public class ResultPart {
     
     private Text logText;
 
+    private TabFolder tabFolder;
+    private TabItem runTabItem;
+    private TabItem logTabItem;
+
     @Inject
     public ResultPart() {
 
@@ -61,14 +73,15 @@ public class ResultPart {
     public void postConstruct(Composite parent, MPart part, EPartService partService, EModelService modelService,
             MApplication application) {
         
+        this.part = part ;     
         partUtilitiies = new PartUtilitiies(partService, modelService, application);
         shellUtilitiies = new ShellUtilitiies(parent.getShell()) ;
         
         parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-        TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
+        tabFolder = new TabFolder(parent, SWT.NONE);
 
-        TabItem runTabItem = new TabItem(tabFolder, SWT.NONE);
+        runTabItem = new TabItem(tabFolder, SWT.NONE);
         runTabItem.setText("Result");
 
         Composite runComposite = new Composite(tabFolder, SWT.NONE);
@@ -155,7 +168,7 @@ public class ResultPart {
 
         partInput = (PartInput) part.getTransientData().get(PartUtilitiies.INPUT);
         
-        TabItem logTabItem = new TabItem(tabFolder, SWT.NONE);
+        logTabItem = new TabItem(tabFolder, SWT.NONE);
         logTabItem.setText("Log");
 
         Composite logComposite = new Composite(tabFolder, SWT.NONE);
@@ -172,6 +185,43 @@ public class ResultPart {
         } else {
             shellUtilitiies.handleError("Can not find result", "The results was not found!");
         }
+        
+        tabFolder.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(org.eclipse.swt.events.SelectionEvent event) {
+                updatePart() ;
+            }
+          });
+        
+        partService.addPartListener(new IPartListener() {
+
+            @Override
+            public void partActivated(MPart part) {
+                updatePart(part);
+            }
+
+            @Override
+            public void partBroughtToTop(MPart part) {
+                updatePart(part);
+            }
+
+            @Override
+            public void partDeactivated(MPart part) {
+            }
+
+            @Override
+            public void partHidden(MPart part) {
+            }
+
+            @Override
+            public void partVisible(MPart part) {
+                updatePart(part);
+            }});
+    }
+
+    protected void updatePart(MPart part) {
+       if (this.part == part) {
+           updatePart(); 
+       }
     }
 
     private void viewDataset() {
@@ -180,30 +230,29 @@ public class ResultPart {
     
     private synchronized void updatePart() {
 
+        if (tabFolder.getSelection().length > 0) {
+            if (tabFolder.getSelection()[0].equals(runTabItem)) {
+                updateMainTab() ;
+            } else {
+                updateLogTab() ;
+            }        
+        }
+    }
+    
+    private void updateMainTab() {
         if (coreHunterRun != null) {
+            
+            CoreHunterData coreHunterData = null ;
             try {
                 CoreHunterRunArguments arguments = 
                         Activator.getDefault().getCoreHunterRunServices().getArguments(coreHunterRun.getUniqueIdentifier()) ;
                 dataset = Activator.getDefault().getDatasetServices().getDataset(arguments.getDatasetId());
-                CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
+                coreHunterData = Activator.getDefault().getDatasetServices()
                         .getCoreHunterData(arguments.getDatasetId());
                 headerViewer.setHeaders(getHeaders(coreHunterData));
             } catch (Exception e) {
                 this.shellUtilitiies.handleError("Can not get dataset!", "Can not find the dataset for this result",
                         e);
-            }
-            
-            try {
-                String outputStream = Activator.getDefault().getCoreHunterRunServices().getOutputStream(coreHunterRun.getUniqueIdentifier()) ;
-                
-                if (outputStream != null && !outputStream.isEmpty()) {
-                    logText.setText(outputStream) ;
-                } else {
-                    logText.setText("No log for this run"); 
-                }       
-                
-            } catch (Exception e) {
-                logText.setText("Can not find the log for this result");
             }
 
             textName.setText(coreHunterRun.getName());
@@ -221,26 +270,32 @@ public class ResultPart {
                     btnViewError.setEnabled(true);
                     btnRefreshResult.setEnabled(false);
                     btnViewDataset.setEnabled(false);
-                    
+                    headerViewer.clearChecked() ;
                     break;
                 case FINISHED:
                     btnViewError.setText("Finished!");
                     btnViewError.setEnabled(false);
                     btnRefreshResult.setEnabled(false);
                     btnViewDataset.setEnabled(true);
+                    SubsetSolution solution = Activator.getDefault().getCoreHunterRunServices().getSubsetSolution(coreHunterRun.getUniqueIdentifier()) ;
+
+                    if (coreHunterData != null) {
+                        headerViewer.setChecked(getHeadersFromIndices(coreHunterData, solution)) ;
+                    }
                     break;
                 case NOT_STARTED:
                     btnViewError.setText("Not Started!");
                     btnViewError.setEnabled(false);
                     btnRefreshResult.setEnabled(true);
                     btnViewDataset.setEnabled(false);
-                    
+                    headerViewer.clearChecked() ;
                     break;
                 case RUNNING:
                     btnViewError.setText("Running!");
                     btnViewError.setEnabled(false);
                     btnRefreshResult.setEnabled(true);
                     btnViewDataset.setEnabled(false);
+                    headerViewer.clearChecked() ;
                     break;
                 default:
                     break;
@@ -248,7 +303,43 @@ public class ResultPart {
             }
         }
     }
-    
+
+    private static SimpleEntity[] getHeadersFromIndices(Data data, SubsetSolution solution) {
+        
+        Set<Integer> ids = solution.getSelectedIDs() ;
+        
+        SimpleEntity[] headers = new SimpleEntity[ids.size()] ;
+        
+        Iterator<Integer> iterator  = ids.iterator() ;
+        
+        int i = 0 ;
+        
+        while (iterator.hasNext()) {
+            headers[i] = data.getHeader(iterator.next()) ;
+            ++i ;
+        }
+        
+        return headers ;
+    }
+
+    private void updateLogTab() {
+        if (coreHunterRun != null) {        
+            try {
+                String outputStream = Activator.getDefault().getCoreHunterRunServices().getOutputStream(coreHunterRun.getUniqueIdentifier()) ;
+                
+                if (outputStream != null && !outputStream.isEmpty()) {
+                    logText.setText(outputStream) ;
+                } else {
+                    logText.setText("No log for this run"); 
+                }       
+                
+            } catch (Exception e) {
+                logText.setText("Can not find the log for this result");
+            }
+            
+        }
+    }
+
     private void viewError() {
         
         if (coreHunterRun != null) { 

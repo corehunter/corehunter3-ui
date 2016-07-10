@@ -20,7 +20,6 @@
 package org.corehunter.ui.mock;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -80,7 +79,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
             dataset = datasets.get(i);
             
             if (dataset.getSize() > 0) {
-                for (int j = 0; j < 4; ++j) {
+                for (int j = 0; j < 5; ++j) {
     
                     executeCoreHunter(new CoreHunterRunArgumentsPojo(String.format("Run %s attempt %d", dataset.getName(), j + 1),
                             random.nextInt(datasets.size()), dataset.getUniqueIdentifier(), null));
@@ -255,7 +254,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 
             status = CoreHunterRunStatus.NOT_STARTED;
 
-            type = random.nextInt(4);
+            type = random.nextInt(5);
 
             outputStream = new ByteArrayOutputStream();
             outputWriter = new PrintWriter(outputStream, true);
@@ -346,19 +345,23 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 
                 switch (type) {
                     case 0:
-                        subsetSolution = null;
-                        runDelayStartFail();
+                        runComplete();
                         break;
                     case 1:
                         subsetSolution = null;
-                        runStartFail();
+                        runDelayStartFail();
                         break;
                     case 2:
-                        runDelayStartComplete();
+                        subsetSolution = null;
+                        runStartFail();
                         break;
                     case 3:
+                        runDelayStartComplete();
+                        break;
+                    case 4:
                         runStartComplete();
                         break;
+
                 }
             } catch (Exception e) {
                 status = CoreHunterRunStatus.FAILED;
@@ -500,6 +503,11 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 
                 e.printStackTrace(errorWriter);
             }
+        }
+        
+        private void runComplete() {
+          status = CoreHunterRunStatus.FINISHED;
+
         }
     }
 

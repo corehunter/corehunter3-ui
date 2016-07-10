@@ -21,8 +21,10 @@ import javax.inject.Inject;
 
 import org.corehunter.services.CoreHunterRun;
 import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.IPartListener;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -49,6 +51,7 @@ public class ResultsPart {
     private PartUtilitiies partUtilitiies;
     private ShellUtilitiies shellUtilitiies;
     private Button btnRefresh;
+    private MPart part ;
 
     @Inject
     public ResultsPart() {
@@ -57,9 +60,10 @@ public class ResultsPart {
     }
 
     @PostConstruct
-    public void postConstruct(Composite parent, EPartService partService, EModelService modelService,
+    public void postConstruct(Composite parent, MPart part, EPartService partService, EModelService modelService,
             MApplication application) {
         
+        this.part = part ; 
         shellUtilitiies = new ShellUtilitiies(parent.getShell()) ;
         partUtilitiies = new PartUtilitiies(partService, modelService, application);
         
@@ -130,6 +134,37 @@ public class ResultsPart {
         });
 
         updateButtons();
+        
+        partService.addPartListener(new IPartListener() {
+
+            @Override
+            public void partActivated(MPart part) {
+                updatePart(part);
+            }
+
+            @Override
+            public void partBroughtToTop(MPart part) {
+                updatePart(part);
+            }
+
+            @Override
+            public void partDeactivated(MPart part) {
+            }
+
+            @Override
+            public void partHidden(MPart part) {
+            }
+
+            @Override
+            public void partVisible(MPart part) {
+                updatePart(part);
+            }});
+    }
+
+    protected void updatePart(MPart part) {
+       if (this.part == part) {
+           updateViewer(); 
+       }
     }
 
     protected void resultsSelectionChanged() {

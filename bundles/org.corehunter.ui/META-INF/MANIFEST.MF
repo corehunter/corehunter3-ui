@@ -15,7 +15,8 @@ Require-Bundle: org.apache.commons.lang3,
  org.corehunter.services-api;bundle-version="3.0.0",
  uno.informatics.common.informatics-data-api;bundle-version="1.0.4",
  uno.informatics.common.informatics-data-impl;bundle-version="1.0.4",
- org.corehunter.services-simple
+ org.corehunter.services-simple,
+ org.jamesframework.james-core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.swt,
  org.eclipse.swt.events,
