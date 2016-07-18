@@ -121,7 +121,8 @@ public abstract class ArrayMatrixDataViewer<ValueType extends Object>  {
                     gridViewerColumn.getColumn().setWidth(guessColumnWidth(headerName));
                 }
 
-                gridViewer.getGrid().setRowHeaderVisible(true);
+                // NOT in RAP
+                //gridViewer.getGrid().setRowHeaderVisible(true);
 
                 gridViewer.setRowHeaderLabelProvider(new RowHeaderLabelProvider());
 

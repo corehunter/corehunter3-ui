@@ -124,7 +124,8 @@ public class GenotypeDataViewer {
                     gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName()));
                 }
 
-                gridViewer.getGrid().setRowHeaderVisible(true);
+                // NOT in RAP
+                //gridViewer.getGrid().setRowHeaderVisible(true);
 
                 gridViewer.setRowHeaderLabelProvider(new RowHeaderLabelProvider());
 

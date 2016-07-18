@@ -92,11 +92,12 @@ public class ObjectiveViewer {
             }
         });
         
-        viewer.getTable().addListener(SWT.MeasureItem, new Listener() {
+        // NOT in RAP
+        /*viewer.getTable().addListener(SWT.MeasureItem, new Listener() {
             public void handleEvent(Event event) {
                event.height = 20;
             }
-         });
+         });*/
 
         updateViewer();
 
