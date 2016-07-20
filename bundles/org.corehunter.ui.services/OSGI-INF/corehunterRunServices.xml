@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.corehunter.ui.mock.CorehunterRunClientMock">
-   <implementation class="org.corehunter.services.simple.SimpleCorehunterRunServices"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.corehunter.services.ui.CoreHunterRunServices">
+   <implementation class="org.corehunter.ui.services.CoreHunterRunServicesBootstraped"/>
    <service>
-      <provide interface="org.corehunter.services.CorehunterRunServices"/>
+      <provide interface="org.corehunter.services.CoreHunterRunServices"/>
    </service>
 </scr:component>
