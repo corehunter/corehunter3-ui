@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.jamesframework.james-core;bundle-version="1.1.0",
  org.corehunter.services-api;bundle-version="3.0.0",
- org.corehunter.services-simple;bundle-version="3.0.0"
+ org.corehunter.services-simple;bundle-version="3.0.0",
+ org.eclipse.equinox.ds;bundle-version="1.4.400"
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
 Import-Package: org.corehunter.ui
