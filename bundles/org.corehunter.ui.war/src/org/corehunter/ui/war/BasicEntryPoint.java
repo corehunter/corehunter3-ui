@@ -1,5 +1,6 @@
 package org.corehunter.ui.war;
 
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -8,6 +9,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 
 
 public class BasicEntryPoint extends AbstractEntryPoint {
@@ -19,30 +21,9 @@ public class BasicEntryPoint extends AbstractEntryPoint {
 
 	@Override
     protected void createContents(Composite parent) {
-        parent.setLayout(new GridLayout(2, false));
-        Label checkbox = new Label(parent, SWT.PUSH);
-        checkbox.setText("Application is running! Push button to run CoreHunter");
-        Button button = new Button(parent, SWT.PUSH);
-        button.setText("Core Hunter");
-        
-        button.addSelectionListener(new SelectionListener() {
-
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}});
+        List list = new List( parent, SWT.NONE );
+        list.setData( RWT.MARKUP_ENABLED, Boolean.TRUE );
+        list.add( "Application is running! This link opens core hunter in <a href='corehunter' target='_blank'>a new tab</a>" );
     }
 
 }
