@@ -10,11 +10,14 @@ import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
 import org.eclipse.e4.ui.workbench.modeling.IPartListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PartUtilitiies {
 
     public static final String MAIN_STACK_ID = "org.corehunter.ui.mainPartStack";
     public static final String INPUT = "org.corehunter.ui.mainPartStack.input";
+    private static final Logger logger = LoggerFactory.getLogger(PartUtilitiies.class);
 
     private EPartService partService;
     private EModelService modelService;
@@ -34,29 +37,29 @@ public class PartUtilitiies {
 
             @Override
             public void partActivated(MPart part) {
-                //System.out.println("partActivated part="+part);
+            	logger.debug("partActivated part=%s", part);
             }
 
             @Override
             public void partBroughtToTop(MPart part) {
-                //System.out.println("partBroughtToTop part="+part);    
+            	logger.debug("partBroughtToTop part=%s", part); 
             }
 
             @Override
             public void partDeactivated(MPart part) {
-                //System.out.println("partDeactivated part="+part);
+            	logger.debug("partDeactivated part=%s", part);
             }
 
             @Override
             public void partHidden(MPart part) {
-                //System.out.println("partHidden part="+part);
-                
+            	logger.debug("partHidden part=%s", part);
+
                 parts.remove(getPartInput(part)) ;
             }
 
             @Override
             public void partVisible(MPart part) {
-                //System.out.println("partVisible part="+part);  
+            	logger.debug("partVisible part=%s", part);
             }});
     }
 
