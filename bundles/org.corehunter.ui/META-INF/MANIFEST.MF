@@ -20,7 +20,7 @@ Require-Bundle: org.apache.commons.lang3,
  uno.informatics.common.informatics-data-impl;bundle-version="1.0.4",
  org.corehunter.services-simple,
  org.jamesframework.james-core,
- slf4j.api;bundle-version="1.7.12"
+ org.slf4j.api;bundle-version="1.7.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.swt,
  org.eclipse.swt.events,
