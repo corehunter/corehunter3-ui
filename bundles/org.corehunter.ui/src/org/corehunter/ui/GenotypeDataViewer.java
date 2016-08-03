@@ -61,10 +61,7 @@ public class GenotypeDataViewer {
         gridViewer = new GridTableViewer(parent);
 
         gridViewer.setContentProvider(new FeatureDataContentProvider());
-        // gridViewer.setLabelProvider(new DatasetLabelProvider()) ;
         gridViewer.getGrid().setHeaderVisible(true);
-
-        gridViewer.getGrid().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         updateGridViewer();
 

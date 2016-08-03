@@ -61,10 +61,7 @@ public abstract class ArrayMatrixDataViewer<ValueType extends Object>  {
         gridViewer = new GridTableViewer(parent);
 
         gridViewer.setContentProvider(new ArrayMatrixDataContentProvider());
-        // gridViewer.setLabelProvider(new DatasetLabelProvider()) ;
         gridViewer.getGrid().setHeaderVisible(true);
-
-        gridViewer.getGrid().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         updateGridViewer();
 
