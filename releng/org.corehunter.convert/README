@@ -1,0 +1,7 @@
+// When using the Eclipse IDE edit deploy/build.properties to update plugins.p2.dir for eclipse location 
+// make sure this location is added for the target.
+// execute these commands 
+mvn p2:site
+cd deploy
+ant
+// When using a tycho build these commands are not needed. 
