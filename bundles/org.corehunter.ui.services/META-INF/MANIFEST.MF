@@ -4,10 +4,14 @@ Bundle-Name: Services
 Bundle-SymbolicName: org.corehunter.ui.services
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.jamesframework.james-core;bundle-version="1.1.0",
+Require-Bundle: org.eclipse.osgi;bundle-version="3.11.0",
+ org.jamesframework.james-core;bundle-version="1.1.0",
+ uno.informatics.common.informatics-data-api;bundle-version="1.0.4",
+ org.corehunter.base;bundle-version="3.0.0",
  org.corehunter.services-api;bundle-version="3.0.0",
  org.corehunter.services-simple;bundle-version="3.0.0",
  org.eclipse.equinox.ds;bundle-version="1.4.400"
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
-Import-Package: org.corehunter.ui
+Import-Package: org.corehunter.ui,
+ org.eclipse.core.runtime;version="3.5.0"

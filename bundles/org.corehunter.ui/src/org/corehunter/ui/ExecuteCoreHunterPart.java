@@ -305,12 +305,18 @@ public class ExecuteCoreHunterPart {
             try {
                 Activator.getDefault().getDatasetServices().addDataset(dialog.getDataset());
                 
-                Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
+                if (dialog.getPhenotypicDataPath() != null) {
+                	Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
                         Paths.get(dialog.getPhenotypicDataPath()), dialog.getPhenotypicDataType(), CoreHunterDataType.PHENOTYPIC) ;
-                Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
+                }
+                if (dialog.getGenotypicDataPath() != null) {
+                	Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
                         Paths.get(dialog.getGenotypicDataPath()), dialog.getGenotypicDataType(), CoreHunterDataType.GENOTYPIC, dialog.getGenotypeDataFormat()) ;
-                Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
+                }
+                if (dialog.getDistancesDataPath() != null) {
+                	Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
                         Paths.get(dialog.getDistancesDataPath()), dialog.getDistancesDataType(), CoreHunterDataType.DISTANCES) ;
+                }
                                          
                 updateViewer();
             } catch (Exception e) {
@@ -411,21 +417,24 @@ public class ExecuteCoreHunterPart {
     private void updateObjectiveViewer() {
         if (selectedDataset != null) {
             selectedDatasetSize = selectedDataset.getSize();
+            
+            try {
+                CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
+                        .getCoreHunterData(selectedDataset.getUniqueIdentifier());
+                objectiveViewer.setCoreHunterData(coreHunterData);
+
+            } catch (DatasetException e) {
+                shellUtilitiies.handleError("Can not update objective viewer!",
+                        "Can not update objective viewer, see error message for more details!", e);
+            }
+
         } else {
             selectedDatasetSize = 0;
+            objectiveViewer.setCoreHunterData(null) ;
         }
 
         objectiveViewer.setObjectives(getObjectives(selectedDataset));
 
-        try {
-            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
-                    .getCoreHunterData(selectedDataset.getUniqueIdentifier());
-            objectiveViewer.setCoreHunterData(coreHunterData);
-
-        } catch (DatasetException e) {
-            shellUtilitiies.handleError("Can not update objective viewer!",
-                    "Can not update objective viewer, see error message for more details!", e);
-        }
 
     }
 
