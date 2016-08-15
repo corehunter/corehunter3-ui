@@ -8,8 +8,12 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ShellUtilitiies {
+
+    private static final Logger logger = LoggerFactory.getLogger(ShellUtilitiies.class);
 
     private Shell shell;
     
@@ -25,6 +29,8 @@ public class ShellUtilitiies {
     
     public void handleError(String dialogTitle, String message, String error) {
 
+    	logger.error("Error message: {}. Due to : {} ", message, error) ;
+    	
         if (shell != null) {
             
             IStatus status;
@@ -46,12 +52,17 @@ public class ShellUtilitiies {
             IStatus status;
 
             if (e != null) {
+            	e.printStackTrace();
+            	logger.error(message, e) ;
+            	
                 status = createMultiStatus(message, e);
             } else {
                 status = new Status(IStatus.ERROR, "org.corehunter.ui", message) ;
             }
 
             ErrorDialog.openError(shell, dialogTitle, message, status);
+        } else {
+        	logger.debug("No error dialog available") ;
         }
     }
 
@@ -62,12 +73,12 @@ public class ShellUtilitiies {
     private static MultiStatus createMultiStatus(String message, Throwable t) {
 
         List<Status> childStatuses = new ArrayList<>();
-        StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
+        /*StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
 
         for (StackTraceElement stackTrace : stackTraces) {
             Status status = new Status(IStatus.ERROR, "org.corehunter.ui", stackTrace.toString());
             childStatuses.add(status);
-        }
+        }*/
 
         MultiStatus ms = new MultiStatus("org.corehunter.ui", IStatus.ERROR,
                 childStatuses.toArray(new Status[] {}), message, t);
