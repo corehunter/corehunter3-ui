@@ -25,6 +25,8 @@ import uno.informatics.data.pojo.DatasetPojo;
 import org.eclipse.swt.widgets.Combo;
 import static org.corehunter.ui.Constants.* ;
 
+import java.util.UUID;
+
 public class CreateDatasetDialog extends TitleAreaDialog {
     
     private Text datasetNameText;
@@ -256,7 +258,7 @@ public class CreateDatasetDialog extends TitleAreaDialog {
             if (dataset != null) {
                 dataset.setName(datasetNameText.getText());
             } else {
-                dataset = new DatasetPojo(datasetNameText.getText()) ;
+                dataset = new DatasetPojo(UUID.randomUUID().toString(), datasetNameText.getText()) ;
             }  
             
             if (datasetDescriptionText.getText() != null && datasetDescriptionText.getText().length() > 0) {
