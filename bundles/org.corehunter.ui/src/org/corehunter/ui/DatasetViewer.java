@@ -113,7 +113,12 @@ public class DatasetViewer {
     }
 
     public final void updateViewer() {
-        viewer.setInput(Activator.getDefault().getDatasetServices().getAllDatasets());
+        try {
+			viewer.setInput(Activator.getDefault().getDatasetServices().getAllDatasets());
+		} catch (Exception e) {
+			// TODO should report error in status bar. 
+			e.printStackTrace();
+		}
     }
 
     // This will create the columns for the table
