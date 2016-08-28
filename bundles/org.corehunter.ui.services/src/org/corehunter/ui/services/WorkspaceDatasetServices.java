@@ -1,6 +1,8 @@
 package org.corehunter.ui.services;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,4 +30,22 @@ public class WorkspaceDatasetServices extends FileBasedDatasetServices {
 			throw new IOException("Can not create datasets directory", e) ;
 		}
 	}
+
+	@Override
+	protected Object readFromFile(Path path) throws IOException {
+		ObjectInputStream objectInputStream = new ObjectInputStream(Files.newInputStream(path)) ;
+		
+		try {
+			return objectInputStream.readObject() ;
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e) ;
+		}
+	}
+
+	@Override
+	protected void writeToFile(Path path, Object object) throws IOException {
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(Files.newOutputStream(path)) ;
+		
+		objectOutputStream.writeObject(object) ;
+	}	
 }

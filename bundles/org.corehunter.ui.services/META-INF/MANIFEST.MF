@@ -7,6 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.osgi;bundle-version="3.11.0",
  org.jamesframework.james-core;bundle-version="1.1.0",
  uno.informatics.common.informatics-data-api;bundle-version="1.0.4",
+ uno.informatics.common.informatics-data-impl;bundle-version="1.0.5",
  org.corehunter.base;bundle-version="3.0.0",
  org.corehunter.services-api;bundle-version="3.0.0",
  org.corehunter.services-simple;bundle-version="3.0.0",
