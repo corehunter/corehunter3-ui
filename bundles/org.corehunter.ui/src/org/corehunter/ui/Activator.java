@@ -21,7 +21,7 @@ public class Activator implements BundleActivator {
         if (serviceReference != null) {
             setDatasetServices((DatasetServices) context.getService(serviceReference));
         } else {
-            throw new Exception("Unable to get database service!") ;
+            throw new IllegalStateException("Unable to get database service!") ;
         }
         
         serviceReference = context.getServiceReference(CoreHunterRunServices.class.getName());
@@ -29,7 +29,7 @@ public class Activator implements BundleActivator {
         if (serviceReference != null) {
             setCorehunterRunServices((CoreHunterRunServices) context.getService(serviceReference));
         } else {
-            throw new Exception("Unable to get Core Hunter service!") ;
+            throw new IllegalStateException("Unable to get Core Hunter service!") ;
         }
     }
 
@@ -41,6 +41,9 @@ public class Activator implements BundleActivator {
     
     
     public synchronized final CoreHunterRunServices getCoreHunterRunServices() {
+        if (corehunterRunServices == null) {
+            throw new IllegalStateException("Unable to get Core Hunter service!") ;
+        }
         return corehunterRunServices;
     }
 
@@ -49,6 +52,9 @@ public class Activator implements BundleActivator {
     }
     
     public synchronized final DatasetServices getDatasetServices() {
+        if (datasetServices == null) {
+            throw new IllegalStateException("Unable to get database service!") ;
+        }
         return datasetServices;
     }
 
