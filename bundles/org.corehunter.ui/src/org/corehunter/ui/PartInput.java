@@ -5,7 +5,12 @@ import uno.informatics.data.pojo.SimpleEntityPojo;
 
 public class PartInput extends SimpleEntityPojo implements Named {
 
-    private String partId ;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private String partId ;
     
     public PartInput(String name, String partId) {
         super(name);

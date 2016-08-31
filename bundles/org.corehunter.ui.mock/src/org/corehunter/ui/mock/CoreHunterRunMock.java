@@ -6,36 +6,36 @@ import org.joda.time.DateTime;
 
 import uno.informatics.data.pojo.SimpleEntityPojo;
 
-public class CoreHunterRunMock extends SimpleEntityPojo implements CoreHunterRun
-{
-  private DateTime startDate;
-  private DateTime endDate;
-  private CoreHunterRunStatus status;
+public class CoreHunterRunMock extends SimpleEntityPojo implements CoreHunterRun {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private DateTime startDate;
+	private DateTime endDate;
+	private CoreHunterRunStatus status;
 
-  public CoreHunterRunMock(String name, DateTime startDate, DateTime endDate, CoreHunterRunStatus status)
-  {
-    super(name);
-    this.startDate = startDate;
-    this.endDate = endDate;
-    this.status = status;
-  }
+	public CoreHunterRunMock(String name, DateTime startDate, DateTime endDate, CoreHunterRunStatus status) {
+		super(name);
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.status = status;
+	}
 
-  @Override
-  public DateTime getStartDate()
-  {
-    return startDate ;
-  }
+	@Override
+	public DateTime getStartDate() {
+		return startDate;
+	}
 
-  @Override
-  public DateTime getEndDate()
-  {
-    return endDate;
-  }
+	@Override
+	public DateTime getEndDate() {
+		return endDate;
+	}
 
-  @Override
-  public CoreHunterRunStatus getStatus()
-  {
-    return status;
-  }
-  
+	@Override
+	public CoreHunterRunStatus getStatus() {
+		return status;
+	}
+
 }

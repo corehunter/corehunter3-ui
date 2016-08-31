@@ -236,7 +236,11 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
     }
 
     private class CoreHunterRunnable extends SimpleEntityPojo implements Runnable {
-        private CoreHunterRunArguments coreHunterRunArguments;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private CoreHunterRunArguments coreHunterRunArguments;
         private ByteArrayOutputStream outputStream;
         private ByteArrayOutputStream errorStream;
         private String errorMessage;
@@ -338,7 +342,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
                 outputWriter.println(String.format("Data Name: %s ", data.getName()));
                 outputWriter.println(String.format("Data size %d ", data.getSize()));
 
-                SubsetProblem<CoreHunterData> problem = new SubsetProblem(data, new MockObjective(),
+                SubsetProblem<CoreHunterData> problem = new SubsetProblem<CoreHunterData>(data, new MockObjective(),
                         coreHunterRunArguments.getSubsetSize());
 
                 subsetSolution = problem.createRandomSolution(random);
@@ -513,7 +517,12 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 
     private class CoreHunterRunFromRunnable extends CoreHunterRunPojo {
 
-        public CoreHunterRunFromRunnable(CoreHunterRunnable corehunterRunnable) {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public CoreHunterRunFromRunnable(CoreHunterRunnable corehunterRunnable) {
             super(corehunterRunnable.getUniqueIdentifier(), corehunterRunnable.getName());
 
             setStartDate(corehunterRunnable.getStartDate());
