@@ -82,7 +82,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
                 for (int j = 0; j < 5; ++j) {
     
                     executeCoreHunter(new CoreHunterRunArgumentsPojo(String.format("Run %s attempt %d", dataset.getName(), j + 1),
-                            random.nextInt(datasets.size()), dataset.getUniqueIdentifier(), null));
+                            random.nextInt(datasets.size()), dataset.getUniqueIdentifier()));
                 }
             }
         }

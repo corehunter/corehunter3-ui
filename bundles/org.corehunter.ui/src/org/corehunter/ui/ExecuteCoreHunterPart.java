@@ -77,7 +77,6 @@ public class ExecuteCoreHunterPart {
     private PartUtilitiies partUtilitiies;
     
     private Map<String, List<CoreHunterObjective>> objectivesMap;
-    private List<CoreHunterObjective> objectives;
 
     @Inject
     public ExecuteCoreHunterPart() {
@@ -148,7 +147,7 @@ public class ExecuteCoreHunterPart {
 
         datasetViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(final SelectionChangedEvent event) {
-                databaseSelectionChanged();
+                datasetSelectionChanged();
             }
         });
 
@@ -265,16 +264,12 @@ public class ExecuteCoreHunterPart {
         if (newObjective != null) {
             objectiveViewer.addObjective(newObjective);
 
-            objectives = objectiveViewer.getObjectives();
-
             updateObjectiveButtons();
         }
     }
 
     private void removeSelectedObjective() {
         objectiveViewer.removeSelectedObjective();
-
-        objectives = objectiveViewer.getObjectives();
 
         updateObjectiveButtons();
     }
@@ -352,7 +347,7 @@ public class ExecuteCoreHunterPart {
         partUtilitiies.openPart(new PartInput(selectedDataset, DatasetPart.ID));
     }
 
-    private void databaseSelectionChanged() {
+    private void datasetSelectionChanged() {
         selectedDataset = datasetViewer.getSelectedDataset();
 
         updateObjectiveViewer();
@@ -434,8 +429,6 @@ public class ExecuteCoreHunterPart {
         }
 
         objectiveViewer.setObjectives(getObjectives(selectedDataset));
-
-
     }
 
     private void updateDatasetButtons() {
@@ -494,7 +487,7 @@ public class ExecuteCoreHunterPart {
 
     private void startCorehunterRun() {
         Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(new CoreHunterRunArgumentsPojo(
-                createRunName(), selectedDatasetSize, selectedDataset.getUniqueIdentifier(), objectives));
+                createRunName(), spinnerSize.getSelection(), selectedDataset.getUniqueIdentifier(), objectiveViewer.getObjectives()));
 
         MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID);
 
