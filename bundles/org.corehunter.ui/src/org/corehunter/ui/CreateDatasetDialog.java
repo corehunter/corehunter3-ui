@@ -1,6 +1,13 @@
 
 package org.corehunter.ui;
 
+import static org.corehunter.ui.Constants.FILE_TYPES;
+import static org.corehunter.ui.Constants.FILE_TYPE_NAMES;
+import static org.corehunter.ui.Constants.GENOTYPE_DATA_FORMATS;
+import static org.corehunter.ui.Constants.GENOTYPE_DATA_FORMAT_NAMES;
+
+import java.util.UUID;
+
 import org.corehunter.data.GenotypeDataFormat;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -12,6 +19,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
@@ -22,10 +30,6 @@ import org.eclipse.swt.widgets.Text;
 import uno.informatics.data.Dataset;
 import uno.informatics.data.io.FileType;
 import uno.informatics.data.pojo.DatasetPojo;
-import org.eclipse.swt.widgets.Combo;
-import static org.corehunter.ui.Constants.* ;
-
-import java.util.UUID;
 
 public class CreateDatasetDialog extends TitleAreaDialog {
     

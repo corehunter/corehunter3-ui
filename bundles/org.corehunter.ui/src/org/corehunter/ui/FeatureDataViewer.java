@@ -26,7 +26,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.nebula.jface.gridviewer.GridTableViewer;
 import org.eclipse.nebula.jface.gridviewer.GridViewerColumn;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import uno.informatics.data.Feature;

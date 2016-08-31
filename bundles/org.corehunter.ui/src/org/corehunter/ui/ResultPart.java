@@ -1,7 +1,6 @@
 
 package org.corehunter.ui;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
