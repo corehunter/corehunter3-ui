@@ -29,6 +29,7 @@ import org.corehunter.API;
 import org.corehunter.CoreHunterObjective;
 import org.corehunter.data.CoreHunterData;
 import org.corehunter.data.CoreHunterDataType;
+import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.simple.CoreHunterRunArgumentsPojo;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
@@ -486,12 +487,14 @@ public class ExecuteCoreHunterPart {
     }
 
     private void startCorehunterRun() {
-        Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(new CoreHunterRunArgumentsPojo(
+        CoreHunterRun coreHunterRun = Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(new CoreHunterRunArgumentsPojo(
                 createRunName(), spinnerSize.getSelection(), selectedDataset.getUniqueIdentifier(), objectiveViewer.getObjectives()));
 
-        MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID);
-
-        partUtilitiies.getPartService().activate(part);
+     // preferences to decide between opening single result or all results part
+        //MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID);
+        //partUtilitiies.getPartService().activate(part);
+        
+        partUtilitiies.openPart(new PartInput(coreHunterRun, ResultPart.ID));        
     }
 
     private String createRunName() {
