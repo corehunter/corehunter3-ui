@@ -174,7 +174,7 @@ public class ResultPart {
         logTabItem.setControl(logComposite);
         logComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         
-        logText = new Text(logComposite, SWT.BORDER);
+        logText = new Text(logComposite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 
         if (partInput != null) {
             coreHunterRun = Activator.getDefault().getCoreHunterRunServices()

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -31,6 +32,11 @@ import org.corehunter.data.CoreHunterData;
 import org.corehunter.data.CoreHunterDataType;
 import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.simple.CoreHunterRunArgumentsPojo;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
@@ -51,6 +57,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
@@ -59,6 +67,8 @@ public class ExecuteCoreHunterPart {
 
     public static final String ID = "org.corehunter.ui.part.executeCoreHunter" ;
     
+    private static final Logger logger = LoggerFactory.getLogger(PartUtilitiies.class);
+
     private DatasetViewer datasetViewer = null;
     private Button btnAddDataset;
     private Spinner spinnerSize;
@@ -487,17 +497,83 @@ public class ExecuteCoreHunterPart {
     }
 
     private void startCorehunterRun() {
-        CoreHunterRun coreHunterRun = Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(new CoreHunterRunArgumentsPojo(
-                createRunName(), spinnerSize.getSelection(), selectedDataset.getUniqueIdentifier(), objectiveViewer.getObjectives()));
-
-     // preferences to decide between opening single result or all results part
-        //MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID);
-        //partUtilitiies.getPartService().activate(part);
-        
-        partUtilitiies.openPart(new PartInput(coreHunterRun, ResultPart.ID));        
+    	
+    	String name = createRunName() ;
+    	
+    	CoreHunterRunJob job = new CoreHunterRunJob(name, new CoreHunterRunArgumentsPojo(
+    			name, spinnerSize.getSelection(), selectedDataset.getUniqueIdentifier(), objectiveViewer.getObjectives()));
+    	
+    	job.schedule();    
+    	
+    	MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID);
+    	partUtilitiies.getPartService().activate(part);
     }
 
     private String createRunName() {
         return String.format("Run for %s", selectedDataset.getName());
+    }
+    
+    private class CoreHunterRunJob extends Job {
+    	
+    	private CoreHunterRunArgumentsPojo arguments ;
+		private CoreHunterRun coreHunterRun;
+
+		public CoreHunterRunJob(String name, CoreHunterRunArgumentsPojo arguments) {
+			super(name);
+			this.arguments = arguments;
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			
+			int time = (int)arguments.getTimeLimit() ;
+			
+			SubMonitor subMonitor = SubMonitor.convert(monitor, time);
+			
+			subMonitor.setTaskName(arguments.getName());
+			
+			coreHunterRun = Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(arguments);
+			
+			boolean finished = false ;
+			
+			while (!finished) {
+				
+				switch(coreHunterRun.getStatus()) {
+				case FAILED:
+				case FINISHED:
+					finished = true ;
+					break;
+				case NOT_STARTED:
+				case RUNNING:
+				default:
+					finished = false ;
+					break;
+				}
+				
+				try {
+					TimeUnit.SECONDS.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					logger.error(e.getMessage(), e);
+					
+					subMonitor.done(); 
+				}
+				
+				subMonitor.split(1) ;
+			}
+	        
+	        partUtilitiies.openPart(new PartInput(coreHunterRun, ResultPart.ID));     
+	        
+			return Status.OK_STATUS ;
+		}
+
+		public final CoreHunterRunArgumentsPojo getArguments() {
+			return arguments;
+		}
+
+		public final CoreHunterRun getCoreHunterRun() {
+			return coreHunterRun;
+		}
+    	
     }
 }
