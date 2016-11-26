@@ -170,7 +170,10 @@ public class CoreHunterRunTable {
             @Override
             public String getText(Object element) {
                 CoreHunterRun corehunterRun = (CoreHunterRun) element;
-                return dateTimeFormatter.format(corehunterRun.getEndInstant());
+                if (corehunterRun.getStartInstant() != null)
+                	return dateTimeFormatter.format(corehunterRun.getStartInstant());
+                else
+                	return "" ;
             }
         });
 
@@ -179,7 +182,10 @@ public class CoreHunterRunTable {
             @Override
             public String getText(Object element) {
                 CoreHunterRun corehunterRun = (CoreHunterRun) element;
-                return dateTimeFormatter.format(corehunterRun.getEndInstant());
+                if (corehunterRun.getEndInstant() != null)
+                	return dateTimeFormatter.format(corehunterRun.getEndInstant());
+                else
+                	return "" ;
             }
         });
 
