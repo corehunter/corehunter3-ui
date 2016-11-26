@@ -56,10 +56,10 @@ public class CoreHunterRunComparator extends ViewerComparator {
                 rc = run1.getName().compareTo(run2.getName());
                 break;
             case 1:
-                rc = run1.getStartDate().compareTo(run2.getStartDate());
+                rc = run1.getStartInstant().compareTo(run2.getStartInstant());
                 break;
             case 2:
-                rc = run1.getEndDate().compareTo(run2.getEndDate()); // TODO problem with null
+                rc = run1.getEndInstant().compareTo(run2.getEndInstant()); // TODO problem with null
                 break;
             case 3:
                 rc = run1.getStatus().compareTo(run2.getStatus());

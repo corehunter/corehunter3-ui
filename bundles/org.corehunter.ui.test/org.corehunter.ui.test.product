@@ -34,7 +34,6 @@
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
       <plugin id="javax.xml"/>
-      <plugin id="joda-time"/>
       <plugin id="org.apache.commons.jxpath"/>
       <plugin id="org.apache.commons.lang3"/>
       <plugin id="org.apache.servicemix.bundles.xstream"/>

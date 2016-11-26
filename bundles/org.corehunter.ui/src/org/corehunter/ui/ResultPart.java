@@ -256,12 +256,12 @@ public class ResultPart {
 
             textName.setText(coreHunterRun.getName());
 
-            if (coreHunterRun.getStartDate() != null) {
-                textStartDate.setText(coreHunterRun.getStartDate().toString());
+            if (coreHunterRun.getStartInstant() != null) {
+                textStartDate.setText(coreHunterRun.getStartInstant().toString());
             }
             
-            if (coreHunterRun.getEndDate() != null)
-                textEndDate.setText(coreHunterRun.getEndDate().toString());
+            if (coreHunterRun.getEndInstant() != null)
+                textEndDate.setText(coreHunterRun.getEndInstant().toString());
             
             switch (coreHunterRun.getStatus()) {
                 case FAILED:

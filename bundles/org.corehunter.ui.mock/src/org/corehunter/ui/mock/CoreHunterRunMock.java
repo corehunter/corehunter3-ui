@@ -1,9 +1,9 @@
 package org.corehunter.ui.mock;
 
+import java.time.Instant;
+
 import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.CoreHunterRunStatus;
-import org.joda.time.DateTime;
-
 import uno.informatics.data.pojo.SimpleEntityPojo;
 
 public class CoreHunterRunMock extends SimpleEntityPojo implements CoreHunterRun {
@@ -12,25 +12,25 @@ public class CoreHunterRunMock extends SimpleEntityPojo implements CoreHunterRun
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private DateTime startDate;
-	private DateTime endDate;
+	private Instant startInstant;
+	private Instant endInstant;
 	private CoreHunterRunStatus status;
 
-	public CoreHunterRunMock(String name, DateTime startDate, DateTime endDate, CoreHunterRunStatus status) {
+	public CoreHunterRunMock(String name, Instant startInstant, Instant endInstant, CoreHunterRunStatus status) {
 		super(name);
-		this.startDate = startDate;
-		this.endDate = endDate;
+		this.startInstant = startInstant;
+		this.endInstant = endInstant;
 		this.status = status;
 	}
 
 	@Override
-	public DateTime getStartDate() {
-		return startDate;
+	public Instant getStartInstant() {
+		return startInstant;
 	}
 
 	@Override
-	public DateTime getEndDate() {
-		return endDate;
+	public Instant getEndInstant() {
+		return endInstant;
 	}
 
 	@Override

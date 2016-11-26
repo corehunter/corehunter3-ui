@@ -22,6 +22,7 @@ package org.corehunter.ui.mock;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,7 +35,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.corehunter.data.CoreHunterData;
-
 import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.CoreHunterRunArguments;
 import org.corehunter.services.CoreHunterRunServices;
@@ -42,13 +42,12 @@ import org.corehunter.services.CoreHunterRunStatus;
 import org.corehunter.services.DatasetServices;
 import org.corehunter.services.simple.CoreHunterRunArgumentsPojo;
 import org.corehunter.services.simple.CoreHunterRunPojo;
+import org.corehunter.ui.Activator ;
 import org.jamesframework.core.subset.SubsetProblem;
 import org.jamesframework.core.subset.SubsetSolution;
-import org.joda.time.DateTime;
 
 import uno.informatics.data.Dataset;
 import uno.informatics.data.pojo.SimpleEntityPojo;
-import org.corehunter.ui.Activator ;
 
 public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 
@@ -245,8 +244,8 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
         private ByteArrayOutputStream errorStream;
         private String errorMessage;
         private SubsetSolution subsetSolution;
-        private DateTime startDate;
-        private DateTime endDate;
+        private Instant startDate;
+        private Instant endDate;
         private CoreHunterRunStatus status;
         private int type;
         private PrintWriter outputWriter;
@@ -291,11 +290,11 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
             return subsetSolution;
         }
 
-        public synchronized final DateTime getStartDate() {
+        public synchronized final Instant getStartDate() {
             return startDate;
         }
 
-        public synchronized final DateTime getEndDate() {
+        public synchronized final Instant getEndDate() {
             return endDate;
         }
 
@@ -311,7 +310,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 
         public void run() {
 
-            startDate = new DateTime();
+            startDate = Instant.now() ;
 
             outputWriter.println(String.format("Run ID: %s ", coreHunterRunArguments.getUniqueIdentifier()));
             outputWriter.println(String.format("Run Name: %s ", coreHunterRunArguments.getName()));
@@ -374,7 +373,7 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
                 e.printStackTrace(errorWriter);
             }
 
-            endDate = new DateTime();
+            endDate = Instant.now() ;
 
         }
 
@@ -525,8 +524,8 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
 		public CoreHunterRunFromRunnable(CoreHunterRunnable corehunterRunnable) {
             super(corehunterRunnable.getUniqueIdentifier(), corehunterRunnable.getName());
 
-            setStartDate(corehunterRunnable.getStartDate());
-            setEndDate(corehunterRunnable.getEndDate());
+            setStartInstant(corehunterRunnable.getStartDate());
+            setEndInstant(corehunterRunnable.getEndDate());
             setStatus(corehunterRunnable.getStatus());
         }
     }

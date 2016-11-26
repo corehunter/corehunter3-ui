@@ -44,8 +44,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -70,7 +69,7 @@ public class CoreHunterRunTable {
         ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
         setResultClient((CoreHunterRunServices) bundleContext.getService(serviceReference));
 
-        dateTimeFormatter = DateTimeFormat.shortDateTime();
+        dateTimeFormatter = DateTimeFormatter.ISO_DATE;
 
     }
 
@@ -171,7 +170,7 @@ public class CoreHunterRunTable {
             @Override
             public String getText(Object element) {
                 CoreHunterRun corehunterRun = (CoreHunterRun) element;
-                return dateTimeFormatter.print(corehunterRun.getStartDate());
+                return dateTimeFormatter.format(corehunterRun.getEndInstant());
             }
         });
 
@@ -180,7 +179,7 @@ public class CoreHunterRunTable {
             @Override
             public String getText(Object element) {
                 CoreHunterRun corehunterRun = (CoreHunterRun) element;
-                return dateTimeFormatter.print(corehunterRun.getEndDate());
+                return dateTimeFormatter.format(corehunterRun.getEndInstant());
             }
         });
 
