@@ -65,7 +65,7 @@ public class CreateDatasetDialog extends TitleAreaDialog {
     public void create() {
         super.create();
         setTitle("Create new dataset!");
-        setMessage("Please load at least one data file.");
+        setMessage("Please load at least one data file. The dataset name must not be blank.");
     }
 
     public final Dataset getDataset() {
