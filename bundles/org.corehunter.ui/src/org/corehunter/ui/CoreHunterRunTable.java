@@ -69,7 +69,7 @@ public class CoreHunterRunTable {
         ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
         setResultClient((CoreHunterRunServices) bundleContext.getService(serviceReference));
 
-        dateTimeFormatter = DateTimeFormatter.ISO_DATE;
+        dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
 
     }
 
