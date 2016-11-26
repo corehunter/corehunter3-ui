@@ -5,4 +5,5 @@
 mvn p2:site
 cd deploy
 ant
+// Don't forget to refresh the Target Platform in Eclipse
 // When using a tycho build these commands are not needed. 
