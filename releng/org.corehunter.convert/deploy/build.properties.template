@@ -1,0 +1,5 @@
+#set this to a directory that be added as a target directory for plugins in eclipse
+plugins.p2.dir=
+#set to home for mvn
+maven.home=/usr/local/Cellar/maven/3.3.3/libexec
+maven.ant-tasks.version=2.1.3

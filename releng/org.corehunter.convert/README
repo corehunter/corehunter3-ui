@@ -1,4 +1,5 @@
-// When using the Eclipse IDE edit deploy/build.properties to update plugins.p2.dir for eclipse location 
+// When using the Eclipse IDE create and update deploy/build.properties to update plugins.p2.dir for eclipse location 
+// use the deploy/build.properties.template as an example
 // make sure this location is added for the target.
 // execute these commands 
 mvn p2:site
