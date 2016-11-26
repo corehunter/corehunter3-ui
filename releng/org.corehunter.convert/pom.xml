@@ -55,7 +55,7 @@
                 <!-- specify your dependencies here -->
                 <!-- groupId:artifactId:version -->            
                 <artifact>
-                  <id>org.corehunter:corehunter-services-simple:3.0.0-SNAPSHOT</id>
+                  <id>org.corehunter:corehunter-services-simple:3.1.0-SNAPSHOT</id>
                   <source>true</source>
                 </artifact>                
                 <artifact>
