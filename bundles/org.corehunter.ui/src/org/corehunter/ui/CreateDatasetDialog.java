@@ -206,7 +206,7 @@ public class CreateDatasetDialog extends TitleAreaDialog {
         genotypicDataTypeCombo.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent e) {
-                phenotypicDataTypeComboUpdated() ;
+            	genotypicDataTypeComboUpdated() ;
             }});
         
         genotypicDataFormatCombo = new Combo(composite, SWT.NONE);
@@ -251,6 +251,7 @@ public class CreateDatasetDialog extends TitleAreaDialog {
         
         phenotypicDataTypeComboUpdated() ;
         genotypicDataTypeComboUpdated() ;
+        genotypeDataFormatComboUpdated() ;
         distancesDataTypeComboUpdated() ;
         
         return container;

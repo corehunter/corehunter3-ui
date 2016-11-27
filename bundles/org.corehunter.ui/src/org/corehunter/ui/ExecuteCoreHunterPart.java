@@ -41,6 +41,7 @@ import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -326,8 +327,7 @@ public class ExecuteCoreHunterPart {
                                          
                 updateViewer();
             } catch (Exception e) {
-                shellUtilitiies.handleError("Dataset not be added!",
-                        "Dataset could not be added, see error message for more details!", e);
+                shellUtilitiies.handleError("Dataset could not be added!", "Dataset could not be added!", e);
                 
                 if (dialog.getDataset() != null && dialog.getDataset().getUniqueIdentifier() != null) {
                     Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(dialog.getDataset().getUniqueIdentifier()) ;
@@ -336,8 +336,8 @@ public class ExecuteCoreHunterPart {
                         try {
                             Activator.getDefault().getDatasetServices().removeDataset(dataset.getUniqueIdentifier()) ;
                         } catch (DatasetException e1) {
-                            shellUtilitiies.handleError("Dataset not be removed!",
-                                    "Dataset was added, but load failed, and now dataset can not be removed, see error message for more details!", e);
+                            shellUtilitiies.handleError(
+                            		"Dataset could not be removed!", "Dataset was added, but load failed, and now dataset can not be removed", e);
                         }
                 }
             }
