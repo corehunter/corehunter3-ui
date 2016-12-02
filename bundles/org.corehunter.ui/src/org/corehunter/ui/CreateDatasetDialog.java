@@ -212,7 +212,7 @@ public class CreateDatasetDialog extends TitleAreaDialog {
         genotypicDataFormatCombo = new Combo(composite, SWT.NONE);
         genotypicDataFormatCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         genotypicDataFormatCombo.setItems(GENOTYPE_DATA_FORMAT_NAMES);
-        genotypicDataFormatCombo.select(0);
+        genotypicDataFormatCombo.select(2);
         genotypicDataFormatCombo.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent e) {
