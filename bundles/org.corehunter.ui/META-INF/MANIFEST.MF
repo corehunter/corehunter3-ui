@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Ui
+Bundle-Name: Core Hunter User Interface
 Bundle-SymbolicName: org.corehunter.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: org.corehunter.ui
@@ -20,7 +20,8 @@ Require-Bundle: org.apache.commons.lang3,
  org.corehunter.services-simple,
  org.jamesframework.james-core,
  org.slf4j.api;bundle-version="1.7.2",
- org.eclipse.equinox.event;bundle-version="1.3.200"
+ org.eclipse.equinox.event;bundle-version="1.3.200",
+ org.eclipse.e4.ui.di;bundle-version="1.1.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.swt,
  org.eclipse.swt.events,

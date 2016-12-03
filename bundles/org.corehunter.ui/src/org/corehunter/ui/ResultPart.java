@@ -10,12 +10,16 @@ import javax.inject.Inject;
 import org.corehunter.data.CoreHunterData;
 import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.CoreHunterRunArguments;
+import org.corehunter.services.simple.CoreHunterRunPojo;
 import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.model.application.ui.MDirtyable;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.IPartListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -29,6 +33,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.jamesframework.core.subset.SubsetSolution;
+import org.eclipse.e4.ui.di.Persist ;
 
 import uno.informatics.data.Data;
 import uno.informatics.data.Dataset;
@@ -40,6 +45,9 @@ public class ResultPart {
 
     private MPart part ;
     private PartInput partInput;
+	@Inject
+	private MDirtyable dirty;
+    
     private Text textName;
     private Text textStartDate;
     private Text textEndDate;
@@ -50,18 +58,23 @@ public class ResultPart {
     private HeaderViewer headerViewer;
 
     private Dataset dataset;
+    private String savedName;
 
-    private CoreHunterRun coreHunterRun;
+    //private CoreHunterRun coreHunterRun;
     
     private Button btnRefreshResult;
     private Button btnViewDataset;
-    private Button btnViewError;
+    private Button btnViewDetails;
     
     private Text logText;
 
     private TabFolder tabFolder;
     private TabItem runTabItem;
     private TabItem logTabItem;
+
+	private Label lblStatus;
+
+	private Button btnSaveButton;
 
     @Inject
     public ResultPart() {
@@ -85,46 +98,73 @@ public class ResultPart {
 
         Composite runComposite = new Composite(tabFolder, SWT.NONE);
         runTabItem.setControl(runComposite);
-        runComposite.setLayout(new GridLayout(2, false));
+        runComposite.setLayout(new GridLayout(3, false));
 
         Label lblName = new Label(runComposite, SWT.NONE);
         lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblName.setText("Name");
 
         textName = new Text(runComposite, SWT.BORDER);
+        textName.addModifyListener(new ModifyListener(){
+		      public void modifyText(ModifyEvent event) {
+		    	  textNameChanged() ;
+		      }
+		});
+
         textName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        
+        btnSaveButton = new Button(runComposite, SWT.NONE);
+        btnSaveButton.setText("Save");
+        btnSaveButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                saveName();
+            }
+        });
 
         Label lblStartDate = new Label(runComposite, SWT.NONE);
         lblStartDate.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblStartDate.setText("Start");
 
         textStartDate = new Text(runComposite, SWT.BORDER);
+        textStartDate.setEditable(false);
         textStartDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        new Label(runComposite, SWT.NONE);
 
         Label lblEndDate = new Label(runComposite, SWT.NONE);
         lblEndDate.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblEndDate.setText("End");
 
         textEndDate = new Text(runComposite, SWT.BORDER);
+        textEndDate.setEditable(false);
         textEndDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        new Label(runComposite, SWT.NONE);
 
         Composite buttonComposite = new Composite(runComposite, SWT.NONE);
-        buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+        buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
         
         GridLayout gl_buttonComposite = new GridLayout(2, true);
+        gl_buttonComposite.horizontalSpacing = 0;
+        gl_buttonComposite.verticalSpacing = 0;
+        gl_buttonComposite.marginWidth = 0;
+        gl_buttonComposite.marginHeight = 0;
         buttonComposite.setLayout(gl_buttonComposite);
         
         Composite leftComposite = new Composite(buttonComposite, SWT.NONE);
-        leftComposite.setLayout(new GridLayout(2, false));
+        leftComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        leftComposite.setLayout(new GridLayout(3, false));
         
         Label lblStatusLabel = new Label(leftComposite, SWT.NONE);
         lblStatusLabel.setText("Status");
         
-        btnViewError = new Button(leftComposite, SWT.NONE);
-        btnViewError.setText("Error");
+        lblStatus = new Label(leftComposite, SWT.NONE);
+        lblStatus.setText("Unknown");
+        
+        btnViewDetails = new Button(leftComposite, SWT.NONE);
+        btnViewDetails.setText("Details");
 
-        btnViewError.addSelectionListener(new SelectionAdapter() {
-
+        btnViewDetails.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 viewError();
@@ -132,7 +172,7 @@ public class ResultPart {
         });
 
         Composite rightComposite = new Composite(buttonComposite, SWT.NONE);
-        rightComposite.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        rightComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         rightComposite.setLayout(new GridLayout(2, false));
 
         btnViewDataset = new Button(rightComposite, SWT.NONE);
@@ -156,14 +196,18 @@ public class ResultPart {
                 viewDataset();
             }
         });
+        new Label(runComposite, SWT.NONE);
 
         Group headerViewerComposite = new Group(runComposite, SWT.NONE);
         headerViewerComposite.setText("Selected");
-        headerViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+        headerViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 
         headerViewer = new HeaderViewer();
 
         headerViewer.createPartControl(headerViewerComposite);
+        new Label(runComposite, SWT.NONE);
+        new Label(runComposite, SWT.NONE);
+        new Label(runComposite, SWT.NONE);
 
         partInput = (PartInput) part.getTransientData().get(PartUtilitiies.INPUT);
         
@@ -175,11 +219,9 @@ public class ResultPart {
         logComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         
         logText = new Text(logComposite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+        logText.setEditable(false);
 
-        if (partInput != null) {
-            coreHunterRun = Activator.getDefault().getCoreHunterRunServices()
-                    .getCoreHunterRun(partInput.getUniqueIdentifier());
-            
+        if (partInput != null) {            
             updatePart() ;
         } else {
             shellUtilitiies.handleError("Can not find result", "The results was not found!");
@@ -216,8 +258,30 @@ public class ResultPart {
                 updatePart(part);
             }});
     }
+    
+	@Persist
+	public void save() {
+		saveName() ;	
+	} 
 
-    protected void updatePart(MPart part) {
+    protected void saveName() {
+    	
+        try {
+        	CoreHunterRunPojo updatedCoreHunterRun = new CoreHunterRunPojo(textName.getText()) ; // (coreHunterRun) ; // TODO create copy constructor
+        	updatedCoreHunterRun.setName(textName.getText());
+        	
+//            CoreHunterRunArguments arguments = 
+  //                  Activator.getDefault().getCoreHunterRunServices().updateCoreHunterRun(coreHunterRun.getUniqueIdentifier()) ;
+            
+        	updatePart() ;
+            updateSaveButton() ;
+        } catch (Exception e) {
+            this.shellUtilitiies.handleError("Can not save result name!", "Can not save result name!",
+                    e);
+        }
+	}
+
+	protected void updatePart(MPart part) {
        if (this.part == part) {
            updatePart(); 
        }
@@ -227,19 +291,13 @@ public class ResultPart {
         partUtilitiies.openPart(new PartInput(dataset, DatasetPart.ID));
     }
     
+    // TODO break to sections (name only, dataset, logs) with flag to indicate which parts to update
     private synchronized void updatePart() {
 
-        if (tabFolder.getSelection().length > 0) {
-            if (tabFolder.getSelection()[0].equals(runTabItem)) {
-                updateMainTab() ;
-            } else {
-                updateLogTab() ;
-            }        
-        }
-    }
-    
-    private void updateMainTab() {
-        if (coreHunterRun != null) {
+		if (partInput != null) {
+        	
+			CoreHunterRun coreHunterRun = Activator.getDefault().getCoreHunterRunServices()
+                    .getCoreHunterRun(partInput.getUniqueIdentifier());
             
             CoreHunterData coreHunterData = null ;
             try {
@@ -254,7 +312,12 @@ public class ResultPart {
                         e);
             }
 
-            textName.setText(coreHunterRun.getName());
+            savedName = coreHunterRun.getName() ;
+            textName.setText(savedName);
+            dirty.setDirty(false);
+            partInput.setName(savedName);
+            part.setLabel(savedName);
+            updateSaveButton() ;
 
             if (coreHunterRun.getStartInstant() != null) {
                 textStartDate.setText(coreHunterRun.getStartInstant().toString());
@@ -265,15 +328,15 @@ public class ResultPart {
             
             switch (coreHunterRun.getStatus()) {
                 case FAILED:
-                    btnViewError.setText("Failed!");
-                    btnViewError.setEnabled(true);
+                	lblStatus.setText("Failed!");
+                    btnViewDetails.setEnabled(true);
                     btnRefreshResult.setEnabled(false);
                     btnViewDataset.setEnabled(false);
                     headerViewer.clearChecked() ;
                     break;
                 case FINISHED:
-                    btnViewError.setText("Finished!");
-                    btnViewError.setEnabled(false);
+                	lblStatus.setText("Finished!");
+                    btnViewDetails.setEnabled(false);
                     btnRefreshResult.setEnabled(false);
                     btnViewDataset.setEnabled(true);
                     SubsetSolution solution = Activator.getDefault().getCoreHunterRunServices().getSubsetSolution(coreHunterRun.getUniqueIdentifier()) ;
@@ -283,15 +346,15 @@ public class ResultPart {
                     }
                     break;
                 case NOT_STARTED:
-                    btnViewError.setText("Not Started!");
-                    btnViewError.setEnabled(false);
+                	lblStatus.setText("Not Started!");
+                    btnViewDetails.setEnabled(false);
                     btnRefreshResult.setEnabled(true);
                     btnViewDataset.setEnabled(false);
                     headerViewer.clearChecked() ;
                     break;
                 case RUNNING:
-                    btnViewError.setText("Running!");
-                    btnViewError.setEnabled(false);
+                	lblStatus.setText("Running!");
+                    btnViewDetails.setEnabled(false);
                     btnRefreshResult.setEnabled(true);
                     btnViewDataset.setEnabled(false);
                     headerViewer.clearChecked() ;
@@ -300,8 +363,41 @@ public class ResultPart {
                     break;
 
             }
+            
+            try {
+                String outputStream = Activator.getDefault().getCoreHunterRunServices().getOutputStream(coreHunterRun.getUniqueIdentifier()) ;
+                
+                if (outputStream != null && !outputStream.isEmpty()) {
+                    logText.setText(outputStream) ;
+                } else {
+                    logText.setText("No log for this run"); 
+                }       
+                
+            } catch (Exception e) {
+                logText.setText("Can not find the log for this result");
+            }
+            
         }
     }
+    
+	private void updateSaveButton() {
+        btnSaveButton.setEnabled(dirty.isDirty());
+	}
+
+	private void textNameChanged() {
+		
+		if (savedName != null) {
+			if (!savedName.equals(textName.getText())) {
+				dirty.setDirty(true);
+			} else {
+				dirty.setDirty(false);
+			}
+		} else {
+			dirty.setDirty(false);
+		}
+		
+		updateSaveButton() ;
+	}
 
     private static SimpleEntity[] getHeadersFromIndices(Data data, SubsetSolution solution) {
         
@@ -320,28 +416,14 @@ public class ResultPart {
         
         return headers ;
     }
-
-    private void updateLogTab() {
-        if (coreHunterRun != null) {        
-            try {
-                String outputStream = Activator.getDefault().getCoreHunterRunServices().getOutputStream(coreHunterRun.getUniqueIdentifier()) ;
-                
-                if (outputStream != null && !outputStream.isEmpty()) {
-                    logText.setText(outputStream) ;
-                } else {
-                    logText.setText("No log for this run"); 
-                }       
-                
-            } catch (Exception e) {
-                logText.setText("Can not find the log for this result");
-            }
-            
-        }
-    }
-
+    
     private void viewError() {
         
-        if (coreHunterRun != null) { 
+		if (partInput != null) {
+        	
+			CoreHunterRun coreHunterRun = Activator.getDefault().getCoreHunterRunServices()
+                    .getCoreHunterRun(partInput.getUniqueIdentifier());
+			
             String message = Activator.getDefault().getCoreHunterRunServices().getErrorMessage(coreHunterRun.getUniqueIdentifier()) ;
             String error = Activator.getDefault().getCoreHunterRunServices().getErrorStream(coreHunterRun.getUniqueIdentifier()) ;
             
