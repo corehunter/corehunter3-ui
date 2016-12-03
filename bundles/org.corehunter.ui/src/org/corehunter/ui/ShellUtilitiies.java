@@ -85,7 +85,7 @@ public class ShellUtilitiies {
         }
 
         MultiStatus ms = new MultiStatus("org.corehunter.ui", IStatus.ERROR,
-                childStatuses.toArray(new Status[] {}), createStatusMessage(t), t);
+                childStatuses.toArray(new Status[] {}), message, t);
         return ms;
     }
 
