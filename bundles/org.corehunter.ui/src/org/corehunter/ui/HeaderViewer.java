@@ -16,27 +16,34 @@
 
 package org.corehunter.ui;
 
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.CheckStateChangedEvent;
-import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -44,224 +51,404 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.jamesframework.core.subset.SubsetSolution;
+import org.osgi.framework.Bundle;
 
 import uno.informatics.data.SimpleEntity;
 
 public class HeaderViewer {
-    private SimpleEntityComparator comparator;
+	private SimpleEntityComparator comparator;
 
-    private CheckboxTableViewer viewer;
+	private TableViewer viewer;
 
-    protected SimpleEntity[] headers;
-    
-    protected List<SimpleEntity> checkedHeaders;
+	protected SimpleEntity[] headers;
 
-    protected SimpleEntity selectedHeader;
+	protected SubsetSolution solution;
 
-    public HeaderViewer() {
-        
-    }
+	private boolean editable;
 
-    /**
-     * @wbp.parser.entryPoint
-     */
-    public void createPartControl(Composite parent) {
-        GridLayout layout = new GridLayout(2, false);
-        parent.setLayout(layout);
-        Label searchLabel = new Label(parent, SWT.NONE);
-        searchLabel.setText("Search: ");
-        final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
-        searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+	private boolean[] selected;
 
-        createViewer(parent);
+	private ArrayList<Integer> identifiers;
 
-        SimpleEntityFilter filter = new SimpleEntityFilter();
+	private Image selectedIcon;
 
-        searchText.addModifyListener(new ModifyListener() {
+	private Image unselectedIcon;
 
-            @Override
-            public void modifyText(ModifyEvent e) {
-                filter.setSearchText(searchText.getText());
-                viewer.refresh();
-                
-                // TODO need to maintain check on filter.
-            }
-        });
+	public HeaderViewer() {
 
-        viewer.addFilter(filter);
+	}
 
-        // Set the sorter for the table
-        comparator = new SimpleEntityComparator();
-        viewer.setComparator(comparator);
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	public void createPartControl(Composite parent) {
+		GridLayout layout = new GridLayout(2, false);
+		parent.setLayout(layout);
+		Label searchLabel = new Label(parent, SWT.NONE);
+		searchLabel.setText("Search: ");
+		final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
+		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 
-    }
+		createViewer(parent);
 
-    private void createViewer(Composite parent) {
-        viewer = CheckboxTableViewer.newCheckList(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-        createColumns(parent, viewer);
-        final Table table = viewer.getTable();
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
+		SimpleEntityFilter filter = new SimpleEntityFilter();
 
-        viewer.setContentProvider(new ArrayContentProvider());
+		searchText.addModifyListener(new ModifyListener() {
 
-        viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-            public void selectionChanged(final SelectionChangedEvent event) {
-                IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-                
-                selectedHeader = (SimpleEntity)selection.getFirstElement() ;
-            }
-  
-        });
+			@Override
+			public void modifyText(ModifyEvent e) {
+				filter.setSearchText(searchText.getText());
+				viewer.refresh();
+			}
+		});
 
-        viewer.addCheckStateListener(new ICheckStateListener() {
+		viewer.addFilter(filter);
 
-            @Override
-            public void checkStateChanged(CheckStateChangedEvent event) {
-                
-                if (event.getChecked()) {
-                    checkedHeaders.add((SimpleEntity)event.getElement()) ;
-                } else {
-                    checkedHeaders.remove((SimpleEntity)event.getElement()) ;
-                }
-                
-            }});
-        
-        updateViewer();
+		// Set the sorter for the table
+		comparator = new SimpleEntityComparator();
+		viewer.setComparator(comparator);
+		
+		Bundle bundle = Platform.getBundle("org.corehunter.ui");
 
-        GridData gridData = new GridData();
-        gridData.verticalAlignment = GridData.FILL;
-        gridData.horizontalSpan = 2;
-        gridData.grabExcessHorizontalSpace = true;
-        gridData.grabExcessVerticalSpace = true;
-        gridData.horizontalAlignment = GridData.FILL;
-        viewer.getControl().setLayoutData(gridData);
-    }
+		URL url = FileLocator.find(bundle, new Path("icons/unselected.png"), null);
 
-    public final void updateViewer() {
-        viewer.setInput(headers);
-    }
+		ImageDescriptor imageDesc = ImageDescriptor.createFromURL(url);
 
-    // This will create the columns for the table
-    private void createColumns(final Composite parent, final TableViewer viewer) {
-        String[] titles = { "ID", "Name"};
-        int[] bounds = { 150, 150 };
+		selectedIcon = imageDesc.createImage();
+		
+		url = FileLocator.find(bundle, new Path("icons/selected.png"), null);
 
-        TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
-        col.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                SimpleEntity header = (SimpleEntity) element;
-                return header.getUniqueIdentifier();
-            }
-        });
+		imageDesc = ImageDescriptor.createFromURL(url);
+		
+		unselectedIcon = imageDesc.createImage();
+	}
 
-        col = createTableViewerColumn(titles[1], bounds[1], 1);
-        col.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                SimpleEntity header = (SimpleEntity) element;
-                return header.getName();
-            }
-        });
-    }
+	private void createViewer(Composite parent) {
+		viewer = new TableViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		createColumns(parent, viewer);
+		final Table table = viewer.getTable();
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
 
-    private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
-        final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
-        final TableColumn column = viewerColumn.getColumn();
-        column.setText(title);
-        column.setWidth(bound);
-        column.setResizable(true);
-        column.setMoveable(true);
-        column.addSelectionListener(getSelectionAdapter(column, colNumber));
-        return viewerColumn;
-    }
+		viewer.setContentProvider(new ArrayContentProvider());
 
-    private SelectionAdapter getSelectionAdapter(final TableColumn column, final int index) {
-        SelectionAdapter selectionAdapter = new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                comparator.setColumn(index);
-                int dir = comparator.getDirection();
-                viewer.getTable().setSortDirection(dir);
-                viewer.getTable().setSortColumn(column);
-                viewer.refresh();
-            }
-        };
-        return selectionAdapter;
-    }
+		updateViewer();
 
-    /**
-     * Passing the focus request to the viewer's control.
-     */
+		GridData gridData = new GridData();
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.horizontalSpan = 2;
+		gridData.grabExcessHorizontalSpace = true;
+		gridData.grabExcessVerticalSpace = true;
+		gridData.horizontalAlignment = GridData.FILL;
+		viewer.getControl().setLayoutData(gridData);
+	}
 
-    public void setFocus() {
-        viewer.getControl().setFocus();
-    }
-    
-    public final SimpleEntity[] getHeaders() {
-        return headers;
-    }
+	public final void updateViewer() {
+		viewer.setInput(identifiers);
+	}
 
-    public final void setHeaders(SimpleEntity[] headers) {
-       this.headers = headers ;
-       checkedHeaders = new ArrayList<SimpleEntity>(headers.length) ;
-       updateViewer(); 
-    }
+	// This will create the columns for the table
+	private void createColumns(final Composite parent, final TableViewer viewer) {
+		String[] titles = { "X", "#", "ID", "Name" };
+		int[] bounds = { 40, 40, 150, 150 };
 
-    public final SimpleEntity getSelectedHeader() {
+		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 
-        return selectedHeader;
-    }
+		col.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				return "";
+			}
+			
+			@Override
+			public Image getImage(Object element) {		
+				if (selected[identifiers.indexOf(element)]) {
+					return selectedIcon ;
+				} else {
+					return unselectedIcon ;
+				}
+			}
+		});
 
-    public void cleaerSelectedHeader() {
-        viewer.getTable().deselectAll();
-        selectedHeader = null;
-    }
-    
-    public void setChecked(SimpleEntity[] headers) {      
-        viewer.setCheckedElements(headers) ; 
-    }
-    
-    public void clearChecked() {
-        viewer.setAllChecked(false) ;
-    }
+		col.setEditingSupport(new SelectionEditingSupport(viewer));
 
-    public void addSelectionChangedListener(ISelectionChangedListener listener) {
-        if (viewer != null)
-            viewer.addSelectionChangedListener(listener);
-    }
-    
-    public void addDoubleClickListener(IDoubleClickListener listener) {
-        if (viewer != null)
-            viewer.addDoubleClickListener(listener);
-    }
+		col = createTableViewerColumn(titles[1], bounds[1], 1);
 
-    private class SimpleEntityFilter extends ViewerFilter {
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return element.toString();
+			}
+		});
+		
+		col = createTableViewerColumn(titles[2], bounds[2], 2);
 
-        private String searchString;
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return headers[identifiers.indexOf(element)].getUniqueIdentifier();
+			}
+		});
 
-        public void setSearchText(String s) {
-            // ensure that the value can be used for matching
-            this.searchString = ".*" + s + ".*";
-        }
+		col = createTableViewerColumn(titles[3], bounds[3], 3);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return headers[identifiers.indexOf(element)].getName();
+			}
+		});
+	}
 
-        @Override
-        public boolean select(Viewer viewer, Object parentElement, Object element) {
-            if (searchString == null || searchString.length() == 0) {
-                return true;
-            }
-            
-            SimpleEntity entity = (SimpleEntity) element;
-            if (entity.getName() != null && entity.getName().matches(searchString)) {
-                return true;
-            }
-            
-            if (entity.getUniqueIdentifier() != null && entity.getUniqueIdentifier().matches(searchString)) {
-                return true;
-            }
+	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
+		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		final TableColumn column = viewerColumn.getColumn();
+		column.setText(title);
+		column.setWidth(bound);
+		column.setResizable(true);
+		column.setMoveable(true);
+		column.addSelectionListener(getSelectionAdapter(column, colNumber));
+		return viewerColumn;
+	}
 
-            return false;
-        }
-    }
+	private SelectionAdapter getSelectionAdapter(final TableColumn column, final int index) {
+		SelectionAdapter selectionAdapter = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				comparator.setColumn(index);
+				int dir = comparator.getDirection();
+				viewer.getTable().setSortDirection(dir);
+				viewer.getTable().setSortColumn(column);
+				viewer.refresh();
+			}
+		};
+		return selectionAdapter;
+	}
+
+	/**
+	 * Passing the focus request to the viewer's control.
+	 */
+
+	public void setFocus() {
+		viewer.getControl().setFocus();
+	}
+
+	public final SimpleEntity[] getHeaders() {
+		return headers;
+	}
+
+	public final void setHeaders(SimpleEntity[] headers) {
+		if (headers == null) {
+			throw new NullPointerException("Headers can not be null!");
+		}
+		
+		this.headers = headers ;
+
+		clearSolution();
+		updateViewer();
+	}
+
+	public final void setSolution(SubsetSolution solution) {
+		if (solution == null) {
+			throw new NullPointerException("Solution can not be null!");
+		}
+
+		if (headers.length != solution.getTotalNumIDs()) {
+			throw new NullPointerException("Total number of ids must be same length as number of headers!");
+		}
+
+		this.solution = new SubsetSolution(solution);
+		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		
+ 		selected = new boolean[identifiers.size()] ;
+		
+		Iterator<Integer> selectedIds = identifiers.iterator() ;
+			
+		for (int i = 0 ; i < identifiers.size() ; ++i)
+			selected[i] = this.solution.getSelectedIDs().contains(selectedIds.next()) ;
+		
+		updateViewer();
+	}
+
+	public final void setHeadersWithSolution(SimpleEntity[] headers, SubsetSolution solution) {
+		if (headers == null) {
+			throw new NullPointerException("Headers can not be null!");
+		}
+
+		if (solution == null) {
+			throw new NullPointerException("Selected can not be null!");
+		}
+
+		if (headers.length != solution.getTotalNumIDs()) {
+			throw new NullPointerException("Total number of ids must be same length as number of headers!");
+		}
+
+		this.headers = headers;
+		this.solution = new SubsetSolution(solution);
+		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		
+ 		selected = new boolean[identifiers.size()] ;
+		
+		Iterator<Integer> selectedIds = identifiers.iterator() ;
+			
+		for (int i = 0 ; i < identifiers.size() ; ++i)
+			selected[i] = this.solution.getSelectedIDs().contains(selectedIds.next()) ;
+		
+		updateViewer();
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+
+	public void clearSolution() {
+		Set<Integer> allIDs = new HashSet<Integer>(headers.length);
+
+		for (int index = 0; index < headers.length; ++index) {
+			allIDs.add(index);
+		}
+
+		solution = new SubsetSolution(allIDs);
+		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		selected = new boolean[headers.length] ;
+	}
+
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		if (viewer != null)
+			viewer.addSelectionChangedListener(listener);
+	}
+
+	public void addDoubleClickListener(IDoubleClickListener listener) {
+		if (viewer != null)
+			viewer.addDoubleClickListener(listener);
+	}
+
+	private class SimpleEntityFilter extends ViewerFilter {
+
+		private String searchString;
+
+		public void setSearchText(String s) {
+			// ensure that the value can be used for matching
+			this.searchString = ".*" + s + ".*";
+		}
+
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			if (searchString == null || searchString.length() == 0) {
+				return true;
+			}
+
+			SimpleEntity entity = headers[identifiers.indexOf(element)] ;
+			if (entity.getName() != null && entity.getName().matches(searchString)) {
+				return true;
+			}
+
+			if (entity.getUniqueIdentifier() != null && entity.getUniqueIdentifier().matches(searchString)) {
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	private class SelectionEditingSupport extends EditingSupport {
+
+		private final TableViewer viewer;
+		private final CheckboxCellEditor editor;
+
+		public SelectionEditingSupport(TableViewer viewer) {
+			super(viewer);
+			this.viewer = viewer;
+			this.editor = new CheckboxCellEditor(viewer.getTable());
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			return editor;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return editable;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+
+			return selected[identifiers.indexOf(element)];
+		}
+
+		@Override
+		protected void setValue(Object element, Object userInputValue) {
+			Boolean select = (Boolean) userInputValue ; 
+			selected[identifiers.indexOf(element)] = (Boolean) userInputValue;
+			
+			if (select) {
+				solution.select((Integer)element) ;
+			} else {
+				solution.deselect((Integer)element) ;
+			}
+		}
+	}
+	
+	public class SimpleEntityComparator extends ViewerComparator {
+	    private int propertyIndex;
+	    private static final int DESCENDING = 1;
+	    private int direction = DESCENDING;
+
+	    public SimpleEntityComparator() {
+	        this.propertyIndex = 0;
+	        direction = DESCENDING;
+	    }
+
+	    public int getDirection() {
+	        return direction == 1 ? SWT.DOWN : SWT.UP;
+	    }
+
+	    public void setColumn(int column) {
+	        if (column == this.propertyIndex) {
+	            // Same column as last sort; toggle the direction
+	            direction = 1 - direction;
+	        } else {
+	            // New column; do an ascending sort
+	            this.propertyIndex = column;
+	            direction = DESCENDING;
+	        }
+	    }
+
+	    @Override
+	    public int compare(Viewer viewer, Object e1, Object e2) {
+
+	        int rc = 0;
+	        switch (propertyIndex) {
+            	case 0:
+            		Boolean entityB1 = selected[identifiers.indexOf(e1)];
+            		Boolean entityB2 = selected[identifiers.indexOf(e2)];
+            		rc = entityB1.compareTo(entityB2);
+            		break;
+	            case 1:
+	    	        Integer entityI1 = identifiers.indexOf(e1);
+	    	        Integer entityI2 = identifiers.indexOf(e2);
+	                rc = entityI1.compareTo(entityI2);
+	                break;
+	            case 2:
+	    	        SimpleEntity entity1 = headers[identifiers.indexOf(e1)];
+	    	        SimpleEntity entity2 = headers[identifiers.indexOf(e2)];
+	                rc = entity1.getUniqueIdentifier().compareTo(entity2.getUniqueIdentifier());
+	                break;
+	            case 3:
+	    	        entity1 = headers[identifiers.indexOf(e1)];
+	    	        entity2 = headers[identifiers.indexOf(e2)];
+	                rc = entity1.getName().compareTo(entity2.getName());
+	                break;
+	            default:
+	                rc = 0;
+	        }
+	        // If descending order, flip the direction
+	        if (direction == DESCENDING) {
+	            rc = -rc;
+	        }
+	        return rc;
+	    }
+
+	}
 }

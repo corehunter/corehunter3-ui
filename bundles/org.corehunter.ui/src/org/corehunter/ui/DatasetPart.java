@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
+import org.jamesframework.core.subset.SubsetSolution;
 
 import uno.informatics.data.Data;
 import uno.informatics.data.Dataset;
@@ -92,6 +93,7 @@ public class DatasetPart {
             headerViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
             headerViewer = new HeaderViewer();
+            headerViewer.setEditable(true) ;
 
             headerViewer.createPartControl(headerViewerComposite);
 

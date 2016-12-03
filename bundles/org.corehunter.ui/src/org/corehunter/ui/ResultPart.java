@@ -1,6 +1,7 @@
 
 package org.corehunter.ui;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -59,8 +60,6 @@ public class ResultPart {
 
     private Dataset dataset;
     private String savedName;
-
-    //private CoreHunterRun coreHunterRun;
     
     private Button btnRefreshResult;
     private Button btnViewDataset;
@@ -203,6 +202,7 @@ public class ResultPart {
         headerViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 
         headerViewer = new HeaderViewer();
+        headerViewer.setEditable(false);
 
         headerViewer.createPartControl(headerViewerComposite);
         new Label(runComposite, SWT.NONE);
@@ -264,6 +264,7 @@ public class ResultPart {
 		saveName() ;	
 	} 
 
+	// TODO
     protected void saveName() {
     	
         try {
@@ -307,75 +308,81 @@ public class ResultPart {
                 coreHunterData = Activator.getDefault().getDatasetServices()
                         .getCoreHunterData(arguments.getDatasetId());
                 headerViewer.setHeaders(getHeaders(coreHunterData));
+                
+                savedName = coreHunterRun.getName() ;
+                textName.setText(savedName);
+                dirty.setDirty(false);
+                partInput.setName(savedName);
+                part.setLabel(savedName);
+                updateSaveButton() ;
+
+                if (coreHunterRun.getStartInstant() != null) {
+                    textStartDate.setText(coreHunterRun.getStartInstant().toString());
+                }
+                
+                if (coreHunterRun.getEndInstant() != null)
+                    textEndDate.setText(coreHunterRun.getEndInstant().toString());
+                
+                switch (coreHunterRun.getStatus()) {
+                    case FAILED:
+                    	lblStatus.setText("Failed!");
+                        btnViewDetails.setEnabled(true);
+                        btnRefreshResult.setEnabled(false);
+                        btnViewDataset.setEnabled(false);
+                        headerViewer.clearSolution();
+                        break;
+                    case FINISHED:
+                    	lblStatus.setText("Finished!");
+                        btnViewDetails.setEnabled(false);
+                        btnRefreshResult.setEnabled(false);
+                        btnViewDataset.setEnabled(true);
+                        SubsetSolution solution = Activator.getDefault().getCoreHunterRunServices().getSubsetSolution(coreHunterRun.getUniqueIdentifier()) ;
+
+                        if (coreHunterData != null) {
+                            headerViewer.setSolution(solution) ;
+                        }
+                        break;
+                    case NOT_STARTED:
+                    	lblStatus.setText("Not Started!");
+                        btnViewDetails.setEnabled(false);
+                        btnRefreshResult.setEnabled(true);
+                        btnViewDataset.setEnabled(false);
+                        headerViewer.clearSolution() ;
+                        break;
+                    case RUNNING:
+                    	lblStatus.setText("Running!");
+                        btnViewDetails.setEnabled(false);
+                        btnRefreshResult.setEnabled(true);
+                        btnViewDataset.setEnabled(false);
+                        headerViewer.clearSolution() ;
+                        break;
+                    default:
+                        break;
+
+                }
+                
+                try {
+                    String outputStream = Activator.getDefault().getCoreHunterRunServices().getOutputStream(coreHunterRun.getUniqueIdentifier()) ;
+                    
+                    if (outputStream != null && !outputStream.isEmpty()) {
+                        logText.setText(outputStream) ;
+                    } else {
+                        logText.setText("No log for this run"); 
+                    }       
+                    
+                } catch (Exception e) {
+                    logText.setText("Can not find the log for this result");
+                }
             } catch (Exception e) {
+            	
+                btnViewDetails.setEnabled(false);
+                btnRefreshResult.setEnabled(false);
+                btnViewDataset.setEnabled(false);
+                
                 this.shellUtilitiies.handleError("Can not get dataset!", "Can not find the dataset for this result",
                         e);
             }
 
-            savedName = coreHunterRun.getName() ;
-            textName.setText(savedName);
-            dirty.setDirty(false);
-            partInput.setName(savedName);
-            part.setLabel(savedName);
-            updateSaveButton() ;
-
-            if (coreHunterRun.getStartInstant() != null) {
-                textStartDate.setText(coreHunterRun.getStartInstant().toString());
-            }
-            
-            if (coreHunterRun.getEndInstant() != null)
-                textEndDate.setText(coreHunterRun.getEndInstant().toString());
-            
-            switch (coreHunterRun.getStatus()) {
-                case FAILED:
-                	lblStatus.setText("Failed!");
-                    btnViewDetails.setEnabled(true);
-                    btnRefreshResult.setEnabled(false);
-                    btnViewDataset.setEnabled(false);
-                    headerViewer.clearChecked() ;
-                    break;
-                case FINISHED:
-                	lblStatus.setText("Finished!");
-                    btnViewDetails.setEnabled(false);
-                    btnRefreshResult.setEnabled(false);
-                    btnViewDataset.setEnabled(true);
-                    SubsetSolution solution = Activator.getDefault().getCoreHunterRunServices().getSubsetSolution(coreHunterRun.getUniqueIdentifier()) ;
-
-                    if (coreHunterData != null) {
-                        headerViewer.setChecked(getHeadersFromIndices(coreHunterData, solution)) ;
-                    }
-                    break;
-                case NOT_STARTED:
-                	lblStatus.setText("Not Started!");
-                    btnViewDetails.setEnabled(false);
-                    btnRefreshResult.setEnabled(true);
-                    btnViewDataset.setEnabled(false);
-                    headerViewer.clearChecked() ;
-                    break;
-                case RUNNING:
-                	lblStatus.setText("Running!");
-                    btnViewDetails.setEnabled(false);
-                    btnRefreshResult.setEnabled(true);
-                    btnViewDataset.setEnabled(false);
-                    headerViewer.clearChecked() ;
-                    break;
-                default:
-                    break;
-
-            }
-            
-            try {
-                String outputStream = Activator.getDefault().getCoreHunterRunServices().getOutputStream(coreHunterRun.getUniqueIdentifier()) ;
-                
-                if (outputStream != null && !outputStream.isEmpty()) {
-                    logText.setText(outputStream) ;
-                } else {
-                    logText.setText("No log for this run"); 
-                }       
-                
-            } catch (Exception e) {
-                logText.setText("Can not find the log for this result");
-            }
             
         }
     }
