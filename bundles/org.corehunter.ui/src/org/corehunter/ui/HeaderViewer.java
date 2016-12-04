@@ -387,17 +387,19 @@ public class HeaderViewer {
 			} else {
 				solution.deselect((Integer)element) ;
 			}
+			
+			viewer.update(element, null);
 		}
 	}
 	
 	public class SimpleEntityComparator extends ViewerComparator {
 	    private int propertyIndex;
-	    private static final int DESCENDING = 1;
-	    private int direction = DESCENDING;
+	    private static final int ASCENDING = -1;
+	    private int direction = ASCENDING;
 
 	    public SimpleEntityComparator() {
 	        this.propertyIndex = 0;
-	        direction = DESCENDING;
+	        direction = ASCENDING;
 	    }
 
 	    public int getDirection() {
@@ -411,7 +413,7 @@ public class HeaderViewer {
 	        } else {
 	            // New column; do an ascending sort
 	            this.propertyIndex = column;
-	            direction = DESCENDING;
+	            direction = ASCENDING;
 	        }
 	    }
 
@@ -444,7 +446,7 @@ public class HeaderViewer {
 	                rc = 0;
 	        }
 	        // If descending order, flip the direction
-	        if (direction == DESCENDING) {
+	        if (direction == ASCENDING) {
 	            rc = -rc;
 	        }
 	        return rc;
