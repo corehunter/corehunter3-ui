@@ -143,6 +143,16 @@ public class CoreHunterRunServicesMock implements CoreHunterRunServices {
             corehunterRunnable.stop();
         }
     }
+    
+
+	@Override
+	public void updateCoreHunterRun(CoreHunterRun coreHunterRun) {
+        CoreHunterRunnable corehunterRunnable = corehunterRunnableMap.get(coreHunterRun.getUniqueIdentifier());
+
+        if (corehunterRunnable != null) {
+        	corehunterRunnable.setName(coreHunterRun.getName());
+        }
+	}
 
     @Override
     public List<CoreHunterRun> getAllCoreHunterRuns() {
