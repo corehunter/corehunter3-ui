@@ -58,7 +58,6 @@ public class ResultPart {
 
     private HeaderViewer headerViewer;
 
-    private Dataset dataset;
     private String savedName;
     
     private Button btnRefreshResult;
@@ -264,16 +263,17 @@ public class ResultPart {
 		saveName() ;	
 	} 
 
-	// TODO
-    protected void saveName() {
+    private void saveName() {
     	
         try {
-        	CoreHunterRunPojo updatedCoreHunterRun = new CoreHunterRunPojo(textName.getText()) ; // (coreHunterRun) ; // TODO create copy constructor
+        	CoreHunterRun run = 
+        			Activator.getDefault().getCoreHunterRunServices().getCoreHunterRun(partInput.getUniqueIdentifier()) ;
+        	
+        	CoreHunterRunPojo updatedCoreHunterRun = new CoreHunterRunPojo(run) ;
         	updatedCoreHunterRun.setName(textName.getText());
         	
-//            CoreHunterRunArguments arguments = 
-  //                  Activator.getDefault().getCoreHunterRunServices().updateCoreHunterRun(coreHunterRun.getUniqueIdentifier()) ;
-            
+        	Activator.getDefault().getCoreHunterRunServices().updateCoreHunterRun(updatedCoreHunterRun);
+
         	updatePart() ;
             updateSaveButton() ;
         } catch (Exception e) {
@@ -289,7 +289,7 @@ public class ResultPart {
     }
 
     private void viewDataset() {
-        partUtilitiies.openPart(new PartInput(dataset, DatasetPart.ID));
+        partUtilitiies.openPart(new PartInput(partInput, DatasetPart.ID));
     }
     
     // TODO break to sections (name only, dataset, logs) with flag to indicate which parts to update
@@ -304,7 +304,7 @@ public class ResultPart {
             try {
                 CoreHunterRunArguments arguments = 
                         Activator.getDefault().getCoreHunterRunServices().getArguments(coreHunterRun.getUniqueIdentifier()) ;
-                dataset = Activator.getDefault().getDatasetServices().getDataset(arguments.getDatasetId());
+                Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(arguments.getDatasetId());
                 coreHunterData = Activator.getDefault().getDatasetServices()
                         .getCoreHunterData(arguments.getDatasetId());
                 headerViewer.setHeaders(getHeaders(coreHunterData));

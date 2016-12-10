@@ -6,6 +6,8 @@ import javax.inject.Inject;
 
 import org.corehunter.data.CoreHunterData;
 import org.corehunter.data.CoreHunterDataType;
+import org.corehunter.services.CoreHunterRun;
+import org.corehunter.services.CoreHunterRunArguments;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -100,17 +102,34 @@ public class DatasetPart {
             partInput = (PartInput) part.getTransientData().get(PartUtilitiies.INPUT);
 
             if (partInput != null) {
-                Dataset dataset = Activator.getDefault().getDatasetServices()
-                        .getDataset(partInput.getUniqueIdentifier());
-
+            	CoreHunterRun run = Activator.getDefault().getCoreHunterRunServices().getCoreHunterRun(partInput.getUniqueIdentifier()) ;
+            	
+            	Dataset dataset = null ;
+            	
+            	if (run != null) {
+            		CoreHunterRunArguments arguments = Activator.getDefault().getCoreHunterRunServices().getArguments(run.getUniqueIdentifier()) ;
+            		
+                	if (arguments != null) {
+                		dataset = Activator.getDefault().getDatasetServices()
+                                .getDataset(arguments.getDatasetId());
+                	} else {
+                		// TODO error
+                	}
+            	} else {
+            		dataset = Activator.getDefault().getDatasetServices()
+                            .getDataset(partInput.getUniqueIdentifier());
+            	}
+            	
+            	if (dataset == null) {
+            		// TODO error
+            	}
+            	
                 textName.setText(dataset.getName());
                 if (dataset.getAbbreviation() != null)
                     textAbbreviation.setText(dataset.getAbbreviation());
                 if (dataset.getDescription() != null)
                     textDescription.setText(dataset.getDescription());
-                
-                CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices().getCoreHunterData(partInput.getUniqueIdentifier()) ;
-                
+               
                 Data phenotypicData = Activator.getDefault().getDatasetServices()
                         .getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.PHENOTYPIC);
 
@@ -121,8 +140,17 @@ public class DatasetPart {
                 Data distancesData = Activator.getDefault()
                         .getDatasetServices()
                         .getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.DISTANCES);
+                
+                SimpleEntity[] headers = Activator.getDefault().getDatasetServices().getHeaders(dataset.getUniqueIdentifier()) ;
 
-                headerViewer.setHeaders(getHeaders(coreHunterData)) ;
+            	if (run != null) {
+            		
+            		SubsetSolution solution = Activator.getDefault().getCoreHunterRunServices().getSubsetSolution(run.getUniqueIdentifier()) ;
+            		headerViewer.setHeadersWithSolution(headers, solution);
+            	} else {
+            		headerViewer.setHeaders(headers) ;            		
+            	}
+            		
                 
                 if (phenotypicData != null && phenotypicData instanceof FeatureData) {
                     phenotypeDatasetViewer = new FeatureDataViewer();
@@ -170,25 +198,12 @@ public class DatasetPart {
 
                     distanceDataViewer.createPartControl(parent);
                 }
+            } else {
+            	// TODO error
             }
+            	
         } catch (DatasetException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-    }
-
-    // TODO replace with method in Data 
-    private SimpleEntity[] getHeaders(CoreHunterData coreHunterData) {
-        
-        int size = coreHunterData.getSize() ;
-        
-        SimpleEntity[] headers = new SimpleEntity[size] ;
-        
-        for (int index = 0; index < size ; ++index) {
-            headers[index] = coreHunterData.getHeader(index) ;
-        }
-            
-        return headers ;
     }
 }
