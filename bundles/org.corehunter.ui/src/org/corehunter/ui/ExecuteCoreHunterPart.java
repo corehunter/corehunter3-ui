@@ -119,7 +119,7 @@ public class ExecuteCoreHunterPart {
         datasetButtonComposite.setLayout(new GridLayout(3, false));
 
         btnAddDataset = new Button(datasetButtonComposite, SWT.NONE);
-        btnAddDataset.setText("Add");
+        btnAddDataset.setText("Add Dataset");
 
         btnAddDataset.addSelectionListener(new SelectionAdapter() {
 
@@ -130,7 +130,7 @@ public class ExecuteCoreHunterPart {
         });
 
         btnRemoveDataset = new Button(datasetButtonComposite, SWT.NONE);
-        btnRemoveDataset.setText("Remove");
+        btnRemoveDataset.setText("Remove Selected Dataset");
 
         btnRemoveDataset.addSelectionListener(new SelectionAdapter() {
 
@@ -141,7 +141,7 @@ public class ExecuteCoreHunterPart {
         });
 
         btnView = new Button(datasetButtonComposite, SWT.NONE);
-        btnView.setText("View");
+        btnView.setText(" View Selected Dataset");
 
         btnView.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -241,7 +241,7 @@ public class ExecuteCoreHunterPart {
         composite.setLayout(new GridLayout(2, false));
 
         btnStart = new Button(composite, SWT.NONE);
-        btnStart.setText("Start");
+        btnStart.setText("Start New Run");
 
         btnStart.addSelectionListener(new SelectionAdapter() {
 
@@ -252,7 +252,11 @@ public class ExecuteCoreHunterPart {
         });
 
         btnReset = new Button(composite, SWT.NONE);
-        btnReset.setText("Reset");
+        btnReset.setText("Clear Selected Dataset");
+        new Label(corehunterRunArgumentsGroup, SWT.NONE);
+        new Label(corehunterRunArgumentsGroup, SWT.NONE);
+        new Label(corehunterRunArgumentsGroup, SWT.NONE);
+        new Label(corehunterRunArgumentsGroup, SWT.NONE);
 
         btnReset.addSelectionListener(new SelectionAdapter() {
 

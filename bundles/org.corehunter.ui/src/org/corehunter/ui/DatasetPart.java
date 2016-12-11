@@ -128,7 +128,7 @@ public class DatasetPart {
 			});
 
 			btnSave = new Button(composite, SWT.NONE);
-			btnSave.setText("Save");
+			btnSave.setText("Save Dataset Details");
 			btnSave.addSelectionListener(new SelectionAdapter() {
 
 	            @Override

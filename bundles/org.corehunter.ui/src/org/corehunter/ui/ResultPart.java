@@ -155,7 +155,7 @@ public class ResultPart {
         lblStatus.setText("Unknown");
         
         btnViewDetails = new Button(leftComposite, SWT.NONE);
-        btnViewDetails.setText("Details");
+        btnViewDetails.setText("Error Detail");
 
         btnViewDetails.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -172,7 +172,7 @@ public class ResultPart {
         btnViewDataset.setText("View Dataset");
 
         btnRefreshResult = new Button(rightComposite, SWT.NONE);
-        btnRefreshResult.setText("Refresh");
+        btnRefreshResult.setText("Refresh Result");
 
         btnRefreshResult.addSelectionListener(new SelectionAdapter() {
 
@@ -189,6 +189,8 @@ public class ResultPart {
                 viewDataset();
             }
         });
+        new Label(runComposite, SWT.NONE);
+        new Label(runComposite, SWT.NONE);
         new Label(runComposite, SWT.NONE);
 
         Group headerViewerComposite = new Group(runComposite, SWT.NONE);
