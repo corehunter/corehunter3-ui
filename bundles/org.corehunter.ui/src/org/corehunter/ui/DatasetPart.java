@@ -4,15 +4,21 @@ package org.corehunter.ui;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.corehunter.data.CoreHunterData;
+import org.apache.commons.lang3.ObjectUtils;
 import org.corehunter.data.CoreHunterDataType;
-import org.corehunter.services.CoreHunterRun;
-import org.corehunter.services.CoreHunterRunArguments;
+import org.eclipse.e4.ui.di.Persist;
+import org.eclipse.e4.ui.model.application.ui.MDirtyable;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -28,182 +34,293 @@ import uno.informatics.data.dataset.DatasetException;
 import uno.informatics.data.dataset.FeatureData;
 import uno.informatics.data.matrix.array.DoubleArrayMatrixData;
 import uno.informatics.data.matrix.array.ObjectArrayMatrixData;
+import uno.informatics.data.pojo.DatasetPojo;
 
 public class DatasetPart {
 
-    public static final String ID = "org.corehunter.ui.part.dataset" ;
+	public static final String ID = "org.corehunter.ui.part.dataset";
 
-    private FeatureDataViewer phenotypeDatasetViewer;
+	private FeatureDataViewer phenotypeDatasetViewer;
 
-    private ObjectArrayMatrixDataViewer genotypeDataViewer;
+	private ObjectArrayMatrixDataViewer genotypeDataViewer;
 
-    private DoubleArrayMatrixDataViewer distanceDataViewer;
+	private DoubleArrayMatrixDataViewer distanceDataViewer;
 
-    private PartInput partInput;
-    private Text textName;
+	private MPart part;
+	private PartInput partInput;
+	@Inject
+	private MDirtyable dirty;
 
-    private Text textAbbreviation;
+	private ShellUtilitiies shellUtilitiies;
 
-    private Text textDescription;
+	private Text textName;
 
-    private HeaderViewer headerViewer;
+	private Text textAbbreviation;
 
-    @Inject
-    public DatasetPart() {
+	private Text textDescription;
 
-    }
+	private HeaderViewer headerViewer;
 
-    @PostConstruct
-    public void postConstruct(Composite parent, MPart part) {
+	private Button btnSave;
 
-        try {
-            parent.setLayout(new FillLayout(SWT.HORIZONTAL));
+	private DatasetPojo savedDataset;
 
-            TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
+	@Inject
+	public DatasetPart() {
 
-            TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
-            tabItem.setText("Dataset");
+	}
 
-            Composite composite = new Composite(tabFolder, SWT.NONE);
-            tabItem.setControl(composite);
-            composite.setLayout(new GridLayout(2, false));
+	@PostConstruct
+	public void postConstruct(Composite parent, MPart part) {
 
-            Label lblName = new Label(composite, SWT.NONE);
-            lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-            lblName.setText("Name");
+		try {
+	        this.part = part ; 
+			shellUtilitiies = new ShellUtilitiies(parent.getShell());
 
-            textName = new Text(composite, SWT.BORDER);
-            textName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-            Label lblAbbreviation = new Label(composite, SWT.NONE);
-            lblAbbreviation.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-            lblAbbreviation.setText("Abbreviation");
+			TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
 
-            textAbbreviation = new Text(composite, SWT.BORDER);
-            textAbbreviation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+			tabItem.setText("Dataset");
 
-            Label lblDescription = new Label(composite, SWT.NONE);
-            lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-            lblDescription.setText("Description");
+			Composite composite = new Composite(tabFolder, SWT.NONE);
+			tabItem.setControl(composite);
+			composite.setLayout(new GridLayout(2, false));
 
-            // TODO needs to be multi line
-            textDescription = new Text(composite, SWT.BORDER);
-            textDescription.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-            
-            Group headerViewerComposite = new Group(composite, SWT.NONE);
-            headerViewerComposite.setText("Headers");
-            headerViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+			Label lblName = new Label(composite, SWT.NONE);
+			lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+			lblName.setText("Name");
 
-            headerViewer = new HeaderViewer();
-            headerViewer.setEditable(true) ;
+			textName = new Text(composite, SWT.BORDER);
+			textName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+	        textName.addModifyListener(new ModifyListener(){
+			      public void modifyText(ModifyEvent event) {
+			    	  dirty.setDirty(isDirty());
+			    	  updateSaveButton();
+			      }
+			});
 
-            headerViewer.createPartControl(headerViewerComposite);
+			Label lblAbbreviation = new Label(composite, SWT.NONE);
+			lblAbbreviation.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+			lblAbbreviation.setText("Abbreviation");
 
-            partInput = (PartInput) part.getTransientData().get(PartUtilitiies.INPUT);
+			textAbbreviation = new Text(composite, SWT.BORDER);
+			textAbbreviation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			textAbbreviation.addModifyListener(new ModifyListener(){
+			      public void modifyText(ModifyEvent event) {
+			    	  dirty.setDirty(isDirty());
+			    	  updateSaveButton();
+			      }
+			});
+			Label lblDescription = new Label(composite, SWT.NONE);
+			lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+			lblDescription.setText("Description");
 
-            if (partInput != null) {
-            	CoreHunterRun run = Activator.getDefault().getCoreHunterRunServices().getCoreHunterRun(partInput.getUniqueIdentifier()) ;
-            	
-            	Dataset dataset = null ;
-            	
-            	if (run != null) {
-            		CoreHunterRunArguments arguments = Activator.getDefault().getCoreHunterRunServices().getArguments(run.getUniqueIdentifier()) ;
-            		
-                	if (arguments != null) {
-                		dataset = Activator.getDefault().getDatasetServices()
-                                .getDataset(arguments.getDatasetId());
-                	} else {
-                		// TODO error
-                	}
-            	} else {
-            		dataset = Activator.getDefault().getDatasetServices()
-                            .getDataset(partInput.getUniqueIdentifier());
-            	}
-            	
-            	if (dataset == null) {
-            		// TODO error
-            	}
-            	
-                textName.setText(dataset.getName());
-                if (dataset.getAbbreviation() != null)
-                    textAbbreviation.setText(dataset.getAbbreviation());
-                if (dataset.getDescription() != null)
-                    textDescription.setText(dataset.getDescription());
-               
-                Data phenotypicData = Activator.getDefault().getDatasetServices()
-                        .getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.PHENOTYPIC);
+			// TODO needs to be multi line
+			textDescription = new Text(composite, SWT.BORDER);
+			textDescription.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			textDescription.addModifyListener(new ModifyListener(){
+			      public void modifyText(ModifyEvent event) {
+			    	  dirty.setDirty(isDirty());
+			    	  updateSaveButton();
+			      }
+			});
 
-                Data genotypicData = Activator.getDefault()
-                        .getDatasetServices()
-                        .getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.GENOTYPIC);
+			btnSave = new Button(composite, SWT.NONE);
+			btnSave.setText("Save");
+			btnSave.addSelectionListener(new SelectionAdapter() {
 
-                Data distancesData = Activator.getDefault()
-                        .getDatasetServices()
-                        .getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.DISTANCES);
-                
+	            @Override
+	            public void widgetSelected(SelectionEvent e) {
+	                saveDataset();
+	            }
+	        });
+			new Label(composite, SWT.NONE);
+
+			Group headerViewerComposite = new Group(composite, SWT.NONE);
+			headerViewerComposite.setText("Headers");
+			headerViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+
+			headerViewer = new HeaderViewer();
+			headerViewer.setEditable(true);
+
+			headerViewer.createPartControl(headerViewerComposite);
+
+			partInput = (PartInput) part.getTransientData().get(PartUtilitiies.INPUT);
+
+			if (partInput != null && partInput.getUniqueIdentifier() != null) {
+
+				Dataset dataset = Activator.getDefault().getDatasetServices()
+						.getDataset(partInput.getUniqueIdentifier());
+				if (dataset == null) {
+					shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");
+				}
+
                 SimpleEntity[] headers = Activator.getDefault().getDatasetServices().getHeaders(dataset.getUniqueIdentifier()) ;
 
-            	if (run != null) {
-            		
-            		SubsetSolution solution = Activator.getDefault().getCoreHunterRunServices().getSubsetSolution(run.getUniqueIdentifier()) ;
-            		headerViewer.setHeadersWithSolution(headers, solution);
-            	} else {
-            		headerViewer.setHeaders(headers) ;            		
-            	}
-            		
+                headerViewer.setHeaders(headers);
                 
-                if (phenotypicData != null && phenotypicData instanceof FeatureData) {
-                    phenotypeDatasetViewer = new FeatureDataViewer();
+				Data phenotypicData = Activator.getDefault().getDatasetServices()
+						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.PHENOTYPIC);
 
-                    TabItem phenotypesTabItem = new TabItem(tabFolder, SWT.NONE);
-                    phenotypesTabItem.setText("Phenotypic Data");
+				Data genotypicData = Activator.getDefault().getDatasetServices()
+						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.GENOTYPIC);
 
-                    Composite phenotypesComposite = new Composite(tabFolder, SWT.NONE);
-                    phenotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-                    phenotypesTabItem.setControl(phenotypesComposite);
+				Data distancesData = Activator.getDefault().getDatasetServices()
+						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.DISTANCES);
 
-                    phenotypeDatasetViewer.setValue((FeatureData)phenotypicData);
+				if (phenotypicData != null && phenotypicData instanceof FeatureData) {
+					phenotypeDatasetViewer = new FeatureDataViewer();
 
-                    phenotypeDatasetViewer.createPartControl(phenotypesComposite);
-                }
+					TabItem phenotypesTabItem = new TabItem(tabFolder, SWT.NONE);
+					phenotypesTabItem.setText("Phenotypic Data");
 
-                if (genotypicData != null && phenotypicData instanceof ObjectArrayMatrixData) {
+					Composite phenotypesComposite = new Composite(tabFolder, SWT.NONE);
+					phenotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+					phenotypesTabItem.setControl(phenotypesComposite);
 
-                    TabItem genotypesTabItem = new TabItem(tabFolder, SWT.NONE);
-                    genotypesTabItem.setText("Genotypic Data");
+					phenotypeDatasetViewer.setValue((FeatureData) phenotypicData);
 
-                    Composite genotypesComposite = new Composite(tabFolder, SWT.NONE);
-                    genotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-                    genotypesTabItem.setControl(genotypesComposite);
+					phenotypeDatasetViewer.createPartControl(phenotypesComposite);
+				}
 
-                    genotypeDataViewer.setValue((ObjectArrayMatrixData)genotypicData);
+				if (genotypicData != null && phenotypicData instanceof ObjectArrayMatrixData) {
 
-                    genotypeDataViewer.createPartControl(genotypesComposite);
+					TabItem genotypesTabItem = new TabItem(tabFolder, SWT.NONE);
+					genotypesTabItem.setText("Genotypic Data");
 
-                    genotypeDataViewer.createPartControl(parent);
-                }
+					Composite genotypesComposite = new Composite(tabFolder, SWT.NONE);
+					genotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+					genotypesTabItem.setControl(genotypesComposite);
 
-                if (distancesData != null && phenotypicData instanceof DoubleArrayMatrixData) {
+					genotypeDataViewer.setValue((ObjectArrayMatrixData) genotypicData);
 
-                    TabItem distancesTabItem = new TabItem(tabFolder, SWT.NONE);
-                    distancesTabItem.setText("Distances Data");
+					genotypeDataViewer.createPartControl(genotypesComposite);
 
-                    Composite distancesComposite = new Composite(tabFolder, SWT.NONE);
-                    distancesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-                    distancesTabItem.setControl(distancesComposite);
+					genotypeDataViewer.createPartControl(parent);
+				}
 
-                    distanceDataViewer.setValue((DoubleArrayMatrixData)distancesData);
+				if (distancesData != null && phenotypicData instanceof DoubleArrayMatrixData) {
 
-                    distanceDataViewer.createPartControl(distancesComposite);
+					TabItem distancesTabItem = new TabItem(tabFolder, SWT.NONE);
+					distancesTabItem.setText("Distances Data");
 
-                    distanceDataViewer.createPartControl(parent);
-                }
-            } else {
-            	// TODO error
-            }
-            	
-        } catch (DatasetException e) {
-            e.printStackTrace();
+					Composite distancesComposite = new Composite(tabFolder, SWT.NONE);
+					distancesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+					distancesTabItem.setControl(distancesComposite);
+
+					distanceDataViewer.setValue((DoubleArrayMatrixData) distancesData);
+
+					distanceDataViewer.createPartControl(distancesComposite);
+
+					distanceDataViewer.createPartControl(parent);
+				}
+				
+				updatePart() ;
+			} else {
+				shellUtilitiies.handleError("Can not load dataset!", "Can not load dataset!");
+			}
+
+		} catch (DatasetException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Persist
+	public void save() {
+		saveDataset();
+	}
+	
+	public void setSolution(SubsetSolution solution) {
+		if (ObjectUtils.notEqual(headerViewer.getSolution(), solution)) {
+	        boolean ok = MessageDialog.openQuestion(shellUtilitiies.getShell(), "Over write existing solution", "Do you want to over write the existing selected solution for this dataset?") ;
+	        
+	        if (ok) {
+	        	updateSolution(solution) ;
+	        }
+		} else {
+
+			updateSolution(solution) ;
+		}		
+	}
+	
+	private void updateSolution(SubsetSolution solution) {
+        if (solution != null) {
+            headerViewer.setSolution(solution) ;
+        } else {
+        	headerViewer.clearSolution() ;
         }
-    }
+	}
+	
+	private void updatePart() {
+
+		Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(partInput.getUniqueIdentifier());
+		if (dataset == null) {
+			shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");
+		}
+
+		savedDataset = new DatasetPojo(dataset);
+		updateSaveButton();
+
+        dirty.setDirty(isDirty());
+       
+        partInput.setName(savedDataset.getName());
+        part.setLabel(savedDataset.getName());
+        
+		textName.setText(savedDataset.getName());
+		if (savedDataset.getAbbreviation() != null) {
+			textAbbreviation.setText(savedDataset.getAbbreviation());
+		} else {
+			textAbbreviation.setText("");	
+		}
+		
+		if (savedDataset.getDescription() != null) {
+			textDescription.setText(savedDataset.getDescription());
+		} else {
+			textDescription.setText("");	
+		}
+	}
+
+	private void saveDataset() {
+		try {
+			if (partInput != null && partInput.getUniqueIdentifier() != null) {
+
+				Dataset dataset = Activator.getDefault().getDatasetServices()
+						.getDataset(partInput.getUniqueIdentifier());
+				
+				if (dataset != null) {
+					DatasetPojo updatedDataset = new DatasetPojo(dataset);
+
+					updatedDataset.setName(textName.getText());
+					updatedDataset.setAbbreviation(textAbbreviation.getText());
+					updatedDataset.setDescription(textDescription.getText());
+					
+					Activator.getDefault().getDatasetServices().updateDataset(updatedDataset) ;
+				} else {
+
+					shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");
+				}
+	
+				updatePart();
+			}	
+		} catch (Exception e) {
+			this.shellUtilitiies.handleError("Can not save result name!", "Can not save result name!", e);
+		}
+	}
+
+	private boolean isDirty() {
+		if (savedDataset != null) {
+			return !ObjectUtils.equals(savedDataset.getName() != null ? savedDataset.getName() : "", textName.getText())
+					|| !ObjectUtils.equals(savedDataset.getAbbreviation() != null ? savedDataset.getAbbreviation() : "", textAbbreviation.getText())
+					|| !ObjectUtils.equals(savedDataset.getDescription() != null ? savedDataset.getDescription() : "", textDescription.getText());
+
+		} else {
+			return false;
+		}
+	}
+
+	private void updateSaveButton() {
+		btnSave.setEnabled(dirty.isDirty());
+	}
 }

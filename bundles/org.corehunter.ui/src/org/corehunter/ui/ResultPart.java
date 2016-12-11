@@ -274,7 +274,6 @@ public class ResultPart {
         	Activator.getDefault().getCoreHunterRunServices().updateCoreHunterRun(updatedCoreHunterRun);
 
         	updatePart() ;
-            updateSaveButton() ;
         } catch (Exception e) {
             this.shellUtilitiies.handleError("Can not save result name!", "Can not save result name!",
                     e);
@@ -288,7 +287,18 @@ public class ResultPart {
     }
 
     private void viewDataset() {
-        partUtilitiies.openPart(new PartInput(partInput, DatasetPart.ID));
+		CoreHunterRunArguments arguments = 
+				Activator.getDefault().getCoreHunterRunServices().getArguments(partInput.getUniqueIdentifier()) ;
+				
+        MPart part = partUtilitiies.openPart(new PartInput(arguments.getDatasetId(), DatasetPart.ID));
+
+        Object editor = part.getObject();
+        
+        if (editor instanceof DatasetPart) {
+            SubsetSolution solution = Activator.getDefault().getCoreHunterRunServices().getSubsetSolution(partInput.getUniqueIdentifier()) ;
+
+        	((DatasetPart)editor).setSolution(solution) ;
+        }
     }
     
     // TODO break to sections (name only, dataset, logs) with flag to indicate which parts to update
@@ -306,11 +316,15 @@ public class ResultPart {
                 Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(arguments.getDatasetId());
                 coreHunterData = Activator.getDefault().getDatasetServices()
                         .getCoreHunterData(arguments.getDatasetId());
-                headerViewer.setHeaders(getHeaders(coreHunterData));
                 
+                SimpleEntity[] headers = Activator.getDefault().getDatasetServices().getHeaders(dataset.getUniqueIdentifier()) ;
+
+                headerViewer.setHeaders(headers);
+
                 savedName = coreHunterRun.getName() ;
-                textName.setText(savedName);
                 dirty.setDirty(false);
+                
+                textName.setText(savedName);
                 partInput.setName(savedName);
                 part.setLabel(savedName);
                 updateSaveButton() ;
@@ -381,8 +395,6 @@ public class ResultPart {
                 this.shellUtilitiies.handleError("Can not get dataset!", "Can not find the dataset for this result",
                         e);
             }
-
-            
         }
     }
     
@@ -404,24 +416,6 @@ public class ResultPart {
 		
 		updateSaveButton() ;
 	}
-
-    private static SimpleEntity[] getHeadersFromIndices(Data data, SubsetSolution solution) {
-        
-        Set<Integer> ids = solution.getSelectedIDs() ;
-        
-        SimpleEntity[] headers = new SimpleEntity[ids.size()] ;
-        
-        Iterator<Integer> iterator  = ids.iterator() ;
-        
-        int i = 0 ;
-        
-        while (iterator.hasNext()) {
-            headers[i] = data.getHeader(iterator.next()) ;
-            ++i ;
-        }
-        
-        return headers ;
-    }
     
     private void viewError() {
         
@@ -435,19 +429,5 @@ public class ResultPart {
             
             shellUtilitiies.handleError("Core Hunter failed!", message, error);
         }
-    }
-
-    // TODO replace with method in Data 
-    private SimpleEntity[] getHeaders(CoreHunterData coreHunterData) {
-        
-        int size = coreHunterData.getSize() ;
-        
-        SimpleEntity[] headers = new SimpleEntity[size] ;
-        
-        for (int index = 0; index < size ; ++index) {
-            headers[index] = coreHunterData.getHeader(index) ;
-        }
-            
-        return headers ;
     }
 }

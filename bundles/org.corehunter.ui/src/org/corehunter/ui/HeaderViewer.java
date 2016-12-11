@@ -329,6 +329,10 @@ public class HeaderViewer {
 		if (viewer != null)
 			viewer.addDoubleClickListener(listener);
 	}
+	
+	public SubsetSolution getSolution() {
+		return solution;
+	}
 
 	private class SimpleEntityFilter extends ViewerFilter {
 
