@@ -56,8 +56,6 @@ public class CoreHunterRunTable {
 
     private CoreHunterRunServices corehunterRunClient;
 
-    private DateTimeFormatter dateTimeFormatter;
-
     private CoreHunterRun selectedCorehunterRun;
 
     private boolean isEmpty;
@@ -68,9 +66,6 @@ public class CoreHunterRunTable {
 
         ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
         setResultClient((CoreHunterRunServices) bundleContext.getService(serviceReference));
-
-        dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
-
     }
 
     public void createPartControl(Composite parent) {
