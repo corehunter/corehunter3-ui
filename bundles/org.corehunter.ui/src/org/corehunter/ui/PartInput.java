@@ -12,8 +12,8 @@ public class PartInput extends SimpleEntityPojo implements Named {
 	
 	private String partId ;
     
-    public PartInput(String name, String partId) {
-        super(name);
+    public PartInput(String uniqueIdentifier, String partId) {
+        super(uniqueIdentifier);
         
         setPartId(partId) ;
     }
