@@ -41,7 +41,6 @@ import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -102,6 +101,7 @@ public class ExecuteCoreHunterPart {
 
         partUtilitiies = new PartUtilitiies(partService, modelService, application);
         shellUtilitiies = new ShellUtilitiies(parent.getShell()) ;
+   
         parent.setLayout(new FillLayout(SWT.VERTICAL));
 
         Group grpDatasets = new Group(parent, SWT.NONE);
