@@ -1,9 +1,6 @@
 
 package org.corehunter.ui;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -35,7 +32,6 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.jamesframework.core.subset.SubsetSolution;
 
-import uno.informatics.data.Data;
 import uno.informatics.data.Dataset;
 import uno.informatics.data.SimpleEntity;
 
@@ -330,11 +326,11 @@ public class ResultPart {
                 updateSaveButton() ;
 
                 if (coreHunterRun.getStartInstant() != null) {
-                    textStartDate.setText(coreHunterRun.getStartInstant().toString());
+                    textStartDate.setText(InstantFormatter.format(coreHunterRun.getStartInstant()));
                 }
                 
                 if (coreHunterRun.getEndInstant() != null)
-                    textEndDate.setText(coreHunterRun.getEndInstant().toString());
+                    textEndDate.setText(InstantFormatter.format(coreHunterRun.getEndInstant()));
                 
                 switch (coreHunterRun.getStatus()) {
                     case FAILED:
