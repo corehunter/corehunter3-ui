@@ -1,8 +1,9 @@
 
 package org.corehunter.ui;
 
-import java.util.HashMap;
+import java.util.Iterator;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.model.application.ui.basic.MPartStack;
@@ -23,52 +24,54 @@ public class PartUtilitiies {
     private EModelService modelService;
     private MApplication application;
 
-    private HashMap<String, MPart> parts;
-
     public PartUtilitiies(EPartService partService, EModelService modelService, MApplication application) {
         super();
         this.partService = partService;
         this.modelService = modelService;
         this.application = application;
 
-        parts = new HashMap<String, MPart>();
-        
         partService.addPartListener(new IPartListener() {
 
             @Override
             public void partActivated(MPart part) {
-            	logger.debug("partActivated part=%s", part);
+            	logger.debug("partActivated part={}", part);
             }
 
             @Override
             public void partBroughtToTop(MPart part) {
-            	logger.debug("partBroughtToTop part=%s", part); 
+            	logger.debug("partBroughtToTop part={}", part); 
             }
 
             @Override
             public void partDeactivated(MPart part) {
-            	logger.debug("partDeactivated part=%s", part);
+            	logger.debug("partDeactivated part={}", part);
             }
 
             @Override
             public void partHidden(MPart part) {
-            	logger.debug("partHidden part=%s", part);
-
-                parts.remove(getPartInput(part)) ;
+            	logger.debug("partHidden part={}", part);
             }
 
             @Override
             public void partVisible(MPart part) {
-            	logger.debug("partVisible part=%s", part);
+            	logger.debug("partVisible part={}", part);
             }});
     }
 
     public MPart openPart(PartInput partInput) {
         MPart part = null;
-
-        if (parts.containsKey(partInput.getUniqueIdentifier())) {
-            part = parts.get(partInput.getUniqueIdentifier());
-
+        
+        Iterator<MPart> parts = getPartService().getParts().iterator() ;
+        
+        boolean found = false ;
+        
+		while (parts.hasNext() && !found) {
+			part = parts.next() ;
+			
+			found = ObjectUtils.equals(partInput, getPartInput(part)) ;
+        }
+        
+		if (found) {
             part = getPartService().showPart(part, PartState.ACTIVATE);
         } else {
             part = partService.createPart(partInput.getPartId());
@@ -86,11 +89,9 @@ public class PartUtilitiies {
     
                 // show the part
                 part = getPartService().showPart(part, PartState.ACTIVATE);
-    
-                parts.put(partInput.getUniqueIdentifier(), part);
             }
-
         }
+		
         return part;
     }
 
