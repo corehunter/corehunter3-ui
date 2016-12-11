@@ -74,6 +74,9 @@ public class HeaderViewer {
 	private Image selectedIcon;
 
 	private Image unselectedIcon;
+	
+    public static final int ASCENDING = -1;
+    public static final int DESCENDING = 1 ;
 
 	public HeaderViewer() {
 
@@ -106,8 +109,13 @@ public class HeaderViewer {
 		viewer.addFilter(filter);
 
 		// Set the sorter for the table
-		comparator = new SimpleEntityComparator();
-		viewer.setComparator(comparator);
+		comparator = new SimpleEntityComparator(ASCENDING, 1);
+		
+		int dir = comparator.getSortIndicatorDirection();
+		viewer.getTable().setSortDirection(dir);
+		viewer.getTable().setSortColumn(viewer.getTable().getColumn(1));
+		
+		viewer.setComparator(comparator);	
 		
 		Bundle bundle = Platform.getBundle("org.corehunter.ui");
 
@@ -215,7 +223,7 @@ public class HeaderViewer {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				comparator.setColumn(index);
-				int dir = comparator.getDirection();
+				int dir = comparator.getSortIndicatorDirection();
 				viewer.getTable().setSortDirection(dir);
 				viewer.getTable().setSortColumn(column);
 				viewer.refresh();
@@ -394,26 +402,46 @@ public class HeaderViewer {
 	
 	public class SimpleEntityComparator extends ViewerComparator {
 	    private int propertyIndex;
-	    private static final int ASCENDING = -1;
-	    private int direction = ASCENDING;
 
+	    private int direction ;
+	    private int defaultDirection ;
+	    
 	    public SimpleEntityComparator() {
-	        this.propertyIndex = 0;
-	        direction = ASCENDING;
+	        this(ASCENDING, 0) ;
+	    }
+	    
+	    public SimpleEntityComparator(int defaultDirection, int propertyIndex) {
+	        this.propertyIndex = propertyIndex;
+	        this.defaultDirection = defaultDirection ;
+	        setDirection(defaultDirection) ;
 	    }
 
-	    public int getDirection() {
-	        return direction == 1 ? SWT.DOWN : SWT.UP;
+	    public int getSortIndicatorDirection() {
+	        return direction == ASCENDING ? SWT.DOWN : SWT.UP;
 	    }
 
+	    private int setDirection(int direction) {
+	    	if (direction < 0) {
+	    		this.direction = ASCENDING ;
+	    	} else {
+	    		this.direction = DESCENDING ;
+	    	}
+	    		
+	        return getSortIndicatorDirection() ;
+	    }
+	    
+	    /**
+	     * Sets the column to to sorted on and changes sort direction if the same column as last time is set.
+	     * @param column
+	     */
 	    public void setColumn(int column) {
 	        if (column == this.propertyIndex) {
 	            // Same column as last sort; toggle the direction
-	            direction = 1 - direction;
+	            direction = -1 * direction;
 	        } else {
-	            // New column; do an ascending sort
+	            // New column; do a sort on default direction
 	            this.propertyIndex = column;
-	            direction = ASCENDING;
+	            direction = defaultDirection;
 	        }
 	    }
 
@@ -446,7 +474,7 @@ public class HeaderViewer {
 	                rc = 0;
 	        }
 	        // If descending order, flip the direction
-	        if (direction == ASCENDING) {
+	        if (direction == DESCENDING) {
 	            rc = -rc;
 	        }
 	        return rc;

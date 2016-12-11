@@ -1,7 +1,6 @@
 
 package org.corehunter.ui;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -12,6 +11,7 @@ import org.corehunter.data.CoreHunterData;
 import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.CoreHunterRunArguments;
 import org.corehunter.services.simple.CoreHunterRunPojo;
+import org.eclipse.e4.ui.di.Persist ;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.MDirtyable;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.jamesframework.core.subset.SubsetSolution;
-import org.eclipse.e4.ui.di.Persist ;
 
 import uno.informatics.data.Data;
 import uno.informatics.data.Dataset;
