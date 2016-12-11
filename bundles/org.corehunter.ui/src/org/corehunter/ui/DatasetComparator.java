@@ -39,7 +39,7 @@ public class DatasetComparator extends ViewerComparator {
     public void setColumn(int column) {
         if (column == this.propertyIndex) {
             // Same column as last sort; toggle the direction
-            direction = 1 - direction;
+            direction = -1 * direction;
         } else {
             // New column; do an ascending sort
             this.propertyIndex = column;
