@@ -219,14 +219,16 @@ public class ObjectiveViewer {
 		public ObjectiveTypeEditingSupport(TableViewer viewer) {
 			super(viewer);
 			this.viewer = viewer;
-			this.editor = new ComboBoxViewerCellEditor(viewer.getTable());
+			this.editor = new ComboBoxViewerCellEditor(viewer.getTable(), SWT.READ_ONLY);
 			this.editor.setContentProvider(new ArrayContentProvider());
 		}
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
-			if (coreHunterData != null)
-				this.editor.setInput(API.getAllowedObjectives(coreHunterData));
+			if (coreHunterData != null) {
+				editor.setInput(API.getAllowedObjectives(coreHunterData));
+				editor.setValue(((CoreHunterObjective) element).getObjectiveType());
+			}
 			return editor;
 		}
 
@@ -269,13 +271,22 @@ public class ObjectiveViewer {
 		public MeasureEditingSupport(TableViewer viewer) {
 			super(viewer);
 			this.viewer = viewer;
-			this.editor = new ComboBoxViewerCellEditor(viewer.getTable());
-			this.editor.setContentProvider(new ArrayContentProvider());
+			ComboBoxViewerCellEditor editor = new ComboBoxViewerCellEditor(viewer.getTable(), SWT.READ_ONLY);
+			editor.setContentProvider(new ArrayContentProvider());
+			editor.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					CoreHunterMeasure objective = (CoreHunterMeasure) element;
+					return objective != null ? objective.getName() : "";
+				}
+			});
+			this.editor = editor ;
 		}
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
 			editor.setInput(API.getAllowedMeasures(coreHunterData, ((CoreHunterObjective) element).getObjectiveType()));
+			editor.setValue(((CoreHunterObjective) element).getMeasure());
 			return editor;
 		}
 
