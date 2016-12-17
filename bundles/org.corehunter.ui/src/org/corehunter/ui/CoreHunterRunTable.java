@@ -16,38 +16,58 @@
 
 package org.corehunter.ui;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
 import org.corehunter.services.CoreHunterRun;
 import org.corehunter.services.CoreHunterRunServices;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.ProgressProvider;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.OwnerDrawLabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import java.time.format.DateTimeFormatter;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+
+import uno.informatics.data.SimpleEntity;
+import uno.informatics.data.pojo.SimpleEntityPojo;
 
 public class CoreHunterRunTable {
     private CoreHunterRunComparator comparator;
@@ -59,9 +79,26 @@ public class CoreHunterRunTable {
     private CoreHunterRun selectedCorehunterRun;
 
     private boolean isEmpty;
+    
+    private HashMap<String, ProgressBar> progressBars ;
 
     @Inject
     public CoreHunterRunTable() {
+    	
+    	progressBars = new HashMap<String, ProgressBar>() ;
+    	
+		Job.getJobManager().setProgressProvider(new ProgressProvider() {
+			@Override
+			public IProgressMonitor createMonitor(Job job) {
+				
+				if (job instanceof CoreHunterJob) {
+					return new JobProgressMonitor() ;
+				} else {
+					return new NullProgressMonitor() ;	
+				}
+			}
+		});
+		
         BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
         ServiceReference<?> serviceReference = bundleContext.getServiceReference(CoreHunterRunServices.class.getName());
@@ -148,8 +185,8 @@ public class CoreHunterRunTable {
 
     // This will create the columns for the table
     private void createColumns(final Composite parent, final TableViewer viewer) {
-        String[] titles = { "Name", "Start", "End", "Status" };
-        int[] bounds = { 100, 100, 100, 100 };
+        String[] titles = { "Name", "Start", "End", "Progress", "Status" };
+        int[] bounds = { 100, 100, 100, 100, 100 };
 
         TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
         col.setLabelProvider(new ColumnLabelProvider() {
@@ -185,14 +222,16 @@ public class CoreHunterRunTable {
         });
 
         col = createTableViewerColumn(titles[3], bounds[3], 3);
+        col.setLabelProvider(new ProgressLabelProvider(viewer)) ;
+        
+        col = createTableViewerColumn(titles[4], bounds[4], 4);
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
                 CoreHunterRun corehunterRun = (CoreHunterRun) element;
                 return corehunterRun.getStatus().getName();
             }
-        });
-
+        });       
     }
 
     private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
@@ -264,4 +303,161 @@ public class CoreHunterRunTable {
         return isEmpty;
     }
 
+	private class ProgressLabelProvider extends OwnerDrawLabelProvider {
+		private TableViewer tableViewer;
+
+		public ProgressLabelProvider(TableViewer tableViewer) {
+			this.tableViewer = tableViewer;
+		}
+
+		@Override
+		protected void measure(Event event, Object element) {
+		}
+
+		@Override
+		protected void paint(Event event, Object element) {
+            CoreHunterRun corehunterRun = (CoreHunterRun) element;
+
+			Table table = tableViewer.getTable();
+			TableItem item = (TableItem) event.item;
+	
+		    ProgressBar bar = new ProgressBar(table,SWT.NONE);
+		    
+		    bar.setMinimum(0);
+		    bar.setMaximum(100);
+		    
+		    progressBars.put(corehunterRun.getUniqueIdentifier(), bar) ;
+		    
+		    switch (corehunterRun.getStatus())
+		    {
+				case FAILED:
+					bar.setState(SWT.ERROR);
+					bar.setSelection(100);
+					break;
+				case FINISHED:
+					bar.setState(SWT.NORMAL);
+					bar.setSelection(100);
+					break;
+				case NOT_STARTED:
+					bar.setState(SWT.PAUSED);
+					bar.setSelection(0);
+					break;
+				case RUNNING:
+					bar.setState(SWT.NORMAL);
+					break;
+				default:
+					break;
+		    }
+		    
+		    TableEditor editor = new TableEditor(table);
+		    editor.grabHorizontal = editor.grabVertical=true;
+		    editor.setEditor(bar,item,3);
+
+		}
+	}
+	
+	private class JobProgressMonitor implements CoreHunterJobMonitor
+	{
+		private int totalWork ;			
+		private int completedWork ;	
+		private String monitorId ;
+		private String name ;
+		private boolean cancelled = false ;
+		private String subTask;
+		
+		public JobProgressMonitor() { 
+		}
+
+		public String getMonitorId() {
+			return monitorId;
+		}
+
+		public void setMonitorId(String monitorId) {
+			this.monitorId = monitorId;
+		}
+
+		@Override
+		public void beginTask(String name, int totalWork) {
+			this.name = name ;
+			this.totalWork = totalWork ;	 	
+		} 
+
+		@Override
+		public void done() {
+			System.out.println("done");
+			if (viewer != null && !viewer.getTable().getDisplay().isDisposed()) {
+
+				viewer.getTable().getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						
+						viewer.refresh(); 
+						
+					}
+				});
+			}
+		}
+
+		@Override
+		public void internalWorked(double work) {
+	
+		}
+
+		@Override
+		public boolean isCanceled() {
+
+			return cancelled  ;
+		}
+
+		@Override
+		public void setCanceled(boolean cancelled) {
+			this.cancelled = cancelled ;  // TODO update progress bar?
+		}
+
+		@Override
+		public void setTaskName(String name) {
+			this.name = name ;  // TODO update progress bar?
+		}
+
+		@Override
+		public void subTask(String name) {
+			this.subTask = name ; // TODO update progress bar?
+		}
+
+		@Override
+		public void worked(int work) {
+			
+			completedWork = completedWork + work;
+			
+			ProgressBar progressBar = progressBars.get(monitorId);
+			
+			if (progressBar != null && !progressBar.getDisplay().isDisposed()) {
+
+				progressBar.getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						
+						if (totalWork > 0) {
+							int percentage = (completedWork * 100 / totalWork);
+							
+							System.out.println("percentage="+percentage);
+							if (completedWork <= totalWork) {		
+								progressBar.setSelection(percentage);
+
+							} else {
+								progressBar.setState(SWT.ERROR);
+							}
+
+						} else {
+							progressBar.setState(SWT.PAUSE);
+						}
+						
+					}
+				});
+			}
+		}
+	}
 }
+

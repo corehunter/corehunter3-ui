@@ -155,7 +155,7 @@ public class ResultPart {
         lblStatus.setText("Unknown");
         
         btnViewDetails = new Button(leftComposite, SWT.NONE);
-        btnViewDetails.setText("Error Detail");
+        btnViewDetails.setText("Error Details");
 
         btnViewDetails.addSelectionListener(new SelectionAdapter() {
             @Override

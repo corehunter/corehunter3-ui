@@ -35,12 +35,12 @@ import org.corehunter.services.simple.CoreHunterRunArgumentsPojo;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -502,6 +502,8 @@ public class ExecuteCoreHunterPart {
 
     private void startCorehunterRun() {
     	
+    	MPart part = partUtilitiies.getPartService().showPart(ResultsPart.ID, PartState.CREATE); // create the part if not already created
+    	
     	String name = createRunName() ;
     	
     	CoreHunterRunJob job = new CoreHunterRunJob(name, new CoreHunterRunArgumentsPojo(
@@ -509,18 +511,18 @@ public class ExecuteCoreHunterPart {
     	
     	job.schedule();    
     	
-    	MPart part = partUtilitiies.getPartService().findPart(ResultsPart.ID);
-    	partUtilitiies.getPartService().activate(part);
+    	partUtilitiies.getPartService().showPart(part, PartState.ACTIVATE) ;
     }
 
     private String createRunName() {
         return String.format("Run for %s", selectedDataset.getName());
     }
     
-    private class CoreHunterRunJob extends Job {
+    private class CoreHunterRunJob extends Job implements CoreHunterJob {
     	
     	private CoreHunterRunArgumentsPojo arguments ;
 		private CoreHunterRun coreHunterRun;
+		private String monitorId ;
 
 		public CoreHunterRunJob(String name, CoreHunterRunArgumentsPojo arguments) {
 			super(name);
@@ -532,41 +534,51 @@ public class ExecuteCoreHunterPart {
 			
 			int time = (int)arguments.getTimeLimit() ;
 			
-			SubMonitor subMonitor = SubMonitor.convert(monitor, time);
+			//SubMonitor subMonitor = SubMonitor.convert(monitor, time);
 			
-			subMonitor.setTaskName(arguments.getName());
+			monitor.beginTask(arguments.getName(), time);
 			
 			coreHunterRun = Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(arguments);
 			
+			monitorId = coreHunterRun.getUniqueIdentifier() ;
+			
+			if (monitor instanceof CoreHunterJobMonitor) {
+				((CoreHunterJobMonitor) monitor).setMonitorId(monitorId);
+			}	
+				
 			boolean finished = false ;
 			
 			while (!finished) {
 				
+				coreHunterRun = Activator.getDefault().getCoreHunterRunServices().executeCoreHunter(arguments);
+				
 				switch(coreHunterRun.getStatus()) {
-				case FAILED:
-				case FINISHED:
-					finished = true ;
-					break;
-				case NOT_STARTED:
-				case RUNNING:
-				default:
-					finished = false ;
-					break;
-				}
-				
-				try {
-					TimeUnit.SECONDS.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					logger.error(e.getMessage(), e);
+					case FAILED:
+					case FINISHED:
+						finished = true ;
+						break;
+					case NOT_STARTED:
+					case RUNNING:
+					default:
+						finished = false ;
+						break;
+					}
 					
-					subMonitor.done(); 
-				}
-				
-				subMonitor.split(1) ;
+					try {
+						TimeUnit.SECONDS.sleep(1);
+						monitor.worked(1);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						
+						logger.error(e.getMessage(), e);
+						finished = true ;
+					}	
+				//subMonitor.split(1) ;
 			}
 	        
-	        partUtilitiies.openPart(new PartInput(coreHunterRun, ResultPart.ID));     
+			monitor.done(); 
+			
+	        partUtilitiies.openPart(new PartInput(coreHunterRun, ResultPart.ID));    
 	        
 			return Status.OK_STATUS ;
 		}
