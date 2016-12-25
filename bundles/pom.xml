@@ -18,5 +18,6 @@
         <module>org.corehunter.ui</module>
         <module>org.corehunter.ui.mock</module>
         <module>org.corehunter.ui.rcp</module>
+        <module>org.corehunter.ui.services</module>
     </modules>
 </project>

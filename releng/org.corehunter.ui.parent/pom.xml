@@ -11,20 +11,26 @@
   <properties>
     <tycho.version>0.23.0</tycho.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <mars-repo.url>http://download.eclipse.org/releases/mars</mars-repo.url>
+    <neon-repo.url>http://download.eclipse.org/releases/neon</neon-repo.url>
     <nebula.url>http://download.eclipse.org/technology/nebula/snapshot</nebula.url>
+    <rap.url>http://download.eclipse.org/rt/rap/3.1</rap.url>
     <local-repo.url>file://Users/Daveneti/Repositories/corehunter3-ui/releng/org.corehunter.convert/target/repository</local-repo.url>
   </properties>
 
   <repositories>
     <repository>
-      <id>mars</id>
-      <url>${mars-repo.url}</url>
+      <id>neon</id>
+      <url>${neon-repo.url}</url>
       <layout>p2</layout>
     </repository>
     <repository>
       <id>nebula</id>
       <url>${nebula.url}</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>rap</id>
+      <url>${rap.url}</url>
       <layout>p2</layout>
     </repository>
     <repository>
