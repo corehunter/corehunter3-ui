@@ -47,6 +47,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -54,6 +55,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
@@ -78,8 +80,9 @@ public class ExecuteCoreHunterPart {
     private Dataset selectedDataset;
     private int selectedDatasetSize;
     private Button btnRemoveDataset;
+    private Button btnClearSelectedDataset;
     private Label lblDatasetSize;
-    private Button btnView;
+    private Button btnViewDataset;
     private ObjectiveViewer objectiveViewer;
     private Button btnAddObjective;
     private Button btnRemoveObjective;
@@ -88,11 +91,13 @@ public class ExecuteCoreHunterPart {
     private PartUtilitiies partUtilitiies;
     
     private Map<String, List<CoreHunterObjective>> objectivesMap;
+	private Map<String, CoreHunterData>  coreHunterDataMap;
+
 
     @Inject
     public ExecuteCoreHunterPart() {
-
         objectivesMap = new HashMap<String, List<CoreHunterObjective>>();
+        coreHunterDataMap = new HashMap<String, CoreHunterData>();
     }
 
     @PostConstruct
@@ -116,7 +121,7 @@ public class ExecuteCoreHunterPart {
         datasetViewer.createPartControl(datasetViewerComposite);
 
         Composite datasetButtonComposite = new Composite(grpDatasets, SWT.NONE);
-        datasetButtonComposite.setLayout(new GridLayout(3, false));
+        datasetButtonComposite.setLayout(new GridLayout(5, false));
 
         btnAddDataset = new Button(datasetButtonComposite, SWT.NONE);
         btnAddDataset.setText("Add Dataset");
@@ -140,16 +145,29 @@ public class ExecuteCoreHunterPart {
             }
         });
 
-        btnView = new Button(datasetButtonComposite, SWT.NONE);
-        btnView.setText(" View Selected Dataset");
-
-        btnView.addSelectionListener(new SelectionAdapter() {
+        btnViewDataset = new Button(datasetButtonComposite, SWT.NONE);
+        btnViewDataset.setText("View Selected Dataset");
+        
+        btnViewDataset.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 viewDataset();
             }
         });
         
+        btnClearSelectedDataset = new Button(datasetButtonComposite, SWT.NONE);
+        btnClearSelectedDataset.setText("Clear Selected Dataset");
+        
+        btnClearSelectedDataset.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                clearSelectedDataset();
+            }
+        });
+        
+        new Label(datasetButtonComposite, SWT.NONE);
+
+
         datasetViewer.addDoubleClickListener(new IDoubleClickListener() {
             @Override
             public void doubleClick(DoubleClickEvent event) {
@@ -187,9 +205,8 @@ public class ExecuteCoreHunterPart {
         lblIntensity.setText("Intensity");
 
         spinnerIntensity = new Spinner(corehunterRunArgumentsGroup, SWT.BORDER);
-        spinnerIntensity.setMinimum(0);
-        spinnerIntensity.setSelection(20); // TODO get from properties file
-        spinnerIntensity.setMaximum(100);
+        
+        resetSpinnerIntensity() ;
 
         spinnerIntensity.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -252,7 +269,7 @@ public class ExecuteCoreHunterPart {
         });
 
         btnReset = new Button(composite, SWT.NONE);
-        btnReset.setText("Clear Selected Dataset");
+        btnReset.setText("Reset Arguments");
         new Label(corehunterRunArgumentsGroup, SWT.NONE);
         new Label(corehunterRunArgumentsGroup, SWT.NONE);
         new Label(corehunterRunArgumentsGroup, SWT.NONE);
@@ -273,7 +290,21 @@ public class ExecuteCoreHunterPart {
         updateStartButton();
     }
 
-    private void addNewObjective() {
+    private void resetDatasetObjectives() {
+    	if (selectedDataset != null) {
+    		resetObjectives(selectedDataset) ;
+    	}
+	}
+
+    private void resetSpinnerIntensity() {
+        spinnerIntensity.setMinimum(0);
+        spinnerIntensity.setSelection(20); // TODO get from properties file
+        spinnerIntensity.setMaximum(100);
+        
+        spinnerIntensityUpdated() ;
+	}
+
+	private void addNewObjective() {
 
         CoreHunterObjective newObjective = createNewObjective(selectedDataset);
 
@@ -300,12 +331,10 @@ public class ExecuteCoreHunterPart {
 
     protected void spinnerSizeUpdated() {
         spinnerIntensity.setSelection(getIntensityFromSize(selectedDatasetSize, spinnerSize.getSelection()));
-
     }
 
     protected void spinnerIntensityUpdated() {
         spinnerSize.setSelection(getSizeFromIntensity(selectedDatasetSize, spinnerIntensity.getSelection()));
-
     }
 
     private void addDataset() {
@@ -328,6 +357,8 @@ public class ExecuteCoreHunterPart {
                 	Activator.getDefault().getDatasetServices().loadData(dialog.getDataset(), 
                         Paths.get(dialog.getDistancesDataPath()), dialog.getDistancesDataType(), CoreHunterDataType.DISTANCES) ;
                 }
+                
+                getCoreHunterData(dialog.getDataset().getUniqueIdentifier()) ; // this caches data to speed up the interface
                                          
                 updateViewer();
             } catch (Exception e) {
@@ -351,6 +382,7 @@ public class ExecuteCoreHunterPart {
     private void removeDataset() {
         try {
             Activator.getDefault().getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
+            coreHunterDataMap.remove(selectedDataset.getUniqueIdentifier()) ;
             updateViewer();
         } catch (DatasetException e) {
             shellUtilitiies.handleError("Dataset not be removed!",
@@ -360,6 +392,18 @@ public class ExecuteCoreHunterPart {
 
     private void viewDataset() {
         partUtilitiies.openPart(new PartInput(selectedDataset, DatasetPart.ID));
+    }
+    
+    private void clearSelectedDataset() {
+        datasetViewer.clearSelectedDataset();
+        selectedDataset = null;
+
+        updateObjectiveViewer();
+        updateDatasetButtons();
+        updateDatasetSize();
+        updateCorehunterArguments();
+        updateObjectiveButtons();
+        updateStartButton();
     }
 
     private void datasetSelectionChanged() {
@@ -389,54 +433,46 @@ public class ExecuteCoreHunterPart {
             return new LinkedList<CoreHunterObjective>();
         }
     }
+    
+    private void resetObjectives(Dataset dataset) {
+        if (dataset != null) {
+             objectivesMap.remove(dataset.getUniqueIdentifier());
+        }
+    }
 
     private List<CoreHunterObjective> createDefaultObjectives(Dataset dataset) {
-        
-        try {
-
-            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
-                    .getCoreHunterData(dataset.getUniqueIdentifier());
-            
-            return API.createDefaultObjectives(coreHunterData) ;
-
-        } catch (DatasetException e) {
-            shellUtilitiies.handleError("Can not create objective!",
-                    "Objective could not be created, see error message for more details!", e);
-            
-            return new LinkedList<CoreHunterObjective>();
-        }
+        return API.createDefaultObjectives(getCoreHunterData(dataset.getUniqueIdentifier())) ;
     }
     
     private CoreHunterObjective createNewObjective(Dataset dataset) {
         
-        try {
+            if (dataset != null) {
+                List<CoreHunterObjective> objectives = objectivesMap.get(dataset.getUniqueIdentifier());
+                
+        		CoreHunterData coreHunterData = getCoreHunterData(dataset.getUniqueIdentifier()) ;	
+                
+            	if (objectives != null && !objectives.isEmpty()) {
+            		return API.createDefaultObjective(coreHunterData, objectives) ;
+                    
+            	} else {
+            		return API.createDefaultObjective(coreHunterData) ;
+            	}     
 
-            CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
-                    .getCoreHunterData(dataset.getUniqueIdentifier());
-            
-            return API.createDefaultObjective(coreHunterData) ;
+            } else {
+                shellUtilitiies.handleError("Can not create objective!",
+                        "Objective could not be created, dataset is undefined!");
+            }
 
-        } catch (DatasetException e) {
-            shellUtilitiies.handleError("Can not create objective!",
-                    "Objective could not be created, see error message for more details!", e);
-            
-            return null ;
-        }
+        
+        return null ;
     }
 
     private void updateObjectiveViewer() {
         if (selectedDataset != null) {
             selectedDatasetSize = selectedDataset.getSize();
             
-            try {
-                CoreHunterData coreHunterData = Activator.getDefault().getDatasetServices()
-                        .getCoreHunterData(selectedDataset.getUniqueIdentifier());
-                objectiveViewer.setCoreHunterData(coreHunterData);
+             objectiveViewer.setCoreHunterData(getCoreHunterData(selectedDataset.getUniqueIdentifier()));
 
-            } catch (DatasetException e) {
-                shellUtilitiies.handleError("Can not update objective viewer!",
-                        "Can not update objective viewer, see error message for more details!", e);
-            }
 
         } else {
             selectedDatasetSize = 0;
@@ -446,9 +482,33 @@ public class ExecuteCoreHunterPart {
         objectiveViewer.setObjectives(getObjectives(selectedDataset));
     }
 
-    private void updateDatasetButtons() {
+    private CoreHunterData getCoreHunterData(String uniqueIdentifier) {
+    	
+    	CoreHunterData coreHunterData = null ;
+    	
+    	if (selectedDataset != null) {
+    		coreHunterData = coreHunterDataMap.get(selectedDataset.getUniqueIdentifier()) ;
+    		
+    		GetCoreHunterDataRunnable runnable = new GetCoreHunterDataRunnable() ;
+    		
+        	if (coreHunterData == null) {
+        		BusyIndicator.showWhile(Display.getDefault(), runnable) ;
+        		
+        		coreHunterData = runnable.getCoreHunterData() ;
+        		
+            	if (coreHunterData != null) {
+            		coreHunterDataMap.put(selectedDataset.getUniqueIdentifier(), coreHunterData) ;
+            	}  
+        	}
+    	}
+
+		return coreHunterData;
+	}
+
+	private void updateDatasetButtons() {
         btnRemoveDataset.setEnabled(datasetViewer.getSelectedDataset() != null);
-        btnView.setEnabled(datasetViewer.getSelectedDataset() != null);
+        btnViewDataset.setEnabled(datasetViewer.getSelectedDataset() != null);
+        btnClearSelectedDataset.setEnabled(datasetViewer.getSelectedDataset() != null);
     }
 
     private void updateObjectiveButtons() {
@@ -463,9 +523,9 @@ public class ExecuteCoreHunterPart {
     }
 
     private void resetArguments() {
-        datasetViewer.cleaerSelectedDataset();
-        selectedDataset = null;
-
+    	resetDatasetObjectives() ;
+    	resetSpinnerIntensity() ;
+    	
         updateObjectiveViewer();
         updateDatasetButtons();
         updateDatasetSize();
@@ -474,7 +534,7 @@ public class ExecuteCoreHunterPart {
         updateStartButton();
     }
 
-    private void updateDatasetSize() {
+	private void updateDatasetSize() {
         lblDatasetSize.setText(String.format("Dataset Size : %d ", selectedDatasetSize));
     }
 
@@ -506,8 +566,12 @@ public class ExecuteCoreHunterPart {
     	
     	String name = createRunName() ;
     	
-    	CoreHunterRunJob job = new CoreHunterRunJob(name, new CoreHunterRunArgumentsPojo(
-    			name, spinnerSize.getSelection(), selectedDataset.getUniqueIdentifier(), objectiveViewer.getObjectives()));
+    	CoreHunterRunArgumentsPojo arguments = new CoreHunterRunArgumentsPojo(
+    			name, spinnerSize.getSelection(), selectedDataset.getUniqueIdentifier(), objectiveViewer.getObjectives()) ;
+    	
+    	arguments.setTimeLimit(5);
+    	
+		CoreHunterRunJob job = new CoreHunterRunJob(name, arguments);
     	
     	job.schedule();    
     	
@@ -591,5 +655,24 @@ public class ExecuteCoreHunterPart {
 			return coreHunterRun;
 		}
     	
+    }
+    
+    private class GetCoreHunterDataRunnable implements Runnable {
+    	
+    	CoreHunterData coreHunterData ;
+    	
+	    public void run(){
+	    	try {
+				coreHunterData = Activator.getDefault().getDatasetServices().getCoreHunterData(
+						selectedDataset.getUniqueIdentifier());
+	        } catch (DatasetException e) {
+	            shellUtilitiies.handleError("Can not get core hunter data!",
+	                    "Can not get core hunter data, see error message for more details!", e);
+			}
+	    }
+
+		public final CoreHunterData getCoreHunterData() {
+			return coreHunterData;
+		}
     }
 }

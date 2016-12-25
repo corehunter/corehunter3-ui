@@ -95,7 +95,7 @@ public class ResultsPart {
         composite.setLayout(new GridLayout(4, false));
 
         btnRemove = new Button(composite, SWT.NONE);
-        btnRemove.setText(" Remove Selected");
+        btnRemove.setText("Remove Selected");
         btnRemove.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {

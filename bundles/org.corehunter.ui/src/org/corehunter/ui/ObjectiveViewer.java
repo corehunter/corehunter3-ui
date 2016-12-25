@@ -16,6 +16,7 @@
 
 package org.corehunter.ui;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.corehunter.API;
@@ -50,6 +51,8 @@ public class ObjectiveViewer {
 	private CoreHunterObjective selectedObjective;
 
 	private CoreHunterData coreHunterData;
+
+	private double totalWeight;
 
 	public ObjectiveViewer() {
 
@@ -107,6 +110,15 @@ public class ObjectiveViewer {
 	}
 
 	public final void updateViewer() {
+		if (objectives != null) {
+			Iterator<CoreHunterObjective> iterator = objectives.iterator() ;
+			
+			totalWeight = 0 ;
+			
+			while (iterator.hasNext()) {
+				totalWeight = totalWeight + iterator.next().getWeight() ;
+			}
+		}
 		viewer.setInput(objectives);
 	}
 
@@ -121,9 +133,9 @@ public class ObjectiveViewer {
 
 	// This will create the columns for the table
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Objective", "Measure", "Weight" };
+		String[] titles = { "Objective", "Measure", "Weight (%)" };
 
-		int[] bounds = { 250, 200, 50 };
+		int[] bounds = { 250, 200, 75 };
 
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -149,11 +161,10 @@ public class ObjectiveViewer {
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				CoreHunterObjective objective = (CoreHunterObjective) element;
-				return String.format("%e", objective.getWeight());
+				return getPercentage(element).toString() ;
 			}
 		});
-		col.setEditingSupport(new WeightEditingSupport(viewer));
+		//col.setEditingSupport(new WeightEditingSupport(viewer));
 
 	}
 
@@ -226,7 +237,7 @@ public class ObjectiveViewer {
 		@Override
 		protected CellEditor getCellEditor(Object element) {
 			if (coreHunterData != null) {
-				editor.setInput(API.getAllowedObjectives(coreHunterData));
+				editor.setInput(API.getAllowedObjectiveTypes(coreHunterData));
 				editor.setValue(((CoreHunterObjective) element).getObjectiveType());
 			}
 			return editor;
@@ -234,7 +245,7 @@ public class ObjectiveViewer {
 
 		@Override
 		protected boolean canEdit(Object element) {
-			List<CoreHunterObjectiveType> allowedObjectives = API.getAllowedObjectives(coreHunterData) ;
+			List<CoreHunterObjectiveType> allowedObjectives = API.getAllowedObjectiveTypes(coreHunterData) ;
 
 			return allowedObjectives.size() > 1;
 		}
@@ -299,7 +310,7 @@ public class ObjectiveViewer {
 
 		@Override
 		protected Object getValue(Object element) {
-			return ((CoreHunterObjective) element).getObjectiveType();
+			return ((CoreHunterObjective) element).getMeasure() ;
 		}
 
 		@Override
@@ -309,6 +320,40 @@ public class ObjectiveViewer {
 		}
 	}
 
+	/*public class WeightEditingSupport extends EditingSupport {
+
+		private final TableViewer viewer;
+		private final SpinnerCellEditor editor;
+
+		public WeightEditingSupport(TableViewer viewer) {
+			super(viewer);
+			this.viewer = viewer;
+			this.editor = new SpinnerCellEditor(viewer.getTable(), 100);
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			editor.setValue(getPercentage(element));
+			return editor;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return objectives != null && objectives.size() > 1;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			return ((CoreHunterObjective) element).getWeight();
+		}
+
+		@Override
+		protected void setValue(Object element, Object userInputValue) {
+			((CoreHunterObjective) element).setWeight(getWeight(userInputValue));
+			viewer.update(element, null);
+		}
+	}*/
+	
 	public class WeightEditingSupport extends EditingSupport {
 
 		private final TableViewer viewer;
@@ -317,28 +362,41 @@ public class ObjectiveViewer {
 		public WeightEditingSupport(TableViewer viewer) {
 			super(viewer);
 			this.viewer = viewer;
-			this.editor = new TextCellEditor(viewer.getTable());
+			this.editor = new TextCellEditor(viewer.getTable(), SWT.NONE);
 		}
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
+			editor.setValue(getPercentage(element));
 			return editor;
 		}
 
 		@Override
 		protected boolean canEdit(Object element) {
-			return true;
+			return objectives != null && objectives.size() > 1;
 		}
 
 		@Override
 		protected Object getValue(Object element) {
-			return ((CoreHunterObjective) element).getObjectiveType();
+			return ((CoreHunterObjective) element).getWeight();
 		}
 
 		@Override
 		protected void setValue(Object element, Object userInputValue) {
-			((CoreHunterObjective) element).setMeasure((CoreHunterMeasure) userInputValue);
+			((CoreHunterObjective) element).setWeight(getWeight(userInputValue));
 			viewer.update(element, null);
 		}
+	}
+	
+	private Object getPercentage(Object element) {
+		double ratio = ((CoreHunterObjective) element).getWeight() / totalWeight;
+		
+		return (int)(ratio * 100.0);
+	}
+	
+	private double getWeight(Object element) {
+		double ratio = ((CoreHunterObjective) element).getWeight() / totalWeight;
+		
+		return (int)(ratio * 100.0);
 	}
 }

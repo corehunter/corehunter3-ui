@@ -192,7 +192,7 @@ public class DatasetViewer {
         return selectedDataset;
     }
 
-    public void cleaerSelectedDataset() {
+    public void clearSelectedDataset() {
         viewer.getTable().deselectAll();
         selectedDataset = null;
     }

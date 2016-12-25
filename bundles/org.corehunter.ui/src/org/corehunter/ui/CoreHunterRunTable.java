@@ -222,7 +222,13 @@ public class CoreHunterRunTable {
         });
 
         col = createTableViewerColumn(titles[3], bounds[3], 3);
-        col.setLabelProvider(new ProgressLabelProvider(viewer)) ;
+        //col.setLabelProvider(new ProgressLabelProvider(viewer)) ;
+        col.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                return "" ;
+            }
+        });
         
         col = createTableViewerColumn(titles[4], bounds[4], 4);
         col.setLabelProvider(new ColumnLabelProvider() {
