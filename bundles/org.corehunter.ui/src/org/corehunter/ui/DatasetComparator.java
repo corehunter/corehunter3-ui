@@ -63,7 +63,11 @@ public class DatasetComparator extends ViewerComparator {
                 	if (dataset1.getDescription() != null) {
     	                rc = 1 ;
                 	} else {
-                		rc = -1 ;
+                    	if (dataset1.getDescription() != null) {
+        	                rc = 1 ;
+                    	} else {
+                    		rc = 0 ;
+                    	}
                 	}
             	}
                 break;
