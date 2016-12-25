@@ -57,7 +57,15 @@ public class DatasetComparator extends ViewerComparator {
                 rc = dataset1.getName().compareTo(dataset2.getName());
                 break;
             case 1:
-                rc = dataset1.getDescription().compareTo(dataset2.getDescription());
+            	if (dataset1.getDescription() != null && dataset2.getDescription() != null) {
+	                rc = dataset1.getDescription().compareTo(dataset2.getDescription());
+            	} else {
+                	if (dataset1.getDescription() != null) {
+    	                rc = 1 ;
+                	} else {
+                		rc = -1 ;
+                	}
+            	}
                 break;
             default:
                 rc = 0;
