@@ -29,33 +29,6 @@ public class PartUtilitiies {
         this.partService = partService;
         this.modelService = modelService;
         this.application = application;
-
-        partService.addPartListener(new IPartListener() {
-
-            @Override
-            public void partActivated(MPart part) {
-            	logger.debug("partActivated part={}", part);
-            }
-
-            @Override
-            public void partBroughtToTop(MPart part) {
-            	logger.debug("partBroughtToTop part={}", part); 
-            }
-
-            @Override
-            public void partDeactivated(MPart part) {
-            	logger.debug("partDeactivated part={}", part);
-            }
-
-            @Override
-            public void partHidden(MPart part) {
-            	logger.debug("partHidden part={}", part);
-            }
-
-            @Override
-            public void partVisible(MPart part) {
-            	logger.debug("partVisible part={}", part);
-            }});
     }
 
     public MPart openPart(PartInput partInput) {
