@@ -193,7 +193,7 @@ public class CoreHunterRunTable {
             @Override
             public String getText(Object element) {
                 CoreHunterRun corehunterRun = (CoreHunterRun) element;
-                return corehunterRun.getName();
+                return corehunterRun.getName() + "("+corehunterRun.getUniqueIdentifier()+")";
             }
         });
 
@@ -222,13 +222,7 @@ public class CoreHunterRunTable {
         });
 
         col = createTableViewerColumn(titles[3], bounds[3], 3);
-        //col.setLabelProvider(new ProgressLabelProvider(viewer)) ;
-        col.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                return "" ;
-            }
-        });
+        col.setLabelProvider(new ProgressLabelProvider(viewer)) ;
         
         col = createTableViewerColumn(titles[4], bounds[4], 4);
         col.setLabelProvider(new ColumnLabelProvider() {
@@ -390,16 +384,13 @@ public class CoreHunterRunTable {
 
 		@Override
 		public void done() {
-			System.out.println("done");
 			if (viewer != null && !viewer.getTable().getDisplay().isDisposed()) {
 
 				viewer.getTable().getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						
 						viewer.refresh(); 
-						
 					}
 				});
 			}
@@ -438,6 +429,8 @@ public class CoreHunterRunTable {
 			
 			ProgressBar progressBar = progressBars.get(monitorId);
 			
+			int percentage = totalWork > 0 ? (completedWork * 100 / totalWork) : 100 ;
+			
 			if (progressBar != null && !progressBar.getDisplay().isDisposed()) {
 
 				progressBar.getDisplay().asyncExec(new Runnable() {
@@ -446,20 +439,15 @@ public class CoreHunterRunTable {
 					public void run() {
 						
 						if (totalWork > 0) {
-							int percentage = (completedWork * 100 / totalWork);
-							
-							System.out.println("percentage="+percentage);
 							if (completedWork <= totalWork) {		
 								progressBar.setSelection(percentage);
 
 							} else {
 								progressBar.setState(SWT.ERROR);
 							}
-
 						} else {
 							progressBar.setState(SWT.PAUSE);
-						}
-						
+						}	
 					}
 				});
 			}
