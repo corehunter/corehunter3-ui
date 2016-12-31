@@ -5,12 +5,12 @@ Bundle-SymbolicName: org.corehunter.ui.mock
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Require-Bundle: uno.informatics.common.informatics-data-api;bundle-version="1.0.0",
- uno.informatics.common.informatics-data-impl;bundle-version="1.0.0",
- org.corehunter.services-api,
- org.corehunter.services-simple;bundle-version="3.0.0",
- org.jamesframework.james-core,
- org.corehunter.base;bundle-version="3.0.0",
+Require-Bundle: uno.informatics.common.informatics-data-api;bundle-version="1.1.1",
  org.eclipse.core.runtime;bundle-version="3.11.1",
+ uno.informatics.common.informatics-data-impl;bundle-version="1.1.1",
+ org.corehunter.base;bundle-version="3.1.0",
+ org.corehunter.services-api;bundle-version="3.1.0",
+ org.corehunter.services-simple;bundle-version="3.1.0",
+ org.jamesframework.james-core;bundle-version="1.2.0",
  org.corehunter.ui;bundle-version="1.0.0"
 Service-Component: OSGI-INF/*.xml
