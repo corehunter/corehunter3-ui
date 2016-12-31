@@ -16,31 +16,32 @@
 
 package org.corehunter.ui;
 
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 
-import uno.informatics.data.matrix.array.ArrayMatrixData;
+/**
+ * @author Guy Davenport
+ *
+ */
+public class DataGridLabelProvider<ValueType extends Object> extends ColumnLabelProvider {
+    private int columnIndex;
 
-public class ArrayMatrixDataContentProvider
-    implements IStructuredContentProvider {
-
-    @Override
-    public void dispose() {
-
+    public DataGridLabelProvider(int columnIndex) {
+        super();
+        
+        this.columnIndex = columnIndex;
     }
 
-    @Override
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-
+    public final int getColumnIndex() {
+        return columnIndex;
     }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Object[] getElements(Object inputElement) {
-        if (inputElement instanceof ArrayMatrixData)
-            return ((ArrayMatrixData) inputElement).getValuesAsArray();
-        else
-            return null;
-    }
-
+    
+	@SuppressWarnings("unchecked")
+	@Override
+	public String getText(Object element) {
+		return element == null ? "" : getElementText((DataGridViewerRow)element, columnIndex);
+	}
+	
+	protected String getElementText(DataGridViewerRow<ValueType> element, int columnIndex) {
+		return element.getElements()[columnIndex] == null ? "" : element.getElements()[columnIndex].toString();
+	}
 }

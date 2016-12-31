@@ -31,7 +31,6 @@ public class RowHeaderLabelProvider extends CellLabelProvider {
     public void update(ViewerCell cell) {
         if (((FeatureDataRow) cell.getElement()).getHeader() != null)
             cell.setText(((FeatureDataRow) cell.getElement()).getHeader().getName());
-
     }
 
 }

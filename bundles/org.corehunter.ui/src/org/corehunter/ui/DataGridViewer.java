@@ -21,7 +21,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.nebula.jface.gridviewer.GridTableViewer;
 import org.eclipse.nebula.jface.gridviewer.GridViewerColumn;
@@ -29,43 +32,76 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.jamesframework.core.subset.SubsetSolution;
 
-import uno.informatics.data.Feature;
-import uno.informatics.data.dataset.FeatureData;
+import uno.informatics.data.SimpleEntity;
 
 /**
  * @author Guy Davenport
  *
  */
-public class FeatureDataViewer {
+public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends Object> 
+	implements SolutionContainer {
     private static final int MIM_COLUMN_SIZE = 5;
     private GridTableViewer gridViewer;
 
-    private FeatureData value;
-    private Map<Integer, GridViewerColumn> viewerColumns;
+    private DataGridViewerRow<ElementType>[] rows ;
+    private ColumnHeaderType[] columnHeaders;
+	private IStructuredContentProvider contentProvider;
+	private CellLabelProvider rowHeaderLabelProvider;
+	private Map<Integer, GridViewerColumn> viewerColumns;
 
     /**
      * @param parent
      * @param configuration
      */
-    public FeatureDataViewer() {
-        viewerColumns = new TreeMap<Integer, GridViewerColumn>();
+    public DataGridViewer() {
+        contentProvider = new ArrayContentProvider() ;
+        viewerColumns = new TreeMap<Integer, GridViewerColumn>() ;
+        rowHeaderLabelProvider = new SimpleEntityCellLabelProvider<ElementType>() ;
     }
-
-    public void setValue(FeatureData value) {
-        if (!ObjectUtils.equals(this.value, value)) {
-            this.value = value;
+    
+	public void setContent(DataGridViewerRow<ElementType>[] rows, ColumnHeaderType[] columnHeaders) {
+        if (!ObjectUtils.equals(this.rows, rows) || 
+        		!ObjectUtils.equals(this.columnHeaders, columnHeaders)) {
+        	
+    		if (rows == null) {
+    			throw new NullPointerException("Rows must be defined!") ;
+    		}
+    		
+    		if (columnHeaders == null) {
+    			throw new NullPointerException("Column headers must be defined!") ;
+    		}
+    		
+    		if (rows.length > 0 && rows[0].getSize() != columnHeaders.length) {
+    			throw new IllegalStateException("Number of columns headers must match number of columns in first row!") ;
+    		}
+    		
+            this.rows = rows;
+            this.columnHeaders = columnHeaders;
+            updateGridViewer() ;
         }
-    }
+	}
 
-    public void createPartControl(Composite parent) {
+	public final void setContentProvider(IStructuredContentProvider contentProvider) {
+		if (gridViewer != null) {
+			throw new IllegalStateException("Content provider must be set before creating the part.") ;
+		}
+		this.contentProvider = contentProvider;
+	}
+	
+	public final void setRowHeaderLabelProvider(CellLabelProvider rowHeaderLabelProvider) {
+		if (gridViewer != null) {
+			throw new IllegalStateException("Row header label provider provider must be set before creating the part.") ;
+		}
+		this.rowHeaderLabelProvider = rowHeaderLabelProvider;
+	}
+	
+	public void createPartControl(Composite parent) {
         gridViewer = new GridTableViewer(parent);
 
-        gridViewer.setContentProvider(new FeatureDataContentProvider());
-        gridViewer.setRowHeaderLabelProvider(new RowHeaderLabelProvider());
-        gridViewer.getGrid().setHeaderVisible(true);
+        gridViewer.setContentProvider(contentProvider);
         gridViewer.getGrid().setRowHeaderVisible(true);
-
-        updateGridViewer();
+        gridViewer.setRowHeaderLabelProvider(rowHeaderLabelProvider);
+        gridViewer.getGrid().setHeaderVisible(true);
 
         gridViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             @Override
@@ -73,23 +109,30 @@ public class FeatureDataViewer {
                 handleViewerSelectionChanged();
             }
         });
-
+        
+        updateGridViewer() ;
     }
     
+    @Override
+	public SubsetSolution getSolution() {
+		return null ;
+	}  
+	
+    @Override
 	public void setSolution(SubsetSolution solution) {
 		// TODO Auto-generated method stub
 		
-	}
+	}  
 
     protected void handleViewerSelectionChanged() {
 
     }
 
     private void updateGridViewer() {
-        if (value != null && !value.getFeatures().isEmpty()) {
+        if (rows != null && rows.length > 0) {
             if (gridViewer != null) {
                 int oldColumnCount = viewerColumns.size();
-                int newColumnCount = value.getFeatures().size();
+                int newColumnCount = columnHeaders.length ;
 
                 // create new columns
                 if (newColumnCount > oldColumnCount) {
@@ -112,23 +155,20 @@ public class FeatureDataViewer {
                 GridViewerColumn gridViewerColumn;
 
                 int index = 0;
-                Feature feature;
+                int i = 0 ;
 
                 while (iterator.hasNext()) {
                     index = iterator.next();
 
-                    feature = value.getFeatures().get(index);
-
                     gridViewerColumn = viewerColumns.get(index);
-
-                    gridViewerColumn.getColumn().setText(feature.getName());
-
-                    gridViewerColumn.setLabelProvider(new FeatureDataLabelProvider(feature, index));
-
-                    gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName()));
+                    gridViewerColumn.setLabelProvider(createColumnLabelProvider(i));
+                    
+                    configureViewerColumn(gridViewerColumn, columnHeaders[index]) ;
+                    
+                    ++i ;
                 }
 
-                gridViewer.setInput(value);
+                gridViewer.setInput(rows);
             }
         } else {
             if (gridViewer != null) {
@@ -143,6 +183,27 @@ public class FeatureDataViewer {
             }
         }
     }
+    
+	protected CellLabelProvider createColumnLabelProvider(int i) {
+    	
+		return new DataGridLabelProvider<ElementType>(i);
+	}
+	
+	protected void configureViewerColumn(GridViewerColumn gridViewerColumn, ColumnHeaderType columnHeader) {
+    	
+    	if (columnHeader instanceof SimpleEntity) {
+    		String name = ((SimpleEntity)columnHeader).getName() ;
+    		gridViewerColumn.getColumn().setText(name);	
+    		gridViewerColumn.getColumn().setWidth(guessColumnWidth(name));
+    		gridViewerColumn.getColumn().setHeaderWordWrap(true);
+            
+    	} else {
+    		String name = columnHeader.toString() ;
+    		gridViewerColumn.getColumn().setText(name);	
+    		gridViewerColumn.getColumn().setWidth(guessColumnWidth(name));
+    		gridViewerColumn.getColumn().setHeaderWordWrap(true);
+    	}
+	}
 
     private int guessColumnWidth(String columnHeader) {
         int size = 0;
@@ -155,4 +216,5 @@ public class FeatureDataViewer {
 
         return size;
     }
+
 }

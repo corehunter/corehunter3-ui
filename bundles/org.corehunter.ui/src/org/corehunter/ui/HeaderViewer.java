@@ -56,7 +56,7 @@ import org.osgi.framework.Bundle;
 
 import uno.informatics.data.SimpleEntity;
 
-public class HeaderViewer {
+public class HeaderViewer implements SolutionContainer {
 	private SimpleEntityComparator comparator;
 
 	private TableViewer viewer;
@@ -254,7 +254,13 @@ public class HeaderViewer {
 		clearSolution();
 		updateViewer();
 	}
+	
+	@Override
+	public SubsetSolution getSolution() {
+		return solution;
+	}
 
+	@Override
 	public final void setSolution(SubsetSolution solution) {
 		if (solution == null) {
 			throw new NullPointerException("Solution can not be null!");
@@ -328,10 +334,6 @@ public class HeaderViewer {
 	public void addDoubleClickListener(IDoubleClickListener listener) {
 		if (viewer != null)
 			viewer.addDoubleClickListener(listener);
-	}
-	
-	public SubsetSolution getSolution() {
-		return solution;
 	}
 
 	private class SimpleEntityFilter extends ViewerFilter {

@@ -1,11 +1,17 @@
 
 package org.corehunter.ui;
 
+import java.util.Iterator;
+import java.util.TreeMap;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.corehunter.data.BiAllelicGenotypeData;
 import org.corehunter.data.CoreHunterDataType;
+import org.corehunter.data.DistanceMatrixData;
+import org.corehunter.data.GenotypeData;
 import org.eclipse.e4.ui.di.Persist;
 import org.eclipse.e4.ui.model.application.ui.MDirtyable;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
@@ -42,9 +48,11 @@ public class DatasetPart {
 
 	private FeatureDataViewer phenotypeDatasetViewer;
 
-	private ObjectArrayMatrixDataViewer genotypeDataViewer;
+	private DataGridViewer<Double, String> genotypeDataViewer;
 
-	private DoubleArrayMatrixDataViewer distanceDataViewer;
+	private DataGridViewer<Double, SimpleEntity> distanceDataViewer;
+
+	private DataGridViewer<Integer, String> biAllelicGenotypeDataViewer;
 
 	private MPart part;
 	private PartInput partInput;
@@ -74,7 +82,7 @@ public class DatasetPart {
 	public void postConstruct(Composite parent, MPart part) {
 
 		try {
-	        this.part = part ; 
+			this.part = part;
 			shellUtilitiies = new ShellUtilitiies(parent.getShell());
 
 			parent.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -94,11 +102,11 @@ public class DatasetPart {
 
 			textName = new Text(composite, SWT.BORDER);
 			textName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-	        textName.addModifyListener(new ModifyListener(){
-			      public void modifyText(ModifyEvent event) {
-			    	  dirty.setDirty(isDirty());
-			    	  updateSaveButton();
-			      }
+			textName.addModifyListener(new ModifyListener() {
+				public void modifyText(ModifyEvent event) {
+					dirty.setDirty(isDirty());
+					updateSaveButton();
+				}
 			});
 
 			Label lblAbbreviation = new Label(composite, SWT.NONE);
@@ -107,11 +115,11 @@ public class DatasetPart {
 
 			textAbbreviation = new Text(composite, SWT.BORDER);
 			textAbbreviation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			textAbbreviation.addModifyListener(new ModifyListener(){
-			      public void modifyText(ModifyEvent event) {
-			    	  dirty.setDirty(isDirty());
-			    	  updateSaveButton();
-			      }
+			textAbbreviation.addModifyListener(new ModifyListener() {
+				public void modifyText(ModifyEvent event) {
+					dirty.setDirty(isDirty());
+					updateSaveButton();
+				}
 			});
 			Label lblDescription = new Label(composite, SWT.NONE);
 			lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -120,22 +128,22 @@ public class DatasetPart {
 			// TODO needs to be multi line
 			textDescription = new Text(composite, SWT.BORDER);
 			textDescription.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			textDescription.addModifyListener(new ModifyListener(){
-			      public void modifyText(ModifyEvent event) {
-			    	  dirty.setDirty(isDirty());
-			    	  updateSaveButton();
-			      }
+			textDescription.addModifyListener(new ModifyListener() {
+				public void modifyText(ModifyEvent event) {
+					dirty.setDirty(isDirty());
+					updateSaveButton();
+				}
 			});
 
 			btnSave = new Button(composite, SWT.NONE);
 			btnSave.setText("Save Dataset Details");
 			btnSave.addSelectionListener(new SelectionAdapter() {
 
-	            @Override
-	            public void widgetSelected(SelectionEvent e) {
-	                saveDataset();
-	            }
-	        });
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					saveDataset();
+				}
+			});
 			new Label(composite, SWT.NONE);
 
 			Group headerViewerComposite = new Group(composite, SWT.NONE);
@@ -157,10 +165,11 @@ public class DatasetPart {
 					shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");
 				}
 
-                SimpleEntity[] headers = Activator.getDefault().getDatasetServices().getHeaders(dataset.getUniqueIdentifier()) ;
+				SimpleEntity[] headers = Activator.getDefault().getDatasetServices()
+						.getHeaders(dataset.getUniqueIdentifier());
 
-                headerViewer.setHeaders(headers);
-                
+				headerViewer.setHeaders(headers);
+
 				Data phenotypicData = Activator.getDefault().getDatasetServices()
 						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.PHENOTYPIC);
 
@@ -171,37 +180,44 @@ public class DatasetPart {
 						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.DISTANCES);
 
 				if (phenotypicData != null && phenotypicData instanceof FeatureData) {
-					phenotypeDatasetViewer = new FeatureDataViewer();
 
 					TabItem phenotypesTabItem = new TabItem(tabFolder, SWT.NONE);
 					phenotypesTabItem.setText("Phenotypic Data");
 
 					Composite phenotypesComposite = new Composite(tabFolder, SWT.NONE);
+
 					phenotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+
 					phenotypesTabItem.setControl(phenotypesComposite);
-
-					phenotypeDatasetViewer.setValue((FeatureData) phenotypicData);
-
-					phenotypeDatasetViewer.createPartControl(phenotypesComposite);
+					phenotypeDatasetViewer = createFeatureDataViewer((FeatureData) phenotypicData, phenotypesComposite);
 				}
 
-				if (genotypicData != null && phenotypicData instanceof ObjectArrayMatrixData) {
+				if (genotypicData != null) {
 
 					TabItem genotypesTabItem = new TabItem(tabFolder, SWT.NONE);
 					genotypesTabItem.setText("Genotypic Data");
 
 					Composite genotypesComposite = new Composite(tabFolder, SWT.NONE);
+
 					genotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+
 					genotypesTabItem.setControl(genotypesComposite);
 
-					genotypeDataViewer.setValue((ObjectArrayMatrixData) genotypicData);
+					if (genotypicData instanceof BiAllelicGenotypeData) {
 
-					genotypeDataViewer.createPartControl(genotypesComposite);
+						biAllelicGenotypeDataViewer = createBiAllelicGenotypeDataViewer(
+								(BiAllelicGenotypeData) genotypicData, genotypesComposite);
 
-					genotypeDataViewer.createPartControl(parent);
+					} else {
+						if (genotypicData instanceof GenotypeData) {
+
+							genotypeDataViewer = createGenotypeDataViewer((GenotypeData) genotypicData,
+									genotypesComposite);
+						}
+					}
 				}
 
-				if (distancesData != null && phenotypicData instanceof DoubleArrayMatrixData) {
+				if (distancesData != null && distancesData instanceof DistanceMatrixData) {
 
 					TabItem distancesTabItem = new TabItem(tabFolder, SWT.NONE);
 					distancesTabItem.setText("Distances Data");
@@ -210,14 +226,11 @@ public class DatasetPart {
 					distancesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 					distancesTabItem.setControl(distancesComposite);
 
-					distanceDataViewer.setValue((DoubleArrayMatrixData) distancesData);
-
-					distanceDataViewer.createPartControl(distancesComposite);
-
-					distanceDataViewer.createPartControl(parent);
+					distanceDataViewer = createDistanceDataViewer((DistanceMatrixData) distancesData,
+							distancesComposite);
 				}
-				
-				updatePart() ;
+
+				updatePart();
 			} else {
 				shellUtilitiies.handleError("Can not load dataset!", "Can not load dataset!");
 			}
@@ -227,32 +240,220 @@ public class DatasetPart {
 		}
 	}
 
+	private FeatureDataViewer createFeatureDataViewer(FeatureData data, Composite parent) {
+
+		FeatureDataViewer phenotypeDatasetViewer = new FeatureDataViewer();
+
+		phenotypeDatasetViewer.setValue(data);
+
+		phenotypeDatasetViewer.createPartControl(parent);
+
+		return phenotypeDatasetViewer;
+	}
+
+	private DataGridViewer<Double, String> createGenotypeDataViewer(GenotypeData data, Composite parent) {
+
+		DataGridViewer<Double, String> genotypeDataViewer = new DataGridViewer<Double, String>();
+
+		int totalNumberOfAlleles = data.getTotalNumberOfAlleles();
+		int numberOfMarkers = data.getNumberOfMarkers();
+		
+		DataGridViewerRow<Double>[] rows = new DataGridViewerRow[data.getSize()];
+
+		Double[] elements ;
+
+		String[] columnHeaders = new String[totalNumberOfAlleles];
+
+		Iterator<Integer> iterator = data.getIDs().iterator();
+
+		int i = 0;
+		int j = 0;
+		Integer id;
+
+		if (iterator.hasNext()) {
+			id = iterator.next();
+			j = 0;
+
+			elements = new Double[totalNumberOfAlleles];
+
+			for (int markerIndex = 0; markerIndex < numberOfMarkers; ++markerIndex) {
+				for (int alleleIndex = 0; alleleIndex < data.getNumberOfAlleles(markerIndex); ++alleleIndex) {
+					columnHeaders[j] = createMarkerName(data.getMarkerName(markerIndex), data.getAlleleName(markerIndex, alleleIndex));
+					elements[j] = data.getAlleleFrequency(id, markerIndex, alleleIndex);
+					++j;
+				}
+				
+				rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements) ;
+			}
+			++i;
+
+			while (iterator.hasNext()) {
+				id = iterator.next();
+				j = 0;
+
+				elements = new Double[totalNumberOfAlleles];
+
+				for (int markerIndex = 0; markerIndex < numberOfMarkers; ++markerIndex) {
+					for (int alleleIndex = 0; alleleIndex < data.getNumberOfAlleles(markerIndex); ++alleleIndex) {
+
+						elements[j] = data.getAlleleFrequency(id, markerIndex, alleleIndex);
+						++j;
+					}
+					
+					rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements) ;
+				}
+				++i;
+			}
+		}
+
+		genotypeDataViewer.setContent(rows, columnHeaders);
+
+		genotypeDataViewer.createPartControl(parent);
+
+		return genotypeDataViewer;
+	}
+	
+	private DataGridViewer<Integer, String> createBiAllelicGenotypeDataViewer(BiAllelicGenotypeData data,
+			Composite parent) {
+
+		DataGridViewer<Integer, String> biAllelicGenotypeData = new DataGridViewer<Integer, String>();
+
+		int numberOfMarkers = data.getNumberOfMarkers();
+
+		Integer[] elements  ;
+
+		String[] columnHeaders = new String[numberOfMarkers];
+		DataGridViewerRow<Integer>[] rows = new DataGridViewerRow[data.getSize()];
+
+		Iterator<Integer> iterator = data.getIDs().iterator();
+
+		int i = 0;
+		int j = 0;
+		Integer id;
+
+		if (iterator.hasNext()) {
+			id = iterator.next();
+			j = 0;
+
+			elements = new Integer[numberOfMarkers];
+
+			for (int markerIndex = 0; markerIndex < numberOfMarkers; ++markerIndex) {
+
+				columnHeaders[j] = data.getMarkerName(markerIndex);
+				elements[j] = data.getAlleleScore(id, markerIndex);
+				rows[i] = new DataGridViewerRow<Integer>(data.getHeader(id), elements);
+				++j;
+			}
+			++i;
+
+			while (iterator.hasNext()) {
+				id = iterator.next();
+				j = 0;
+
+				elements = new Integer[numberOfMarkers];
+
+				for (int markerIndex = 0; markerIndex < numberOfMarkers; ++markerIndex) {
+
+					elements[j] = data.getAlleleScore(id, markerIndex);
+
+					++j;
+				}
+				
+				rows[i] = new DataGridViewerRow<Integer>(data.getHeader(id), elements);
+				
+				++i;
+			}
+		}
+		
+		biAllelicGenotypeData.setContent(rows, columnHeaders);
+
+		biAllelicGenotypeData.createPartControl(parent);
+
+		return biAllelicGenotypeData;
+	}
+
+	private DataGridViewer<Double, SimpleEntity> createDistanceDataViewer(DistanceMatrixData data,
+			Composite distancesComposite) {
+
+		DataGridViewer<Double, SimpleEntity> distanceDataViewer = new DataGridViewer<Double, SimpleEntity>();
+
+		int size = data.getSize();
+
+		Double[] elements ;
+
+		SimpleEntity[] columnHeaders = new SimpleEntity[data.getSize()];
+		DataGridViewerRow<Double>[] rows = new DataGridViewerRow[data.getSize()];
+
+		Iterator<Integer> iterator = data.getIDs().iterator();
+
+		int i = 0;
+		Integer id;
+
+		if (iterator.hasNext()) {
+			while (iterator.hasNext()) {
+				id = iterator.next();
+				elements = new Double[size];
+
+				for (int j = 0; j < size; ++i) {
+					elements[j] = data.getDistance(i, j);
+				}
+				++i;
+				
+				rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements) ;
+				columnHeaders[i] = rows[i].getHeader();
+			}
+		}
+
+		distanceDataViewer.setContent(rows, columnHeaders);
+
+		distanceDataViewer.createPartControl(distancesComposite);
+		return distanceDataViewer;
+	}
+
+	private String createMarkerName(String markerName, String alleleName) {
+		return markerName + "\n" + alleleName;
+	}
+
 	@Persist
 	public void save() {
 		saveDataset();
 	}
-	
+
 	public void setSolution(SubsetSolution solution) {
 		if (ObjectUtils.notEqual(headerViewer.getSolution(), solution)) {
-	        boolean ok = MessageDialog.openQuestion(shellUtilitiies.getShell(), "Over write existing solution", "Do you want to over write the existing selected solution for this dataset?") ;
-	        
-	        if (ok) {
-	        	updateSolution(solution) ;
-	        }
+			boolean ok = MessageDialog.openQuestion(shellUtilitiies.getShell(), "Over write existing solution",
+					"Do you want to over write the existing selected solution for this dataset?");
+
+			if (ok) {
+				updateSolution(solution);
+			}
 		} else {
 
-			updateSolution(solution) ;
-		}		
+			updateSolution(solution);
+		}
 	}
-	
+
 	private void updateSolution(SubsetSolution solution) {
-        if (solution != null) {
-            headerViewer.setSolution(solution) ;
-        } else {
-        	headerViewer.clearSolution() ;
-        }
+		if (solution != null) {
+			headerViewer.setSolution(solution);
+
+			if (phenotypeDatasetViewer != null) {
+				phenotypeDatasetViewer.setSolution(solution);
+			}
+
+			if (genotypeDataViewer != null) {
+				genotypeDataViewer.setSolution(solution);
+			}
+
+			if (distanceDataViewer != null) {
+				distanceDataViewer.setSolution(solution);
+			}
+
+		} else {
+			headerViewer.clearSolution();
+		}
 	}
-	
+
 	private void updatePart() {
 
 		Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(partInput.getUniqueIdentifier());
@@ -263,22 +464,22 @@ public class DatasetPart {
 		savedDataset = new DatasetPojo(dataset);
 		updateSaveButton();
 
-        dirty.setDirty(isDirty());
-       
-        partInput.setName(savedDataset.getName());
-        part.setLabel(savedDataset.getName());
-        
+		dirty.setDirty(isDirty());
+
+		partInput.setName(savedDataset.getName());
+		part.setLabel(savedDataset.getName());
+
 		textName.setText(savedDataset.getName());
 		if (savedDataset.getAbbreviation() != null) {
 			textAbbreviation.setText(savedDataset.getAbbreviation());
 		} else {
-			textAbbreviation.setText("");	
+			textAbbreviation.setText("");
 		}
-		
+
 		if (savedDataset.getDescription() != null) {
 			textDescription.setText(savedDataset.getDescription());
 		} else {
-			textDescription.setText("");	
+			textDescription.setText("");
 		}
 	}
 
@@ -288,22 +489,22 @@ public class DatasetPart {
 
 				Dataset dataset = Activator.getDefault().getDatasetServices()
 						.getDataset(partInput.getUniqueIdentifier());
-				
+
 				if (dataset != null) {
 					DatasetPojo updatedDataset = new DatasetPojo(dataset);
 
 					updatedDataset.setName(textName.getText());
 					updatedDataset.setAbbreviation(textAbbreviation.getText());
 					updatedDataset.setDescription(textDescription.getText());
-					
-					Activator.getDefault().getDatasetServices().updateDataset(updatedDataset) ;
+
+					Activator.getDefault().getDatasetServices().updateDataset(updatedDataset);
 				} else {
 
 					shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");
 				}
-	
+
 				updatePart();
-			}	
+			}
 		} catch (Exception e) {
 			this.shellUtilitiies.handleError("Can not save result name!", "Can not save result name!", e);
 		}
@@ -312,8 +513,10 @@ public class DatasetPart {
 	private boolean isDirty() {
 		if (savedDataset != null) {
 			return !ObjectUtils.equals(savedDataset.getName() != null ? savedDataset.getName() : "", textName.getText())
-					|| !ObjectUtils.equals(savedDataset.getAbbreviation() != null ? savedDataset.getAbbreviation() : "", textAbbreviation.getText())
-					|| !ObjectUtils.equals(savedDataset.getDescription() != null ? savedDataset.getDescription() : "", textDescription.getText());
+					|| !ObjectUtils.equals(savedDataset.getAbbreviation() != null ? savedDataset.getAbbreviation() : "",
+							textAbbreviation.getText())
+					|| !ObjectUtils.equals(savedDataset.getDescription() != null ? savedDataset.getDescription() : "",
+							textDescription.getText());
 
 		} else {
 			return false;
