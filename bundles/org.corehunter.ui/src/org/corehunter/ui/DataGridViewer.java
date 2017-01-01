@@ -40,7 +40,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.jamesframework.core.subset.SubsetSolution;
 
 import uno.informatics.data.SimpleEntity;
-import uno.informatics.data.dataset.FeatureDataRow;
 
 /**
  * @author Guy Davenport

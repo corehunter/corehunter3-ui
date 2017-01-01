@@ -38,7 +38,7 @@ public class DataGridLabelProvider<ValueType extends Object> extends ColumnLabel
 	@SuppressWarnings("unchecked")
 	@Override
 	public String getText(Object element) {
-		return element == null ? "" : getElementText((DataGridViewerRow)element, columnIndex);
+		return element == null ? "" : getElementText((DataGridViewerRow<ValueType>)element, columnIndex);
 	}
 	
 	protected String getElementText(DataGridViewerRow<ValueType> element, int columnIndex) {
