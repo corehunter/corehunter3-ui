@@ -31,8 +31,6 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -74,12 +72,23 @@ public class HeaderViewer implements SolutionContainer {
 	private Image selectedIcon;
 
 	private Image unselectedIcon;
+
+	private SolutionChangedEventHandler solutionChangedEventHandler;
 	
     public static final int ASCENDING = -1;
     public static final int DESCENDING = 1 ;
 
 	public HeaderViewer() {
 
+        solutionChangedEventHandler = new SolutionChangedEventHandler(this) ;
+    }
+    
+	public final void addSolutionChangedListener(SolutionChangedListener listener) {
+		solutionChangedEventHandler.addSolutionChangedListener(listener) ;
+	}
+	
+	public final void removeSolutionChangedListener(SolutionChangedListener listener) {
+		solutionChangedEventHandler.removeSolutionChangedListener(listener) ;
 	}
 
 	/**
@@ -131,6 +140,140 @@ public class HeaderViewer implements SolutionContainer {
 		
 		unselectedIcon = imageDesc.createImage();
 	}
+
+
+	/**
+	 * Passing the focus request to the viewer's control.
+	 */
+	public void setFocus() {
+		viewer.getControl().setFocus();
+	}
+
+	public final SimpleEntity[] getHeaders() {
+		return headers;
+	}
+
+	public final void setHeaders(SimpleEntity[] headers) {
+		if (headers == null) {
+			throw new NullPointerException("Headers can not be null!");
+		}
+		
+		this.headers = headers ;
+
+		clearSolution();
+		updateViewer();
+	}
+	
+	@Override
+	public SubsetSolution getSolution() {
+		return solution;
+	}
+
+	@Override
+	public final void setSolution(SubsetSolution solution) {
+		if (solution == null) {
+			throw new NullPointerException("Solution can not be null!");
+		}
+
+		if (headers.length != solution.getTotalNumIDs()) {
+			throw new NullPointerException("Total number of ids must be same length as number of headers!");
+		}
+
+		this.solution = new SubsetSolution(solution);
+		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		
+ 		selected = new boolean[identifiers.size()] ;
+		
+		Iterator<Integer> selectedIds = identifiers.iterator() ;
+			
+		for (int i = 0 ; i < identifiers.size() ; ++i)
+			selected[i] = this.solution.getSelectedIDs().contains(selectedIds.next()) ;
+		
+		updateViewer();
+	}
+
+	@Override
+	public void updateSelection(SolutionChangedEvent event) {
+		
+		Iterator<Integer> selectedIds = event.getSelected().iterator() ;
+		
+		while (selectedIds.hasNext()) {
+			updateSelection(selectedIds.next(), true) ;
+		}
+		
+		Iterator<Integer> unselectedIds = event.getUnselected().iterator() ;
+		
+		while (unselectedIds.hasNext()) {
+			updateSelection(unselectedIds.next(), false) ;
+		}
+		
+		updateViewer();
+	}
+
+	private void updateSelection(Integer id, boolean select) {
+		int index = identifiers.indexOf(id) ;
+		
+		if (index >= 0 && index < selected.length) {
+			selected[index] = select ;
+		}
+	}
+
+	public final void setHeadersWithSolution(SimpleEntity[] headers, SubsetSolution solution) {
+		if (headers == null) {
+			throw new NullPointerException("Headers can not be null!");
+		}
+
+		if (solution == null) {
+			throw new NullPointerException("Selected can not be null!");
+		}
+
+		if (headers.length != solution.getTotalNumIDs()) {
+			throw new NullPointerException("Total number of ids must be same length as number of headers!");
+		}
+
+		this.headers = headers;
+		this.solution = new SubsetSolution(solution);
+		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		
+ 		selected = new boolean[identifiers.size()] ;
+		
+		Iterator<Integer> selectedIds = identifiers.iterator() ;
+			
+		for (int i = 0 ; i < identifiers.size() ; ++i)
+			selected[i] = this.solution.getSelectedIDs().contains(selectedIds.next()) ;
+		
+		updateViewer();
+	}
+	
+	public final boolean isEditable() {
+		return editable ;
+	}
+
+	public final void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+
+	public final void clearSolution() {
+		Set<Integer> allIDs = new HashSet<Integer>(headers.length);
+
+		for (int index = 0; index < headers.length; ++index) {
+			allIDs.add(index);
+		}
+
+		solution = new SubsetSolution(allIDs);
+		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		selected = new boolean[headers.length] ;
+	}
+
+	/*public final void addSelectionChangedListener(ISelectionChangedListener listener) {
+		if (viewer != null)
+			viewer.addSelectionChangedListener(listener);
+	}
+
+	public final void addDoubleClickListener(IDoubleClickListener listener) {
+		if (viewer != null)
+			viewer.addDoubleClickListener(listener);
+	}*/
 
 	private void createViewer(Composite parent) {
 		viewer = new TableViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
@@ -232,110 +375,6 @@ public class HeaderViewer implements SolutionContainer {
 		return selectionAdapter;
 	}
 
-	/**
-	 * Passing the focus request to the viewer's control.
-	 */
-
-	public void setFocus() {
-		viewer.getControl().setFocus();
-	}
-
-	public final SimpleEntity[] getHeaders() {
-		return headers;
-	}
-
-	public final void setHeaders(SimpleEntity[] headers) {
-		if (headers == null) {
-			throw new NullPointerException("Headers can not be null!");
-		}
-		
-		this.headers = headers ;
-
-		clearSolution();
-		updateViewer();
-	}
-	
-	@Override
-	public SubsetSolution getSolution() {
-		return solution;
-	}
-
-	@Override
-	public final void setSolution(SubsetSolution solution) {
-		if (solution == null) {
-			throw new NullPointerException("Solution can not be null!");
-		}
-
-		if (headers.length != solution.getTotalNumIDs()) {
-			throw new NullPointerException("Total number of ids must be same length as number of headers!");
-		}
-
-		this.solution = new SubsetSolution(solution);
-		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
-		
- 		selected = new boolean[identifiers.size()] ;
-		
-		Iterator<Integer> selectedIds = identifiers.iterator() ;
-			
-		for (int i = 0 ; i < identifiers.size() ; ++i)
-			selected[i] = this.solution.getSelectedIDs().contains(selectedIds.next()) ;
-		
-		updateViewer();
-	}
-
-	public final void setHeadersWithSolution(SimpleEntity[] headers, SubsetSolution solution) {
-		if (headers == null) {
-			throw new NullPointerException("Headers can not be null!");
-		}
-
-		if (solution == null) {
-			throw new NullPointerException("Selected can not be null!");
-		}
-
-		if (headers.length != solution.getTotalNumIDs()) {
-			throw new NullPointerException("Total number of ids must be same length as number of headers!");
-		}
-
-		this.headers = headers;
-		this.solution = new SubsetSolution(solution);
-		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
-		
- 		selected = new boolean[identifiers.size()] ;
-		
-		Iterator<Integer> selectedIds = identifiers.iterator() ;
-			
-		for (int i = 0 ; i < identifiers.size() ; ++i)
-			selected[i] = this.solution.getSelectedIDs().contains(selectedIds.next()) ;
-		
-		updateViewer();
-	}
-
-	public void setEditable(boolean editable) {
-		this.editable = editable;
-	}
-
-	public void clearSolution() {
-		Set<Integer> allIDs = new HashSet<Integer>(headers.length);
-
-		for (int index = 0; index < headers.length; ++index) {
-			allIDs.add(index);
-		}
-
-		solution = new SubsetSolution(allIDs);
-		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
-		selected = new boolean[headers.length] ;
-	}
-
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		if (viewer != null)
-			viewer.addSelectionChangedListener(listener);
-	}
-
-	public void addDoubleClickListener(IDoubleClickListener listener) {
-		if (viewer != null)
-			viewer.addDoubleClickListener(listener);
-	}
-
 	private class SimpleEntityFilter extends ViewerFilter {
 
 		private String searchString;
@@ -398,8 +437,10 @@ public class HeaderViewer implements SolutionContainer {
 			
 			if (select) {
 				solution.select((Integer)element) ;
+				solutionChangedEventHandler.fireSelectionEvent((Integer)element);
 			} else {
 				solution.deselect((Integer)element) ;
+				solutionChangedEventHandler.fireUnselectionEvent((Integer)element);
 			}
 			
 			viewer.update(element, null);

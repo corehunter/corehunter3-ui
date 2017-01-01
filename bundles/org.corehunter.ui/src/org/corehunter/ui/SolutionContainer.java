@@ -15,4 +15,10 @@ public interface SolutionContainer {
 	 * @param solution the solution held by this container
 	 */
 	public void setSolution(SubsetSolution solution)  ;
+	
+	/**
+	 * Updates the solution held by this container
+	 * @param event the event containing the updates
+	 */
+	public void updateSelection(SolutionChangedEvent event) ;
 }

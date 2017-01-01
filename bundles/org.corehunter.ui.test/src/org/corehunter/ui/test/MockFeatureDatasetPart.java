@@ -31,7 +31,7 @@ public class MockFeatureDatasetPart {
 
         featureDatasetViewer = new FeatureDataViewer();
 
-        featureDatasetViewer.setValue((FeatureData) Activator.getDefault().getDatasetServices().getDataset(uniqueIdentifier));
+        featureDatasetViewer.setData((FeatureData) Activator.getDefault().getDatasetServices().getDataset(uniqueIdentifier));
 
         featureDatasetViewer.createPartControl(parent);
     }

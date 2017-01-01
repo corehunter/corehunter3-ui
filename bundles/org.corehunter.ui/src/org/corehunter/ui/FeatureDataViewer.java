@@ -16,44 +16,103 @@
 
 package org.corehunter.ui;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.nebula.jface.gridviewer.GridTableViewer;
 import org.eclipse.nebula.jface.gridviewer.GridViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.jamesframework.core.subset.SubsetSolution;
 
 import uno.informatics.data.Feature;
+import uno.informatics.data.SimpleEntity;
 import uno.informatics.data.dataset.FeatureData;
+import uno.informatics.data.dataset.FeatureDataRow;
 
 /**
  * @author Guy Davenport
  *
  */
-public class FeatureDataViewer {
+public class FeatureDataViewer implements SolutionContainer {
     private static final int MIM_COLUMN_SIZE = 5;
-    private GridTableViewer gridViewer;
 
-    private FeatureData value;
+    private FeatureData data;
+	private SubsetSolution solution;
+	private ArrayList<Integer> identifiers;
+	private List<String> headers;
+	private List<String> selectedHeaders;
+	
+	private GridTableViewer gridViewer;
     private Map<Integer, GridViewerColumn> viewerColumns;
+	
+	private SolutionChangedEventHandler solutionChangedEventHandler;
 
     /**
      * @param parent
      * @param configuration
      */
     public FeatureDataViewer() {
-        viewerColumns = new TreeMap<Integer, GridViewerColumn>();
+        viewerColumns = new TreeMap<Integer, GridViewerColumn>() ;
+		identifiers = new ArrayList<Integer>() ;
+		headers = new ArrayList<String>() ;
+		selectedHeaders = new ArrayList<String>() ;
+		solutionChangedEventHandler = new SolutionChangedEventHandler(this) ;
     }
+    
+	public final void addSolutionChangedListener(SolutionChangedListener listener) {
+		solutionChangedEventHandler.addSolutionChangedListener(listener) ;
+	}
+	
+	public final void removeSolutionChangedListener(SolutionChangedListener listener) {
+		solutionChangedEventHandler.removeSolutionChangedListener(listener) ;
+	}
 
-    public void setValue(FeatureData value) {
-        if (!ObjectUtils.equals(this.value, value)) {
-            this.value = value;
+    public void setData(FeatureData data) {
+    	
+    	if (data == null) {
+    		throw new NullPointerException("Data must be defined!") ;
+    	}
+    	
+        if (!ObjectUtils.equals(this.data, data)) {
+            this.data = data;
+            
+            int size = data.getRowCount() ;
+            
+    		Set<Integer> allIDs = new HashSet<Integer>(size);
+    		
+    		identifiers = new ArrayList<Integer>(size) ;
+
+    		for (int index = 0; index < size; ++index) {
+    			allIDs.add(index);
+    			identifiers.add(index) ;
+    		}
+
+    		solution = new SubsetSolution(allIDs);
+    		
+    		headers  = new ArrayList<String>(data.getRowCount()) ;
+    		
+    		Iterator<SimpleEntity> iterator = data.getRowHeaders().iterator() ;
+    		
+    		while (iterator.hasNext()) {
+    			headers.add(iterator.next().getUniqueIdentifier()) ;
+    		}
+    		
+    		selectedHeaders = new ArrayList<String>() ;
         }
     }
 
@@ -66,30 +125,133 @@ public class FeatureDataViewer {
         gridViewer.getGrid().setRowHeaderVisible(true);
 
         updateGridViewer();
-
+        
         gridViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-            @Override
+            @SuppressWarnings("unchecked")
+			@Override
             public void selectionChanged(SelectionChangedEvent event) {
-                handleViewerSelectionChanged();
+            	
+            	if (event.getSelection() instanceof StructuredSelection) {
+            		handleViewerSelectionChanged(((StructuredSelection)event.getSelection()).toList());
+            	}
             }
         });
-
     }
     
-	public void setSolution(SubsetSolution solution) {
-		// TODO Auto-generated method stub
+    @Override
+	public SubsetSolution getSolution() {
+		return solution ;
+	}  
+	
+    @Override
+	public final void setSolution(SubsetSolution solution) {
+    	
+    	if (solution == null) {
+    		throw new NullPointerException("Solution must be defined!") ;
+    	}
+    	
+    	if (solution.getTotalNumIDs() == data.getRowCount()) {
+    		throw new IllegalArgumentException("Solution size must match datasize!") ;
+    	}
+    	
+		this.solution = new SubsetSolution(solution);
 		
+		// gives the order of the identifiers
+		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		selectedHeaders = new ArrayList<String>(solution.getNumSelectedIDs()) ;
+		
+		Iterator<Integer> iterator = solution.getSelectedIDs().iterator() ;
+		
+		int[] indices = new int[solution.getNumSelectedIDs()] ;
+		
+		int i = 0 ;
+		
+		while(iterator.hasNext()) {
+			indices[i] = identifiers.indexOf(iterator.next()) ;
+			selectedHeaders.add(data.getHeader(indices[i]).getUniqueIdentifier()) ;
+		}
+		
+		gridViewer.getGrid().deselectAll();
+		gridViewer.getGrid().select(indices);
+		
+	}  
+
+    @Override
+	public void updateSelection(SolutionChangedEvent event) {
+    	
+		int[] selectedIndices = new int[event.getSelected().size()] ;
+		
+		Iterator<Integer> iterator1 = event.getSelected().iterator() ;
+		
+		int i = 0 ;
+		
+		while(iterator1.hasNext()) {
+			selectedIndices[i] = identifiers.indexOf(iterator1.next()) ;
+			++i ;
+		}
+		
+		int[] unselectedIndices = new int[event.getUnselected().size()] ;
+		
+		Iterator<Integer> iterator2 = event.getUnselected().iterator() ;
+		
+		i = 0 ;
+		
+		while(iterator2.hasNext()) {
+			selectedIndices[i] = identifiers.indexOf(iterator2.next()) ;
+			++i ;
+		}
+		
+		gridViewer.getGrid().select(selectedIndices);
+		gridViewer.getGrid().deselect(unselectedIndices);
 	}
 
-    protected void handleViewerSelectionChanged() {
-
-    }
+    protected void handleViewerSelectionChanged(List<Object> list) {
+    	
+    	Set<Integer> selected = new TreeSet<Integer>();
+    	Set<Integer> unselected = new TreeSet<Integer>();
+    	
+		Iterator<Object> iterator1 = list.iterator() ;
+		
+		String rowHeader ;
+		LinkedList<String> selectHeaders = new LinkedList<String>() ;
+		LinkedList<String> deSelectHeaders = new LinkedList<String>(selectedHeaders) ;
+		
+		selectedHeaders = new ArrayList<String>(list.size()) ;
+	
+		while (iterator1.hasNext()) {
+			rowHeader = ((FeatureDataRow) iterator1.next()).getHeader().getUniqueIdentifier() ;
+			
+			if (deSelectHeaders.contains(rowHeader)) {
+				deSelectHeaders.remove(rowHeader) ;
+			} else {
+				selectHeaders.add(rowHeader) ;
+			}
+			
+			selectedHeaders.add(rowHeader) ;
+		}		
+		
+		Iterator<String> iterator2 = selectHeaders.iterator() ;
+		
+		while (iterator2.hasNext()) {
+			selected.add(headers.indexOf(iterator2.next())) ;
+		}
+		
+		iterator2 = deSelectHeaders.iterator() ;
+		
+		while (iterator2.hasNext()) {
+			unselected.add(headers.indexOf(iterator2.next())) ;
+		}
+		
+		
+			
+		solutionChangedEventHandler.fireMultipleEvent(selected, unselected); 
+	}
 
     private void updateGridViewer() {
-        if (value != null && !value.getFeatures().isEmpty()) {
+        if (data != null && !data.getFeatures().isEmpty()) {
             if (gridViewer != null) {
                 int oldColumnCount = viewerColumns.size();
-                int newColumnCount = value.getFeatures().size();
+                int newColumnCount = data.getFeatures().size();
 
                 // create new columns
                 if (newColumnCount > oldColumnCount) {
@@ -117,7 +279,7 @@ public class FeatureDataViewer {
                 while (iterator.hasNext()) {
                     index = iterator.next();
 
-                    feature = value.getFeatures().get(index);
+                    feature = data.getFeatures().get(index);
 
                     gridViewerColumn = viewerColumns.get(index);
 
@@ -128,7 +290,7 @@ public class FeatureDataViewer {
                     gridViewerColumn.getColumn().setWidth(guessColumnWidth(feature.getName()));
                 }
 
-                gridViewer.setInput(value);
+                gridViewer.setInput(data);
             }
         } else {
             if (gridViewer != null) {
