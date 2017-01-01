@@ -215,6 +215,11 @@ public class HeaderViewer implements SolutionContainer {
 		
 		if (index >= 0 && index < selected.length) {
 			selected[index] = select ;
+			if (select) {
+				solution.deselect(id) ;
+			} else {
+				solution.select(id) ;		
+			}
 		}
 	}
 

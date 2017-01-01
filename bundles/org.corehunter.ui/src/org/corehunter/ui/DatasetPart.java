@@ -1,7 +1,6 @@
 
 package org.corehunter.ui;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import javax.annotation.PostConstruct;
@@ -290,8 +289,8 @@ public class DatasetPart {
 
 	protected void handleSolutionChanged(SolutionChangedEvent event) {
 		
-		System.out.println("selected = " + event.getSelected()) ;
-		System.out.println("unselected = " + event.getUnselected()) ;
+		System.out.println("source = " + event.getSource() + " selected = " + event.getSelected()) ;
+		System.out.println("source = " + event.getSource() + " unselected = " + event.getUnselected()) ;
 		
 		if (event.getSource() != headerViewer) {
 			headerViewer.updateSelection(event) ;
@@ -301,8 +300,8 @@ public class DatasetPart {
 			phenotypeDatasetViewer.updateSelection(event) ;
 		}
 		
-		if (distanceDataViewer != null && event.getSource() != distanceDataViewer) {
-			distanceDataViewer.updateSelection(event) ;
+		if (genotypeDataViewer != null && event.getSource() != genotypeDataViewer) {
+			genotypeDataViewer.updateSelection(event) ;
 		}
 		
 		if (biAllelicGenotypeDataViewer != null && event.getSource() != biAllelicGenotypeDataViewer) {
@@ -457,9 +456,9 @@ public class DatasetPart {
 
 		Double[] elements ;
 
-		SimpleEntity[] columnHeaders = new SimpleEntity[data.getSize()];
+		SimpleEntity[] columnHeaders = new SimpleEntity[size];
 		@SuppressWarnings("unchecked")
-		DataGridViewerRow<Double>[] rows = new DataGridViewerRow[data.getSize()];
+		DataGridViewerRow<Double>[] rows = new DataGridViewerRow[size];
 
 		Iterator<Integer> iterator = data.getIDs().iterator();
 
@@ -469,15 +468,17 @@ public class DatasetPart {
 		if (iterator.hasNext()) {
 			while (iterator.hasNext()) {
 				id = iterator.next();
+
 				elements = new Double[size];
 
-				for (int j = 0; j < size; ++i) {
+				for (int j = 0; j < size; ++j) {
 					elements[j] = data.getDistance(i, j);
 				}
-				++i;
-				
+	
 				rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements) ;
 				columnHeaders[i] = rows[i].getHeader();
+				
+				++i;
 			}
 		}
 

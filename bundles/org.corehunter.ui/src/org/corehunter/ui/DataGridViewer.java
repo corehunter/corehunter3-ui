@@ -182,6 +182,7 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
 		
 		// gives the order of the identifiers
 		identifiers = new ArrayList<Integer>(solution.getAllIDs()) ;
+		selectedHeaders = new ArrayList<String>(this.solution.getNumSelectedIDs()) ;
 		
 		Iterator<Integer> iterator = solution.getSelectedIDs().iterator() ;
 		
@@ -191,6 +192,7 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
 		
 		while(iterator.hasNext()) {
 			indices[i] = identifiers.indexOf(iterator.next()) ;
+			selectedHeaders.add(headers.get(indices[i])) ;
 			++i ;
 		}
 		
@@ -206,9 +208,13 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
 		Iterator<Integer> iterator1 = event.getSelected().iterator() ;
 		
 		int i = 0 ;
+		Integer id ;
 		
 		while(iterator1.hasNext()) {
-			selectedIndices[i] = identifiers.indexOf(iterator1.next()) ;
+			id = iterator1.next() ;
+			selectedIndices[i] = identifiers.indexOf(id) ;
+			solution.select(id) ;
+			selectedHeaders.add(headers.get(selectedIndices[i])) ;
 			++i ;
 		}
 		
@@ -219,7 +225,10 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
 		i = 0 ;
 		
 		while(iterator2.hasNext()) {
-			selectedIndices[i] = identifiers.indexOf(iterator2.next()) ;
+			id = iterator2.next() ;
+			unselectedIndices[i] = identifiers.indexOf(id) ;
+			solution.deselect(id) ;
+			selectedHeaders.remove(headers.get(unselectedIndices[i])) ;
 			++i ;
 		}
 		
@@ -227,27 +236,30 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
 		gridViewer.getGrid().deselect(unselectedIndices);
 	}
 
-    protected void handleViewerSelectionChanged(List<Object> list) {
+    @SuppressWarnings("unchecked")
+	protected void handleViewerSelectionChanged(List<Object> list) {
     	
     	Set<Integer> selected = new TreeSet<Integer>();
     	Set<Integer> unselected = new TreeSet<Integer>();
     	
 		Iterator<Object> iterator1 = list.iterator() ;
 		
-		FeatureDataRow row ;
+		String rowHeader ;
 		LinkedList<String> selectHeaders = new LinkedList<String>() ;
 		LinkedList<String> deSelectHeaders = new LinkedList<String>(selectedHeaders) ;
+		
+		selectedHeaders = new ArrayList<String>(list.size()) ;
 	
 		while (iterator1.hasNext()) {
-			row = (FeatureDataRow) iterator1.next() ;
+			rowHeader = ((DataGridViewerRow<ElementType>) iterator1.next()).getHeader().getUniqueIdentifier() ;
 			
-			if (deSelectHeaders.contains(row.getHeader().getUniqueIdentifier())) {
-				deSelectHeaders.remove(row.getHeader().getUniqueIdentifier()) ;
+			if (deSelectHeaders.contains(rowHeader)) {
+				deSelectHeaders.remove(rowHeader) ;
 			} else {
-				selectHeaders.add(row.getHeader().getUniqueIdentifier()) ;
+				selectHeaders.add(rowHeader) ;
 			}
 			
-			selectHeaders.add(row.getHeader().getUniqueIdentifier()) ;
+			selectedHeaders.add(rowHeader) ;
 		}		
 		
 		Iterator<String> iterator2 = selectHeaders.iterator() ;

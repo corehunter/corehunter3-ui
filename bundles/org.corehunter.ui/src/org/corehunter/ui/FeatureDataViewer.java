@@ -169,6 +169,7 @@ public class FeatureDataViewer implements SolutionContainer {
 		while(iterator.hasNext()) {
 			indices[i] = identifiers.indexOf(iterator.next()) ;
 			selectedHeaders.add(data.getHeader(indices[i]).getUniqueIdentifier()) ;
+			++i ;
 		}
 		
 		gridViewer.getGrid().deselectAll();
@@ -184,9 +185,12 @@ public class FeatureDataViewer implements SolutionContainer {
 		Iterator<Integer> iterator1 = event.getSelected().iterator() ;
 		
 		int i = 0 ;
+		Integer id ;
 		
 		while(iterator1.hasNext()) {
-			selectedIndices[i] = identifiers.indexOf(iterator1.next()) ;
+			id = iterator1.next() ;
+			selectedIndices[i] = identifiers.indexOf(id) ;
+			solution.select(id) ;
 			++i ;
 		}
 		
@@ -197,7 +201,9 @@ public class FeatureDataViewer implements SolutionContainer {
 		i = 0 ;
 		
 		while(iterator2.hasNext()) {
-			selectedIndices[i] = identifiers.indexOf(iterator2.next()) ;
+			id = iterator2.next() ;
+			unselectedIndices[i] = identifiers.indexOf(id) ;
+			solution.deselect(id) ;
 			++i ;
 		}
 		
@@ -242,8 +248,6 @@ public class FeatureDataViewer implements SolutionContainer {
 			unselected.add(headers.indexOf(iterator2.next())) ;
 		}
 		
-		
-			
 		solutionChangedEventHandler.fireMultipleEvent(selected, unselected); 
 	}
 
