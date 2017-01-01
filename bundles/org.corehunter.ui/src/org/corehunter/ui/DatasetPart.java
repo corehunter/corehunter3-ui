@@ -65,11 +65,11 @@ public class DatasetPart {
 	
 	private FeatureDataViewer phenotypeDatasetViewer;
 
-	private DataGridViewer<Double, String> genotypeDataViewer;
+	private DataGridViewer<Double, Allele> genotypeDataViewer;
 
+	private DataGridViewer<Integer, Marker> biAllelicGenotypeDataViewer;
+	
 	private DataGridViewer<Double, SimpleEntity> distanceDataViewer;
-
-	private DataGridViewer<Integer, String> biAllelicGenotypeDataViewer;
 
 	private MPart part;
 	private PartInput partInput;
@@ -336,9 +336,9 @@ public class DatasetPart {
 		return phenotypeDatasetViewer;
 	}
 
-	private DataGridViewer<Double, String> createGenotypeDataViewer(GenotypeData data, Composite parent) {
+	private DataGridViewer<Double, Allele> createGenotypeDataViewer(GenotypeData data, Composite parent) {
 
-		DataGridViewer<Double, String> genotypeDataViewer = new DataGridViewer<Double, String>();
+		DataGridViewer<Double, Allele> genotypeDataViewer = new DataGridViewer<Double, Allele>();
 
 		int totalNumberOfAlleles = data.getTotalNumberOfAlleles();
 		int numberOfMarkers = data.getNumberOfMarkers();
@@ -348,13 +348,15 @@ public class DatasetPart {
 
 		Double[] elements ;
 
-		String[] columnHeaders = new String[totalNumberOfAlleles];
+		Allele[] columnHeaders = new Allele[totalNumberOfAlleles];
 
 		Iterator<Integer> iterator = data.getIDs().iterator();
 
 		int i = 0;
 		int j = 0;
 		Integer id;
+		
+		MarkerPojo marker ;
 
 		if (iterator.hasNext()) {
 			id = iterator.next();
@@ -363,8 +365,11 @@ public class DatasetPart {
 			elements = new Double[totalNumberOfAlleles];
 
 			for (int markerIndex = 0; markerIndex < numberOfMarkers; ++markerIndex) {
+				
+				marker = createMarker(data.getMarkerName(markerIndex)) ;
+				
 				for (int alleleIndex = 0; alleleIndex < data.getNumberOfAlleles(markerIndex); ++alleleIndex) {
-					columnHeaders[j] = createMarkerName(data.getMarkerName(markerIndex), data.getAlleleName(markerIndex, alleleIndex));
+					columnHeaders[j] = createAllele(marker, data.getAlleleName(markerIndex, alleleIndex));
 					elements[j] = data.getAlleleFrequency(id, markerIndex, alleleIndex);
 					++j;
 				}
@@ -398,17 +403,17 @@ public class DatasetPart {
 
 		return genotypeDataViewer;
 	}
-	
-	private DataGridViewer<Integer, String> createBiAllelicGenotypeDataViewer(BiAllelicGenotypeData data,
+
+	private DataGridViewer<Integer, Marker> createBiAllelicGenotypeDataViewer(BiAllelicGenotypeData data,
 			Composite parent) {
 
-		DataGridViewer<Integer, String> biAllelicGenotypeData = new DataGridViewer<Integer, String>();
+		DataGridViewer<Integer, Marker> biAllelicGenotypeData = new DataGridViewer<Integer, Marker>();
 
 		int numberOfMarkers = data.getNumberOfMarkers();
 
 		Integer[] elements  ;
 
-		String[] columnHeaders = new String[numberOfMarkers];
+		Marker[] columnHeaders = new Marker[numberOfMarkers];
 		@SuppressWarnings("unchecked")
 		DataGridViewerRow<Integer>[] rows = new DataGridViewerRow[data.getSize()];
 
@@ -426,7 +431,7 @@ public class DatasetPart {
 
 			for (int markerIndex = 0; markerIndex < numberOfMarkers; ++markerIndex) {
 
-				columnHeaders[j] = data.getMarkerName(markerIndex);
+				columnHeaders[j] = createMarker(data.getMarkerName(markerIndex));
 				elements[j] = data.getAlleleScore(id, markerIndex);
 				rows[i] = new DataGridViewerRow<Integer>(data.getHeader(id), elements);
 				++j;
@@ -499,11 +504,15 @@ public class DatasetPart {
 		distanceDataViewer.createPartControl(distancesComposite);
 		return distanceDataViewer;
 	}
-
-	private String createMarkerName(String markerName, String alleleName) {
-		return markerName + "\n" + alleleName;
+	
+	private MarkerPojo createMarker(String markerName) {
+		return new MarkerPojo(markerName);
 	}
-
+	
+	private Allele createAllele(MarkerPojo marker, String alleleName) {
+		return marker.addAllele(alleleName);
+	}
+	
 	@Persist
 	public void save() {
 		saveDataset();
