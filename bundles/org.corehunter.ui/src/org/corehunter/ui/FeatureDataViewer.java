@@ -150,7 +150,7 @@ public class FeatureDataViewer implements SolutionContainer {
     		throw new NullPointerException("Solution must be defined!") ;
     	}
     	
-    	if (solution.getTotalNumIDs() == data.getRowCount()) {
+    	if (solution.getTotalNumIDs() != data.getRowCount()) {
     		throw new IllegalArgumentException("Solution size must match datasize!") ;
     	}
     	

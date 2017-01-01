@@ -174,7 +174,7 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
     		throw new NullPointerException("Solution must be defined!") ;
     	}
     	
-    	if (solution.getTotalNumIDs() == rows.length) {
+    	if (solution.getTotalNumIDs() != rows.length) {
     		throw new IllegalArgumentException("Solution size must match datasize!") ;
     	}
     	
