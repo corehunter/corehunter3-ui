@@ -13,8 +13,11 @@ import org.corehunter.data.CoreHunterDataType;
 import org.corehunter.data.DistanceMatrixData;
 import org.corehunter.data.GenotypeData;
 import org.eclipse.e4.ui.di.Persist;
+import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.MDirtyable;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -60,6 +63,8 @@ public class DatasetPart {
 	private MDirtyable dirty;
 
 	private ShellUtilitiies shellUtilitiies;
+	
+	private PartUtilitiies partUtilitiies;
 
 	private Text textName;
 
@@ -77,11 +82,13 @@ public class DatasetPart {
 	}
 
 	@PostConstruct
-	public void postConstruct(Composite parent, MPart part) {
+	public void postConstruct(Composite parent, MPart part, EPartService partService, EModelService modelService,
+			MApplication application) {
 
 		try {
 			this.part = part;
 			shellUtilitiies = new ShellUtilitiies(parent.getShell());
+			partUtilitiies = new PartUtilitiies(partService, modelService, application);
 
 			parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 
@@ -572,6 +579,8 @@ public class DatasetPart {
 					updatedDataset.setDescription(textDescription.getText());
 
 					Activator.getDefault().getDatasetServices().updateDataset(updatedDataset);
+					
+					partUtilitiies.refreshPart(ExecuteCoreHunterPart.ID) ;
 				} else {
 
 					shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");

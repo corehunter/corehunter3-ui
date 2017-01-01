@@ -2,7 +2,7 @@
 <application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmi:id="_MTr4wLCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ide.application" bindingContexts="_MTr4ybCsEeWDbcndzb8FsA">
   <children xsi:type="basic:Window" xmi:id="_MTr4wbCsEeWDbcndzb8FsA" label="Core Hunter" width="700" height="600">
     <children xsi:type="basic:PartStack" xmi:id="_CplkILIvEeWaxfSEU7PzyA" elementId="org.corehunter.ui.mainPartStack">
-      <children xsi:type="basic:Part" xmi:id="_4ZnAwLI8EeWECpxiBgDWkg" elementId="org.corehunter.ui.part.datasets" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.ExecuteCoreHunterPart" label="Datasets"/>
+      <children xsi:type="basic:Part" xmi:id="_4ZnAwLI8EeWECpxiBgDWkg" elementId="org.corehunter.ui.part.executeCoreHunter" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.ExecuteCoreHunterPart" label="Datasets"/>
       <children xsi:type="basic:Part" xmi:id="_-WtRULI8EeWECpxiBgDWkg" elementId="org.corehunter.ui.part.results" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.ResultsPart" label="Results"/>
     </children>
   </children>

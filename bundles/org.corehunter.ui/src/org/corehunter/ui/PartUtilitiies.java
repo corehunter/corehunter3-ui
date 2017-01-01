@@ -30,7 +30,27 @@ public class PartUtilitiies {
         this.modelService = modelService;
         this.application = application;
     }
+    
+    /**
+     * Tries to refresh the part. I
+     * @param id the id of the part to be refreshed
+     */
+	public void refreshPart(String id) {
+		MPart part = partService.findPart(id) ;
+		       
+		if (part != null && part.getObject() != null && part.getObject() instanceof Refreshable) {
+			((Refreshable)part.getObject()).refresh();
+		}
+	}
 
+    /**
+     * Opens a part by part input, creating the part if needed. If a part with the
+     * given input is alway created, this method will bring it to the top of the stack and give
+     * it focus.
+     * 
+     * @param partInput the input of the part to be opened
+     * @return the opened part
+     */
     public MPart openPart(PartInput partInput) {
         MPart part = null;
         
@@ -68,20 +88,39 @@ public class PartUtilitiies {
         return part;
     }
 
+    /**
+     * Gets the part service.
+     * 
+     * @return gets the part service.
+     */
     public final EPartService getPartService() {
         return partService;
     }
 
+    /**
+     * Gets the model service.
+     * 
+     * @return gets the model service.
+     */
     public final EModelService getModelService() {
         return modelService;
     }
 
+    /**
+     * Gets the application.
+     * 
+     * @return gets the application.
+     */
     public final MApplication getApplication() {
         return application;
     }
     
+    /**
+     * Gets the part input from part
+     * @param part the part from which the input will be returned
+     * @return part input from the given part
+     */
     private PartInput getPartInput(MPart part) {
         return (PartInput)part.getTransientData().get(INPUT);
     }
-
 }

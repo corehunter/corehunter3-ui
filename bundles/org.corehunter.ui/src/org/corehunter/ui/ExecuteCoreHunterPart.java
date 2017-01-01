@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
 import uno.informatics.data.Dataset;
 import uno.informatics.data.dataset.DatasetException;
 
-public class ExecuteCoreHunterPart {
+public class ExecuteCoreHunterPart implements Refreshable{
 
 	public static final String ID = "org.corehunter.ui.part.executeCoreHunter";
 
@@ -338,6 +338,11 @@ public class ExecuteCoreHunterPart {
 		updateDatasetSize();
 		updateCorehunterArguments();
 		updateStartButton();
+	}
+
+	@Override
+	public void refresh() {
+		updateDatasetViewer() ;
 	}
 
 	private void resetDatasetObjectives() {
@@ -730,7 +735,6 @@ public class ExecuteCoreHunterPart {
 		public final CoreHunterRun getCoreHunterRun() {
 			return coreHunterRun;
 		}
-
 	}
 
 	private class GetCoreHunterDataRunnable implements Runnable {
