@@ -60,7 +60,7 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
     
 	private IStructuredContentProvider contentProvider;
 	private CellLabelProvider rowHeaderLabelProvider;
-	private Map<Integer, GridViewerColumn> viewerColumns;
+	protected Map<Integer, GridViewerColumn> viewerColumns;
 	
 	private SolutionChangedEventHandler solutionChangedEventHandler ;
 
@@ -278,8 +278,24 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
 		solutionChangedEventHandler.fireMultipleEvent(selected, unselected); 
 	}
 
-    private void updateGridViewer() {
-        if (rows != null && rows.length > 0) {
+    private final void updateGridViewer() {
+    	if (gridViewer != null) {
+    		if (rows != null) {
+    			updateGridViewer(gridViewer, rows.length, columnHeaders) ;
+    			gridViewer.setInput(rows);
+    		} else {
+    			updateGridViewer(gridViewer, rows.length, columnHeaders) ;
+    			gridViewer.setInput(null);
+    		} 
+    	}
+    }
+
+    /**
+     * Creates (or updates) the columns for the viewer. Override
+     * 
+     */
+    protected void updateGridViewer(GridTableViewer gridViewer, int size, ColumnHeaderType[] columnHeaders) {
+        if (size > 0) {
             if (gridViewer != null) {
                 int oldColumnCount = viewerColumns.size();
                 int newColumnCount = columnHeaders.length ;
@@ -293,7 +309,7 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
                     // remove columns
                     if (newColumnCount < oldColumnCount) {
                         for (int i = newColumnCount; i > oldColumnCount; --i) {
-                            GridViewerColumn gridViewerColumn = viewerColumns.get(i - 1);
+                            GridViewerColumn gridViewerColumn = viewerColumns.remove(i - 1);
 
                             if (gridViewerColumn != null)
                                 gridViewerColumn.getColumn().dispose();
@@ -317,8 +333,6 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
                     
                     ++i ;
                 }
-
-                gridViewer.setInput(rows);
             }
         } else {
             if (gridViewer != null) {
@@ -328,8 +342,6 @@ public class DataGridViewer<ElementType extends Object, ColumnHeaderType extends
                     iterator.next().getColumn().dispose();
 
                 viewerColumns.clear();
-
-                gridViewer.setInput(null);
             }
         }
     }

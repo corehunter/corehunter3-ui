@@ -65,7 +65,7 @@ public class DatasetPart {
 	
 	private FeatureDataViewer phenotypeDatasetViewer;
 
-	private DataGridViewer<Double, Allele> genotypeDataViewer;
+	private AlleleDataGridViewer<Double> genotypeDataViewer;
 
 	private DataGridViewer<Integer, Marker> biAllelicGenotypeDataViewer;
 	
@@ -336,9 +336,9 @@ public class DatasetPart {
 		return phenotypeDatasetViewer;
 	}
 
-	private DataGridViewer<Double, Allele> createGenotypeDataViewer(GenotypeData data, Composite parent) {
+	private AlleleDataGridViewer<Double> createGenotypeDataViewer(GenotypeData data, Composite parent) {
 
-		DataGridViewer<Double, Allele> genotypeDataViewer = new DataGridViewer<Double, Allele>();
+		AlleleDataGridViewer<Double> genotypeDataViewer = new AlleleDataGridViewer<Double>();
 
 		int totalNumberOfAlleles = data.getTotalNumberOfAlleles();
 		int numberOfMarkers = data.getNumberOfMarkers();
