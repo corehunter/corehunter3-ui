@@ -177,6 +177,8 @@ public class ExportDataDialog extends TitleAreaDialog {
 	            }});
 	        
 	        new Label(filePathComposite, SWT.NONE);
+	        
+	        phenotypicDataTypeComboUpdated() ;
         }
         
         if (hasGenotypeData) {
@@ -219,6 +221,9 @@ public class ExportDataDialog extends TitleAreaDialog {
 	            public void modifyText(ModifyEvent e) {
 	                genotypeDataFormatComboUpdated() ;
 	            }});
+	        
+	        genotypicDataTypeComboUpdated() ;
+	        genotypeDataFormatComboUpdated() ;
         }
 
         if (hasDistancesData) {
@@ -251,8 +256,12 @@ public class ExportDataDialog extends TitleAreaDialog {
 	            public void modifyText(ModifyEvent e) {
 	                distancesDataTypeComboUpdated() ;
 	            }});
+	        
+	        distancesDataTypeComboUpdated() ;
         }
         
+		updateButtons();
+		
 		return area;
 	}
 
@@ -396,21 +405,29 @@ public class ExportDataDialog extends TitleAreaDialog {
 	protected void updateButtons() {
         Button button = getButton(OK) ;
         
-        boolean enabled = hasPhenotypeData || hasGenotypeData || hasDistancesData ;
-        
-        if (enabled && hasPhenotypeData) {
-        	enabled = phenotypeDataPath != null ;
+        if (button != null) {       
+	        boolean enabled = true ;
+	        
+	        if (btnAllRows != null && btnAllRowsWith != null && btnSelectedRows != null) {
+	        	enabled = (btnAllRows.getSelection() || btnAllRowsWith.getSelection() || btnSelectedRows.getSelection()) ;
+	        } 
+	        	
+	        enabled = enabled && hasPhenotypeData || hasGenotypeData || hasDistancesData ;
+			
+	        if (enabled && hasPhenotypeData) {
+	        	enabled = phenotypeDataPath != null ;
+	        }
+	        
+	        if (enabled && hasGenotypeData) {
+	        	enabled = genotypeDataPath != null ;
+	        }
+	        
+	        if (enabled && hasDistancesData) {
+	        	enabled = distancesDataPath != null ;
+	        }
+	
+	        button.setEnabled(enabled);
         }
-        
-        if (enabled && hasGenotypeData) {
-        	enabled = genotypeDataPath != null ;
-        }
-        
-        if (enabled && hasDistancesData) {
-        	enabled = distancesDataPath != null ;
-        }
-
-		this.getButton(OK).setEnabled(enabled);
 	}
 
 }

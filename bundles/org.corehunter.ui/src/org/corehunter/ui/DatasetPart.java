@@ -699,95 +699,99 @@ public class DatasetPart {
 					String errorTitle = null;
 					String errorMessages = null;
 
-					if (phenotypeData != null && phenotypeData instanceof PhenotypeData
-							&& dialog.getPhenotypeDataPath() != null) {
-
-						SimplePhenotypeData simplePhenotypeData = null;
-
-						if (phenotypeData instanceof SimplePhenotypeData) {
-							simplePhenotypeData = ((SimplePhenotypeData) phenotypeData);
-						} else {
-							// TODO copy constructor for SimplePhenotypeData
-							// simplePhenotypeData = new
-							// SimplePhenotypeData((PhenotypeData)phenotypeData)
-							// ;
-						}
-
-						if (includeSelected || includeUnselected) {
-							simplePhenotypeData.writeData(dialog.getPhenotypeDataPath(), dialog.getPhenotypeFileType(),
-									headerViewer.getSolution(), includeId, includeSelected, includeUnselected);
-						} else {
-							simplePhenotypeData.writeData(dialog.getPhenotypeDataPath(), dialog.getPhenotypeFileType());
-						}
-					} else {
-						errorTitle = "Data is not in correct format!";
-						errorMessages = "Can not export Phenotype Data!";
-					}
-
-					if (genotypeData != null && genotypeData instanceof GenotypeData
-							&& dialog.getGenotypeDataPath() != null) {
-
-						SimpleGenotypeData simpleGenotypeData = null;
-
-						if (genotypeData instanceof SimpleGenotypeData) {
-							simpleGenotypeData = ((SimpleGenotypeData) genotypeData);
-						} else {
-							if (genotypeData instanceof BiAllelicGenotypeData) {
-								// TODO copy constructor for
-								// BiAllelicGenotypeData
-								// simpleGenotypeData = new
-								// SimpleBiAllelicGenotypeData((BiAllelicGenotypeData)genotypeData)
+					if (phenotypeData != null && dialog.getPhenotypeDataPath() != null) {
+						if (phenotypeData instanceof PhenotypeData) {
+							SimplePhenotypeData simplePhenotypeData = null;
+	
+							if (phenotypeData instanceof SimplePhenotypeData) {
+								simplePhenotypeData = ((SimplePhenotypeData) phenotypeData);
 							} else {
-								// TODO copy constructor for SimpleGenotypeData
-								// simpleGenotypeData = new
-								// SimpleGenotypeData((GenotypeData)genotypeData)
+								// TODO copy constructor for SimplePhenotypeData
+								// simplePhenotypeData = new
+								// SimplePhenotypeData((PhenotypeData)phenotypeData)
 								// ;
 							}
-						}
-
-						if (includeSelected || includeUnselected) {
-							simpleGenotypeData.writeData(dialog.getGenotypeDataPath(), dialog.getGenotypeFileType(),
-									dialog.getGenotypeDataFormat(), headerViewer.getSolution(), includeId,
-									includeSelected, includeUnselected);
+	
+							if (includeSelected || includeUnselected) {
+								simplePhenotypeData.writeData(dialog.getPhenotypeDataPath(), dialog.getPhenotypeFileType(),
+										headerViewer.getSolution(), includeId, includeSelected, includeUnselected);
+							} else {
+								simplePhenotypeData.writeData(dialog.getPhenotypeDataPath(), dialog.getPhenotypeFileType());
+							}
 						} else {
-							simpleGenotypeData.writeData(dialog.getGenotypeDataPath(), dialog.getGenotypeFileType());
-						}
-					} else {
-						errorTitle = "Data is not in correct format!";
-						if (errorMessages == null) {
-							errorMessages = "Can not export Genotype Data!";
-						} else {
-							errorMessages = errorMessages + "/nCan not export Genotype Data!";
+							errorTitle = "Data is not in correct format!";
+							errorMessages = "Can not export Phenotype Data!";
 						}
 					}
-					if (distancesData != null && distancesData instanceof DistanceMatrixData
-							&& dialog.getDistancesDataPath() != null) {
 
-						SimpleDistanceMatrixData simpleDistanceMatrixData = null;
+					if (genotypeData != null
+							&& dialog.getGenotypeDataPath() != null) {
+						if (genotypeData instanceof GenotypeData) {
 
-						if (distancesData instanceof SimpleDistanceMatrixData) {
-							simpleDistanceMatrixData = ((SimpleDistanceMatrixData) distancesData);
+							SimpleGenotypeData simpleGenotypeData = null;
+
+							if (genotypeData instanceof SimpleGenotypeData) {
+								simpleGenotypeData = ((SimpleGenotypeData) genotypeData);
+							} else {
+								if (genotypeData instanceof BiAllelicGenotypeData) {
+									// TODO copy constructor for
+									// BiAllelicGenotypeData
+									// simpleGenotypeData = new
+									// SimpleBiAllelicGenotypeData((BiAllelicGenotypeData)genotypeData)
+								} else {
+									// TODO copy constructor for SimpleGenotypeData
+									// simpleGenotypeData = new
+									// SimpleGenotypeData((GenotypeData)genotypeData)
+									// ;
+								}
+							}
+	
+							if (includeSelected || includeUnselected) {
+								simpleGenotypeData.writeData(dialog.getGenotypeDataPath(), dialog.getGenotypeFileType(),
+										dialog.getGenotypeDataFormat(), headerViewer.getSolution(), includeId,
+										includeSelected, includeUnselected);
+							} else {
+								simpleGenotypeData.writeData(dialog.getGenotypeDataPath(), dialog.getGenotypeFileType());
+							}
 						} else {
-							// TODO copy constructor for SimpleGenotypeData
-							// simpleDistanceMatrixData = new
-							// SimpleDistanceMatrixData((DistanceMatrixData)distancesData)
-							// ;
+							errorTitle = "Data is not in correct format!";
+							if (errorMessages == null) {
+								errorMessages = "Can not export Genotype Data!";
+							} else {
+								errorMessages = errorMessages + "\nCan not export Genotype Data!";
+							}
 						}
+					}
+					
+					if (distancesData != null && dialog.getDistancesDataPath() != null) {
+						if (distancesData instanceof DistanceMatrixData) {
 
-						if (includeSelected || includeUnselected) {
-							simpleDistanceMatrixData.writeData(dialog.getDistancesDataPath(),
-									dialog.getDistancesFileType(), headerViewer.getSolution(), includeId,
-									includeSelected, includeUnselected);
+							SimpleDistanceMatrixData simpleDistanceMatrixData = null;
+	
+							if (distancesData instanceof SimpleDistanceMatrixData) {
+								simpleDistanceMatrixData = ((SimpleDistanceMatrixData) distancesData);
+							} else {
+								// TODO copy constructor for SimpleGenotypeData
+								// simpleDistanceMatrixData = new
+								// SimpleDistanceMatrixData((DistanceMatrixData)distancesData)
+								// ;
+							}
+	
+							if (includeSelected || includeUnselected) {
+								simpleDistanceMatrixData.writeData(dialog.getDistancesDataPath(),
+										dialog.getDistancesFileType(), headerViewer.getSolution(), includeId,
+										includeSelected, includeUnselected);
+							} else {
+								simpleDistanceMatrixData.writeData(dialog.getDistancesDataPath(),
+										dialog.getDistancesFileType());
+							}
 						} else {
-							simpleDistanceMatrixData.writeData(dialog.getDistancesDataPath(),
-									dialog.getDistancesFileType());
-						}
-					} else {
-						errorTitle = "Data is not in correct format!";
-						if (errorMessages == null) {
-							errorMessages = "Can not export Distances Data!";
-						} else {
-							errorMessages = errorMessages + "/nCan not export Distances Data!";
+							errorTitle = "Data is not in correct format!";
+							if (errorMessages == null) {
+								errorMessages = "Can not export Distances Data!";
+							} else {
+								errorMessages = errorMessages + "\nCan not export Distances Data!";
+							}
 						}
 					}
 
@@ -797,6 +801,7 @@ public class DatasetPart {
 				}
 
 			} catch (Exception e) {
+				e.printStackTrace();
 				shellUtilitiies.handleError("Can not export data!", e.getMessage(), e);
 			}
 		}
