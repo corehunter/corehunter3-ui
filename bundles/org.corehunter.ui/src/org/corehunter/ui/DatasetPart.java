@@ -16,6 +16,7 @@
 
 package org.corehunter.ui;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +27,11 @@ import org.corehunter.data.BiAllelicGenotypeData;
 import org.corehunter.data.CoreHunterDataType;
 import org.corehunter.data.DistanceMatrixData;
 import org.corehunter.data.GenotypeData;
+import org.corehunter.data.GenotypeDataFormat;
+import org.corehunter.data.PhenotypeData;
+import org.corehunter.data.simple.SimpleDistanceMatrixData;
+import org.corehunter.data.simple.SimpleGenotypeData;
+import org.corehunter.data.simple.SimplePhenotypeData;
 import org.eclipse.e4.ui.di.Persist;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.MDirtyable;
@@ -33,6 +39,7 @@ import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -62,13 +69,13 @@ public class DatasetPart {
 	public static final String ID = "org.corehunter.ui.part.dataset";
 
 	private HeaderViewer headerViewer;
-	
+
 	private FeatureDataViewer phenotypeDatasetViewer;
 
 	private AlleleDataGridViewer<Double> genotypeDataViewer;
 
 	private DataGridViewer<Integer, Marker> biAllelicGenotypeDataViewer;
-	
+
 	private DataGridViewer<Double, SimpleEntity> distanceDataViewer;
 
 	private MPart part;
@@ -77,7 +84,7 @@ public class DatasetPart {
 	private MDirtyable dirty;
 
 	private ShellUtilitiies shellUtilitiies;
-	
+
 	private PartUtilitiies partUtilitiies;
 
 	private Text textName;
@@ -153,24 +160,32 @@ public class DatasetPart {
 					updateSaveButton();
 				}
 			});
-			
+
 			Composite buttonComposite = new Composite(composite, SWT.NONE);
 			buttonComposite.setLayout(new GridLayout(2, false));
 			buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-			
-						btnSave = new Button(buttonComposite, SWT.NONE);
-						btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-						btnSave.setText("Save Dataset Details");
-						
-						Button btnExportAll = new Button(buttonComposite, SWT.NONE);
-						btnExportAll.setText("Export All");
-						btnSave.addSelectionListener(new SelectionAdapter() {
 
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								saveDataset();
-							}
-						});
+			btnSave = new Button(buttonComposite, SWT.NONE);
+			btnSave.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+			btnSave.setText("Save Dataset Details");
+
+			btnSave.addSelectionListener(new SelectionAdapter() {
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					saveDataset();
+				}
+			});
+
+			Button btnExport = new Button(buttonComposite, SWT.NONE);
+			btnExport.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					exportDataset();
+				}
+			});
+
+			btnExport.setText("Export Data...");
 
 			Group headerViewerComposite = new Group(composite, SWT.NONE);
 			headerViewerComposite.setText("Headers");
@@ -185,8 +200,9 @@ public class DatasetPart {
 
 				@Override
 				public void solutionChanged(SolutionChangedEvent event) {
-					handleSolutionChanged(event) ;
-				}});
+					handleSolutionChanged(event);
+				}
+			});
 
 			partInput = (PartInput) part.getTransientData().get(PartUtilitiies.INPUT);
 
@@ -204,13 +220,13 @@ public class DatasetPart {
 				headerViewer.setHeaders(headers);
 
 				Data phenotypicData = Activator.getDefault().getDatasetServices()
-						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.PHENOTYPIC);
+						.getOriginalData(dataset.getUniqueIdentifier(), CoreHunterDataType.PHENOTYPIC);
 
 				Data genotypicData = Activator.getDefault().getDatasetServices()
-						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.GENOTYPIC);
+						.getOriginalData(dataset.getUniqueIdentifier(), CoreHunterDataType.GENOTYPIC);
 
 				Data distancesData = Activator.getDefault().getDatasetServices()
-						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.DISTANCES);
+						.getOriginalData(dataset.getUniqueIdentifier(), CoreHunterDataType.DISTANCES);
 
 				if (phenotypicData != null && phenotypicData instanceof FeatureData) {
 
@@ -222,15 +238,16 @@ public class DatasetPart {
 					phenotypesComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 					phenotypesTabItem.setControl(phenotypesComposite);
-					
+
 					phenotypeDatasetViewer = createFeatureDataViewer((FeatureData) phenotypicData, phenotypesComposite);
-					
+
 					phenotypeDatasetViewer.addSolutionChangedListener(new SolutionChangedListener() {
 
 						@Override
 						public void solutionChanged(SolutionChangedEvent event) {
-							handleSolutionChanged(event) ;
-						}});
+							handleSolutionChanged(event);
+						}
+					});
 				}
 
 				if (genotypicData != null) {
@@ -248,26 +265,28 @@ public class DatasetPart {
 
 						biAllelicGenotypeDataViewer = createBiAllelicGenotypeDataViewer(
 								(BiAllelicGenotypeData) genotypicData, genotypesComposite);
-						
+
 						biAllelicGenotypeDataViewer.addSolutionChangedListener(new SolutionChangedListener() {
 
 							@Override
 							public void solutionChanged(SolutionChangedEvent event) {
-								handleSolutionChanged(event) ;
-							}});
+								handleSolutionChanged(event);
+							}
+						});
 
 					} else {
 						if (genotypicData instanceof GenotypeData) {
 
 							genotypeDataViewer = createGenotypeDataViewer((GenotypeData) genotypicData,
 									genotypesComposite);
-							
+
 							genotypeDataViewer.addSolutionChangedListener(new SolutionChangedListener() {
 
 								@Override
 								public void solutionChanged(SolutionChangedEvent event) {
-									handleSolutionChanged(event) ;		
-								}});
+									handleSolutionChanged(event);
+								}
+							});
 						}
 					}
 				}
@@ -283,13 +302,14 @@ public class DatasetPart {
 
 					distanceDataViewer = createDistanceDataViewer((DistanceMatrixData) distancesData,
 							distancesComposite);
-					
+
 					distanceDataViewer.addSolutionChangedListener(new SolutionChangedListener() {
 
 						@Override
 						public void solutionChanged(SolutionChangedEvent event) {
-							handleSolutionChanged(event) ;
-						}});
+							handleSolutionChanged(event);
+						}
+					});
 				}
 
 				updatePart();
@@ -303,25 +323,25 @@ public class DatasetPart {
 	}
 
 	protected void handleSolutionChanged(SolutionChangedEvent event) {
-				
+
 		if (event.getSource() != headerViewer) {
-			headerViewer.updateSelection(event) ;
+			headerViewer.updateSelection(event);
 		}
-		
+
 		if (phenotypeDatasetViewer != null && event.getSource() != phenotypeDatasetViewer) {
-			phenotypeDatasetViewer.updateSelection(event) ;
+			phenotypeDatasetViewer.updateSelection(event);
 		}
-		
+
 		if (genotypeDataViewer != null && event.getSource() != genotypeDataViewer) {
-			genotypeDataViewer.updateSelection(event) ;
+			genotypeDataViewer.updateSelection(event);
 		}
-		
+
 		if (biAllelicGenotypeDataViewer != null && event.getSource() != biAllelicGenotypeDataViewer) {
-			biAllelicGenotypeDataViewer.updateSelection(event) ;
+			biAllelicGenotypeDataViewer.updateSelection(event);
 		}
-		
+
 		if (distanceDataViewer != null && event.getSource() != distanceDataViewer) {
-			distanceDataViewer.updateSelection(event) ;
+			distanceDataViewer.updateSelection(event);
 		}
 	}
 
@@ -342,11 +362,11 @@ public class DatasetPart {
 
 		int totalNumberOfAlleles = data.getTotalNumberOfAlleles();
 		int numberOfMarkers = data.getNumberOfMarkers();
-		
+
 		@SuppressWarnings("unchecked")
 		DataGridViewerRow<Double>[] rows = new DataGridViewerRow[data.getSize()];
 
-		Double[] elements ;
+		Double[] elements;
 
 		Allele[] columnHeaders = new Allele[totalNumberOfAlleles];
 
@@ -355,8 +375,8 @@ public class DatasetPart {
 		int i = 0;
 		int j = 0;
 		Integer id;
-		
-		MarkerPojo marker ;
+
+		MarkerPojo marker;
 
 		if (iterator.hasNext()) {
 			id = iterator.next();
@@ -365,16 +385,16 @@ public class DatasetPart {
 			elements = new Double[totalNumberOfAlleles];
 
 			for (int markerIndex = 0; markerIndex < numberOfMarkers; ++markerIndex) {
-				
-				marker = createMarker(data.getMarkerName(markerIndex)) ;
-				
+
+				marker = createMarker(data.getMarkerName(markerIndex));
+
 				for (int alleleIndex = 0; alleleIndex < data.getNumberOfAlleles(markerIndex); ++alleleIndex) {
 					columnHeaders[j] = createAllele(marker, data.getAlleleName(markerIndex, alleleIndex));
 					elements[j] = data.getAlleleFrequency(id, markerIndex, alleleIndex);
 					++j;
 				}
-				
-				rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements) ;
+
+				rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements);
 			}
 			++i;
 
@@ -390,8 +410,8 @@ public class DatasetPart {
 						elements[j] = data.getAlleleFrequency(id, markerIndex, alleleIndex);
 						++j;
 					}
-					
-					rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements) ;
+
+					rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements);
 				}
 				++i;
 			}
@@ -411,7 +431,7 @@ public class DatasetPart {
 
 		int numberOfMarkers = data.getNumberOfMarkers();
 
-		Integer[] elements  ;
+		Integer[] elements;
 
 		Marker[] columnHeaders = new Marker[numberOfMarkers];
 		@SuppressWarnings("unchecked")
@@ -450,13 +470,13 @@ public class DatasetPart {
 
 					++j;
 				}
-				
+
 				rows[i] = new DataGridViewerRow<Integer>(data.getHeader(id), elements);
-				
+
 				++i;
 			}
 		}
-		
+
 		biAllelicGenotypeData.setData(rows, columnHeaders);
 
 		biAllelicGenotypeData.createPartControl(parent);
@@ -471,7 +491,7 @@ public class DatasetPart {
 
 		int size = data.getSize();
 
-		Double[] elements ;
+		Double[] elements;
 
 		SimpleEntity[] columnHeaders = new SimpleEntity[size];
 		@SuppressWarnings("unchecked")
@@ -491,10 +511,10 @@ public class DatasetPart {
 				for (int j = 0; j < size; ++j) {
 					elements[j] = data.getDistance(i, j);
 				}
-	
-				rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements) ;
+
+				rows[i] = new DataGridViewerRow<Double>(data.getHeader(id), elements);
 				columnHeaders[i] = rows[i].getHeader();
-				
+
 				++i;
 			}
 		}
@@ -504,15 +524,15 @@ public class DatasetPart {
 		distanceDataViewer.createPartControl(distancesComposite);
 		return distanceDataViewer;
 	}
-	
+
 	private MarkerPojo createMarker(String markerName) {
 		return new MarkerPojo(markerName);
 	}
-	
+
 	private Allele createAllele(MarkerPojo marker, String alleleName) {
 		return marker.addAllele(alleleName);
 	}
-	
+
 	@Persist
 	public void save() {
 		saveDataset();
@@ -547,7 +567,7 @@ public class DatasetPart {
 			if (biAllelicGenotypeDataViewer != null) {
 				biAllelicGenotypeDataViewer.setSolution(solution);
 			}
-			
+
 			if (distanceDataViewer != null) {
 				distanceDataViewer.setSolution(solution);
 			}
@@ -601,8 +621,8 @@ public class DatasetPart {
 					updatedDataset.setDescription(textDescription.getText());
 
 					Activator.getDefault().getDatasetServices().updateDataset(updatedDataset);
-					
-					partUtilitiies.refreshPart(ExecuteCoreHunterPart.ID) ;
+
+					partUtilitiies.refreshPart(ExecuteCoreHunterPart.ID);
 				} else {
 
 					shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");
@@ -612,6 +632,173 @@ public class DatasetPart {
 			}
 		} catch (Exception e) {
 			this.shellUtilitiies.handleError("Can not save result name!", "Can not save result name!", e);
+		}
+	}
+
+	protected void exportDataset() {
+
+		if (partInput != null && partInput.getUniqueIdentifier() != null) {
+
+			Dataset dataset = Activator.getDefault().getDatasetServices().getDataset(partInput.getUniqueIdentifier());
+
+			if (dataset == null) {
+				shellUtilitiies.handleError("Can not find dataset!", "Can not find dataset!");
+			}
+
+			try {
+
+				Data phenotypeData = Activator.getDefault().getDatasetServices()
+						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.PHENOTYPIC);
+
+				Data genotypeData = Activator.getDefault().getDatasetServices()
+						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.GENOTYPIC);
+
+				Data distancesData = Activator.getDefault().getDatasetServices()
+						.getOriginalData(partInput.getUniqueIdentifier(), CoreHunterDataType.DISTANCES);
+
+				ExportDataDialog dialog = new ExportDataDialog(shellUtilitiies.getShell(), phenotypeData != null,
+						genotypeData != null, distancesData != null);
+
+				if (genotypeData != null) {
+					if (genotypeData instanceof BiAllelicGenotypeData) {
+						dialog = new ExportDataDialog(shellUtilitiies.getShell(), phenotypeData != null, true,
+								distancesData != null, GenotypeDataFormat.BIPARENTAL, GenotypeDataFormat.FREQUENCY);
+					} else {
+						dialog = new ExportDataDialog(shellUtilitiies.getShell(), phenotypeData != null, true,
+								distancesData != null, GenotypeDataFormat.FREQUENCY);
+					}
+				} else {
+					dialog = new ExportDataDialog(shellUtilitiies.getShell(), phenotypeData != null, false,
+							distancesData != null);
+				}
+
+				if (dialog.open() == Window.OK) {
+
+					boolean includeId = false;
+					boolean includeSelected = false;
+					boolean includeUnselected = false;
+
+					switch (dialog.getFormat()) {
+					case ExportDataDialog.NONE:
+					default:
+						break;
+					case ExportDataDialog.ALL_ROWS:
+						includeSelected = false;
+						includeUnselected = false;
+						break;
+					case ExportDataDialog.ALL_ROWS_WITH_SELECTION:
+						includeSelected = true;
+						includeUnselected = true;
+						break;
+					case ExportDataDialog.SELECTED_ROWS_ONLY:
+						includeSelected = true;
+						includeUnselected = false;
+						break;
+					}
+
+					String errorTitle = null;
+					String errorMessages = null;
+
+					if (phenotypeData != null && phenotypeData instanceof PhenotypeData
+							&& dialog.getPhenotypeDataPath() != null) {
+
+						SimplePhenotypeData simplePhenotypeData = null;
+
+						if (phenotypeData instanceof SimplePhenotypeData) {
+							simplePhenotypeData = ((SimplePhenotypeData) phenotypeData);
+						} else {
+							// TODO copy constructor for SimplePhenotypeData
+							// simplePhenotypeData = new
+							// SimplePhenotypeData((PhenotypeData)phenotypeData)
+							// ;
+						}
+
+						if (includeSelected || includeUnselected) {
+							simplePhenotypeData.writeData(dialog.getPhenotypeDataPath(), dialog.getPhenotypeFileType(),
+									headerViewer.getSolution(), includeId, includeSelected, includeUnselected);
+						} else {
+							simplePhenotypeData.writeData(dialog.getPhenotypeDataPath(), dialog.getPhenotypeFileType());
+						}
+					} else {
+						errorTitle = "Data is not in correct format!";
+						errorMessages = "Can not export Phenotype Data!";
+					}
+
+					if (genotypeData != null && genotypeData instanceof GenotypeData
+							&& dialog.getGenotypeDataPath() != null) {
+
+						SimpleGenotypeData simpleGenotypeData = null;
+
+						if (genotypeData instanceof SimpleGenotypeData) {
+							simpleGenotypeData = ((SimpleGenotypeData) genotypeData);
+						} else {
+							if (genotypeData instanceof BiAllelicGenotypeData) {
+								// TODO copy constructor for
+								// BiAllelicGenotypeData
+								// simpleGenotypeData = new
+								// SimpleBiAllelicGenotypeData((BiAllelicGenotypeData)genotypeData)
+							} else {
+								// TODO copy constructor for SimpleGenotypeData
+								// simpleGenotypeData = new
+								// SimpleGenotypeData((GenotypeData)genotypeData)
+								// ;
+							}
+						}
+
+						if (includeSelected || includeUnselected) {
+							simpleGenotypeData.writeData(dialog.getGenotypeDataPath(), dialog.getGenotypeFileType(),
+									dialog.getGenotypeDataFormat(), headerViewer.getSolution(), includeId,
+									includeSelected, includeUnselected);
+						} else {
+							simpleGenotypeData.writeData(dialog.getGenotypeDataPath(), dialog.getGenotypeFileType());
+						}
+					} else {
+						errorTitle = "Data is not in correct format!";
+						if (errorMessages == null) {
+							errorMessages = "Can not export Genotype Data!";
+						} else {
+							errorMessages = errorMessages + "/nCan not export Genotype Data!";
+						}
+					}
+					if (distancesData != null && distancesData instanceof DistanceMatrixData
+							&& dialog.getDistancesDataPath() != null) {
+
+						SimpleDistanceMatrixData simpleDistanceMatrixData = null;
+
+						if (distancesData instanceof SimpleDistanceMatrixData) {
+							simpleDistanceMatrixData = ((SimpleDistanceMatrixData) distancesData);
+						} else {
+							// TODO copy constructor for SimpleGenotypeData
+							// simpleDistanceMatrixData = new
+							// SimpleDistanceMatrixData((DistanceMatrixData)distancesData)
+							// ;
+						}
+
+						if (includeSelected || includeUnselected) {
+							simpleDistanceMatrixData.writeData(dialog.getDistancesDataPath(),
+									dialog.getDistancesFileType(), headerViewer.getSolution(), includeId,
+									includeSelected, includeUnselected);
+						} else {
+							simpleDistanceMatrixData.writeData(dialog.getDistancesDataPath(),
+									dialog.getDistancesFileType());
+						}
+					} else {
+						errorTitle = "Data is not in correct format!";
+						if (errorMessages == null) {
+							errorMessages = "Can not export Distances Data!";
+						} else {
+							errorMessages = errorMessages + "/nCan not export Distances Data!";
+						}
+					}
+
+					if (errorTitle != null) {
+						shellUtilitiies.handleError(errorTitle, errorMessages);
+					}
+				}
+
+			} catch (Exception e) {
+				shellUtilitiies.handleError("Can not export data!", e.getMessage(), e);
+			}
 		}
 	}
 

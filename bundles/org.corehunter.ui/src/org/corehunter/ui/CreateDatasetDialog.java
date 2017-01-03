@@ -56,17 +56,20 @@ public class CreateDatasetDialog extends TitleAreaDialog {
     private Text distancesDataText;
 
     private DatasetPojo dataset;
+    
     private String phenotypicDataPath;
-    private String genotypicDataPath;
-    private String distancesDataPath;
     private Combo phenotypicDataTypeCombo;
     private FileType phenotypicDataType;
+    
+    private String genotypicDataPath;
     private FileType genotypicDataType;
-    private FileType distancesDataType;
-    private GenotypeDataFormat genotypeDataFormat;
-    private Combo distancesDataTypeCombo;
     private Combo genotypicDataTypeCombo;
     private Combo genotypicDataFormatCombo;
+    private GenotypeDataFormat genotypeDataFormat;
+    
+    private String distancesDataPath;
+    private FileType distancesDataType;
+    private Combo distancesDataTypeCombo;
 
     public CreateDatasetDialog(Shell parentShell) {
         super(parentShell);
@@ -381,13 +384,13 @@ public class CreateDatasetDialog extends TitleAreaDialog {
         } 
     }
 
-    
     private void updateButtons() {
         Button button = getButton(OK) ;
         
         button.setEnabled(datasetNameText.getText() != null && datasetNameText.getText().length() > 0 && 
                 (phenotypicDataPath != null || genotypicDataPath != null || distancesDataPath != null));
     }
+    
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         super.createButtonsForButtonBar(parent);
