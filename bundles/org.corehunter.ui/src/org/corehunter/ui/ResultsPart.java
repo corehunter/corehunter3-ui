@@ -25,6 +25,7 @@ import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.IPartListener;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -69,6 +70,7 @@ public class ResultsPart {
         parent.setLayout(new GridLayout(1, false));
 
         Group grpResults = new Group(parent, SWT.NONE);
+        grpResults.setToolTipText("List of currently running or finished Core Hunter runs.");
         grpResults.setText("Results");
         grpResults.setLayout(new GridLayout(1, false));
         grpResults.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -96,6 +98,8 @@ public class ResultsPart {
 
         btnRemove = new Button(composite, SWT.NONE);
         btnRemove.setText("Remove Selected");
+        btnRemove.setToolTipText("Removes the currently selected result.");
+        
         btnRemove.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -105,6 +109,8 @@ public class ResultsPart {
 
         btnView = new Button(composite, SWT.NONE);
         btnView.setText("View Selected");
+        btnView.setToolTipText("View more detials on the currently selected result.");
+        
         btnView.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -114,6 +120,7 @@ public class ResultsPart {
 
         btnClear = new Button(composite, SWT.NONE);
         btnClear.setText("Clear Selecton");
+        btnClear.setToolTipText("Deselects the currently selected result.");
         
         btnClear.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -124,6 +131,7 @@ public class ResultsPart {
         
         btnRefresh = new Button(composite, SWT.NONE);
         btnRefresh.setText("Refresh Result");
+        btnRefresh.setToolTipText("Forces the list to be refreshed to provide the most recent information.");
         
         btnRefresh.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -190,13 +198,22 @@ public class ResultsPart {
     }
 
     protected void removeResult() {
-        try {
-            Activator.getDefault().getCoreHunterRunServices().removeCoreHunterRun(resultTable.getSelectedCorehunterRun().getUniqueIdentifier());
-            updateViewer();
-        } catch (Exception e) {
-            shellUtilitiies.handleError("Can not remove result!",
-                    "Result could not be removed, see error message for more details!", e);
-        }
+    	
+		boolean answer = MessageDialog.openQuestion(shellUtilitiies.getShell(), "Are you sure?",
+				String.format(
+						"Click on 'Yes' if you want to remove the result '%s' otherwise please click 'No'. "
+								+ "If you answer 'Yes' the result will be deleted!",
+								selectedCorehunterRun.getName()));
+		
+		if (answer) {
+	        try {
+	            Activator.getDefault().getCoreHunterRunServices().removeCoreHunterRun(resultTable.getSelectedCorehunterRun().getUniqueIdentifier());
+	            updateViewer();
+	        } catch (Exception e) {
+	            shellUtilitiies.handleError("Can not remove result!",
+	                    "Result could not be removed, see error message for more details!", e);
+	        }
+		}
     }
 
     protected void viewResult() {

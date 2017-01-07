@@ -99,9 +99,11 @@ public class CoreHunterRunTable {
         parent.setLayout(layout);
         Label searchLabel = new Label(parent, SWT.NONE);
         searchLabel.setText("Search: ");
+        searchLabel.setToolTipText("Searches by result name");
         final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
         searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
-
+        searchText.setToolTipText("Start typing here and the results will be filtered by what you type");
+        
         createViewer(parent);
 
         CorehunterRunFilter corehunterRunFilter = new CorehunterRunFilter();

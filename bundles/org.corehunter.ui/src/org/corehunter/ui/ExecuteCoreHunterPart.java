@@ -41,6 +41,7 @@ import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -122,6 +123,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 		grpDatasets.setLayout(new GridLayout(1, false));
 
 		Composite datasetViewerComposite = new Composite(grpDatasets, SWT.NONE);
+		datasetViewerComposite.setToolTipText("List of available datasets");
 		datasetViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		datasetViewer = new DatasetViewer();
@@ -134,6 +136,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 
 		btnAddDataset = new Button(datasetButtonComposite, SWT.NONE);
 		btnAddDataset.setText("Add Dataset");
+		btnAddDataset.setToolTipText("Click here to add a new dataset to the list above.");
 
 		btnAddDataset.addSelectionListener(new SelectionAdapter() {
 
@@ -145,6 +148,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 
 		btnRemoveDataset = new Button(datasetButtonComposite, SWT.NONE);
 		btnRemoveDataset.setText("Remove Selected Dataset");
+		btnRemoveDataset.setToolTipText("Click to remove the currently selected dataset.");
 
 		btnRemoveDataset.addSelectionListener(new SelectionAdapter() {
 
@@ -156,7 +160,8 @@ public class ExecuteCoreHunterPart implements Refreshable{
 
 		btnViewDataset = new Button(datasetButtonComposite, SWT.NONE);
 		btnViewDataset.setText("View Selected Dataset");
-
+		btnViewDataset.setToolTipText("Click to view in more detail the currently selected dataset.");
+		
 		btnViewDataset.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -166,6 +171,8 @@ public class ExecuteCoreHunterPart implements Refreshable{
 
 		btnClearSelectedDataset = new Button(datasetButtonComposite, SWT.NONE);
 		btnClearSelectedDataset.setText("Clear Dataset Selection");
+		btnClearSelectedDataset.setToolTipText("Click to deselected the currently selected dataset.");
+		
 		new Label(datasetButtonComposite, SWT.NONE);
 
 		btnClearSelectedDataset.addSelectionListener(new SelectionAdapter() {
@@ -198,30 +205,39 @@ public class ExecuteCoreHunterPart implements Refreshable{
 
 		lblDatasetSize = new Label(argumentsComposite, SWT.NONE);
 		lblDatasetSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+		lblDatasetSize.setToolTipText("The size of currently selected dataset.");
+		
 		Label lblCoreSize = new Label(argumentsComposite, SWT.NONE);
 		lblCoreSize.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 		lblCoreSize.setText("Core Size");
+		lblCoreSize.setToolTipText("The size of required core");
 
 		spinnerSize = new Spinner(argumentsComposite, SWT.BORDER);
-
+		spinnerSize.setToolTipText("Explicitly give the size of the core") ;
+		
 		Label lblIntensity = new Label(argumentsComposite, SWT.NONE);
-		lblIntensity.setText("Intensity");
+		lblIntensity.setText("Intensity (%)");
+		lblIntensity.setToolTipText("Set the size of the core as percentage of the size of the dataset") ;
 
 		spinnerIntensity = new Spinner(argumentsComposite, SWT.BORDER);
+		spinnerIntensity.setToolTipText("Set the size of the core as percentage of the size of the dataset");
 		
 		btnTime = new Button(argumentsComposite, SWT.CHECK);
-		btnTime.setText("Time");
+		btnTime.setToolTipText("Tick this box if you want the Core Hunter to be stopped after a set time");
+		btnTime.setText("Time (secs)");
 		btnTime.setSelection(true);
 
 		spinnerTime = new Spinner(argumentsComposite, SWT.BORDER);
+		spinnerTime.setToolTipText("Time in seconds after which Core Hunter will be stopped.");
 		spinnerTime.setMinimum(1);
 		
 		btnMaxImprovement = new Button(argumentsComposite, SWT.CHECK);
-		btnMaxImprovement.setText("Max Improvement");
+		btnMaxImprovement.setToolTipText("Tick this box if you want the Core Hunter to be stopped if there is no improvement in the core after a set time");
+		btnMaxImprovement.setText("Max Improvement (secs)");
 		btnMaxImprovement.setSelection(false);
 
 		spinnerMaxImprovement = new Spinner(argumentsComposite, SWT.BORDER);
+		spinnerMaxImprovement.setToolTipText("Time in seconds after which Core Hunter will be stopped when there has been no improvement in the core.");
 		spinnerMaxImprovement.setMinimum(1);
 		spinnerMaxImprovement.setEnabled(false);
 		
@@ -246,7 +262,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 				
 				if (!btnTime.getSelection() && !btnMaxImprovement.getSelection()) {
 					btnMaxImprovement.setSelection(true);
-					spinnerTime.setEnabled(true);
+					spinnerMaxImprovement.setEnabled(true);
 				}
 			}
 		});
@@ -258,7 +274,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 				
 				if (!btnMaxImprovement.getSelection() && !btnTime.getSelection()) {
 					btnTime.setSelection(true);
-					spinnerMaxImprovement.setEnabled(true);
+					spinnerTime.setEnabled(true);
 				}
 			}
 		});
@@ -268,6 +284,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 		resetSpinnerIntensity();
 
 		Composite objectiveViewerComposite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
+		objectiveViewerComposite.setToolTipText("The objectives to be applied to Core Hunter when started.");
 		objectiveViewerComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		objectiveViewer = new ObjectiveViewer();
@@ -288,9 +305,11 @@ public class ExecuteCoreHunterPart implements Refreshable{
 		objectiveButtonComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 
 		btnAddObjective = new Button(objectiveButtonComposite, SWT.NONE);
+		btnAddObjective.setToolTipText("Adds another objective. The type of objective is guessed based on the existing objectives.");
 		btnAddObjective.setText("Add Objective");
 
 		btnRemoveObjective = new Button(objectiveButtonComposite, SWT.NONE);
+		btnRemoveObjective.setToolTipText("Removes the currently selected objective");
 		btnRemoveObjective.setText("Remove Objective");
 
 		btnRemoveObjective.addSelectionListener(new SelectionAdapter() {
@@ -312,6 +331,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 		executeComposite.setLayout(new GridLayout(2, false));
 
 		btnStart = new Button(executeComposite, SWT.NONE);
+		btnStart.setToolTipText("Starts Core Hunter with the current arguments.");
 		btnStart.setText("Start New Run");
 
 		btnStart.addSelectionListener(new SelectionAdapter() {
@@ -323,6 +343,7 @@ public class ExecuteCoreHunterPart implements Refreshable{
 		});
 
 		btnReset = new Button(executeComposite, SWT.NONE);
+		btnReset.setToolTipText("Resets the current arguments to their defaults");
 		btnReset.setText("Reset Arguments");
 
 		btnReset.addSelectionListener(new SelectionAdapter() {
@@ -448,13 +469,22 @@ public class ExecuteCoreHunterPart implements Refreshable{
 	}
 
 	private void removeDataset() {
-		try {
-			Activator.getDefault().getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
-			coreHunterDataMap.remove(selectedDataset.getUniqueIdentifier());
-			updateDatasetViewer();
-		} catch (DatasetException e) {
-			shellUtilitiies.handleError("Dataset not be removed!",
-					"Dataset could not be remove, see error message for more details!", e);
+
+		boolean answer = MessageDialog.openQuestion(shellUtilitiies.getShell(), "Are you sure?",
+				String.format(
+						"Click on 'Yes' if you want to remove the dataset '%s' otherwise please click 'No'. "
+								+ "If you answer 'Yes' the dataset and all its data will be deleted!",
+						selectedDataset.getName()));
+		
+		if (answer) {
+			try {
+				Activator.getDefault().getDatasetServices().removeDataset(selectedDataset.getUniqueIdentifier());
+				coreHunterDataMap.remove(selectedDataset.getUniqueIdentifier());
+				updateDatasetViewer();
+			} catch (DatasetException e) {
+				shellUtilitiies.handleError("Dataset not be removed!",
+						"Dataset could not be remove, see error message for more details!", e);
+			}
 		}
 	}
 

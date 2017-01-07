@@ -103,6 +103,7 @@ public class ResultPart {
 
         runTabItem = new TabItem(tabFolder, SWT.NONE);
         runTabItem.setText("Result");
+        runTabItem.setToolTipText("Details on the result.");
 
         Composite runComposite = new Composite(tabFolder, SWT.NONE);
         runTabItem.setControl(runComposite);
@@ -111,18 +112,21 @@ public class ResultPart {
         Label lblName = new Label(runComposite, SWT.NONE);
         lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblName.setText("Name");
+        lblName.setToolTipText("The name of the result");
 
         textName = new Text(runComposite, SWT.BORDER);
+        textName.setToolTipText("The name of the result, type here to change the name.");
         textName.addModifyListener(new ModifyListener(){
 		      public void modifyText(ModifyEvent event) {
 		    	  textNameChanged() ;
 		      }
 		});
-
+        
         textName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         
         btnSaveButton = new Button(runComposite, SWT.NONE);
         btnSaveButton.setText("Save");
+        btnSaveButton.setToolTipText("Click here to save any changes to the result name.");
         btnSaveButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -134,18 +138,23 @@ public class ResultPart {
         Label lblStartDate = new Label(runComposite, SWT.NONE);
         lblStartDate.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblStartDate.setText("Start");
+        lblStartDate.setToolTipText("The time (and date) the Core Hunter run was started.");
 
         textStartDate = new Text(runComposite, SWT.BORDER);
         textStartDate.setEditable(false);
+        textStartDate.setToolTipText("The time (and date) the Core Hunter run was started.");
         textStartDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         new Label(runComposite, SWT.NONE);
 
         Label lblEndDate = new Label(runComposite, SWT.NONE);
         lblEndDate.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblEndDate.setText("End");
-
+        lblEndDate.setToolTipText("The time (and date) the Core Hunter run was finished.");
+        
         textEndDate = new Text(runComposite, SWT.BORDER);
         textEndDate.setEditable(false);
+        textEndDate.setToolTipText("The time (and date) the Core Hunter run was finished.");
+        
         textEndDate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         new Label(runComposite, SWT.NONE);
 
@@ -165,12 +174,15 @@ public class ResultPart {
         
         Label lblStatusLabel = new Label(leftComposite, SWT.NONE);
         lblStatusLabel.setText("Status");
+        lblStatusLabel.setToolTipText("The status of the resut, which is one of 'Not Started', 'Running' 'Finshed' or 'Error'.");
         
         lblStatus = new Label(leftComposite, SWT.NONE);
         lblStatus.setText("Unknown");
-        
+        lblStatus.setToolTipText("The status of the resut, which is one of 'Not Started', 'Running' 'Finshed' or 'Error'.");
+
         btnViewDetails = new Button(leftComposite, SWT.NONE);
         btnViewDetails.setText("Error Details");
+        btnViewDetails.setToolTipText("Click here to see more details on the error if available.");
 
         btnViewDetails.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -185,9 +197,11 @@ public class ResultPart {
 
         btnViewDataset = new Button(rightComposite, SWT.NONE);
         btnViewDataset.setText("View Dataset");
+        btnViewDataset.setToolTipText("Click here to view the dataset for this result.");
 
         btnRefreshResult = new Button(rightComposite, SWT.NONE);
         btnRefreshResult.setText("Refresh Result");
+        btnRefreshResult.setToolTipText("Click here to update the result if it is 'Not Started' or 'Still running'.");
 
         btnRefreshResult.addSelectionListener(new SelectionAdapter() {
 
@@ -214,6 +228,7 @@ public class ResultPart {
 
         headerViewer = new HeaderViewer();
         headerViewer.setEditable(false);
+        headerViewer.setToolTipText("The entries in the dataset.");
 
         headerViewer.createPartControl(headerViewerComposite);
         new Label(runComposite, SWT.NONE);
@@ -224,6 +239,7 @@ public class ResultPart {
         
         logTabItem = new TabItem(tabFolder, SWT.NONE);
         logTabItem.setText("Log");
+        logTabItem.setToolTipText("The full log of the Core Hunter run.");
 
         Composite logComposite = new Composite(tabFolder, SWT.NONE);
         logTabItem.setControl(logComposite);
@@ -268,6 +284,8 @@ public class ResultPart {
             public void partVisible(MPart part) {
                 updatePart(part);
             }});
+        
+        updatePart() ;
     }
     
 	@Persist
