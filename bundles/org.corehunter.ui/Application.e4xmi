@@ -6,12 +6,16 @@
       <children xsi:type="basic:Part" xmi:id="_-WtRULI8EeWECpxiBgDWkg" elementId="org.corehunter.ui.part.results" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.ResultsPart" label="Results"/>
     </children>
   </children>
+  <handlers xmi:id="_vwz8kNSPEeaIlpaLcIbQMg" elementId="org.corehunter.ui.handler.aboutAction" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.AboutHandler" command="_wonHQNSPEeaIlpaLcIbQMg"/>
+  <handlers xmi:id="_5xFSMNSQEeaIlpaLcIbQMg" elementId="org.corehunter.ui.handler.preferences" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.PreferencesHandler" command="_1Qs3QNSQEeaIlpaLcIbQMg"/>
   <rootContext xmi:id="_MTr4ybCsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
     <children xmi:id="_MTr4yrCsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
     <children xmi:id="_MTr4y7CsEeWDbcndzb8FsA" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
   </rootContext>
   <descriptors xmi:id="_JmiVMOkDEeW_KKSjA1GJeA" elementId="org.corehunter.ui.part.dataset" label="Dataset Part" allowMultiple="true" closeable="true" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.DatasetPart"/>
   <descriptors xmi:id="_eWRowEXLEeaD3rbWbstGcw" elementId="org.corehunter.ui.part.result" label="Result Part" allowMultiple="true" closeable="true" contributionURI="bundleclass://org.corehunter.ui/org.corehunter.ui.ResultPart"/>
+  <commands xmi:id="_wonHQNSPEeaIlpaLcIbQMg" elementId="org.eclipse.ui.help.aboutAction" commandName="About Action" description=""/>
+  <commands xmi:id="_1Qs3QNSQEeaIlpaLcIbQMg" elementId="org.eclipse.ui.window.preferences" commandName="Preferences"/>
   <addons xmi:id="_MTr4wrCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_MTr4w7CsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_MTr4xLCsEeWDbcndzb8FsA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
