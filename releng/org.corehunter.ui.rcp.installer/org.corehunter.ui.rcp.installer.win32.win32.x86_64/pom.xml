@@ -1,0 +1,74 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.corehunter.ui</groupId>
+		<artifactId>org.corehunter.ui.rcp.installer</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>corehunter-nstaller-win32-win32-x86_64</artifactId>
+
+	<packaging>pom</packaging>
+
+	<properties>
+		<izpack.version>5.0.9</izpack.version>
+		<izpack.staging>${project.build.directory}/staging</izpack.staging>
+	</properties>
+
+	<build>
+		<plugins>
+			<!-- copy izpack resources into izpack staging area, expected by izpack.xml -->
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>create-staging-area</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy todir="${izpack.staging}">
+									<fileset dir="${basedir}/../src/izpack" />
+								</copy>
+								<copy todir="${izpack.staging}">
+									<fileset dir="${basedir}/src/izpack" />
+								</copy>
+								<copy todir="${izpack.staging}/product">
+									<fileset dir="${basedir}/../../org.corehunter.ui.rcp.product/target/products/org.corehunter.ui.rcp.product/win32/win32/x86_64" />
+								</copy>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.izpack</groupId>
+				<artifactId>izpack-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>izpack</goal>
+						</goals>
+						<configuration>
+							<!-- base for relative paths in izpack descriptor -->
+							<baseDir>${izpack.staging}</baseDir>
+							<installFile>${izpack.staging}/install.xml</installFile>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.izpack</groupId>
+						<artifactId>izpack-panel</artifactId>
+						<version>${izpack.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+</project>

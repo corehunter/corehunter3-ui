@@ -1,0 +1,53 @@
+<izpack:installation version="5.0"
+	xmlns:izpack="http://izpack.org/schema/installation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
+
+	<info>
+		<appname>Core Hunter</appname>
+		<appversion>1.0</appversion>
+		<url>http://www.corehunter.org</url>
+		<javaversion>1.8</javaversion>
+		<authors>
+			<author name="Guy Davenport" email="guy@daveneti.com" />
+			<author name="Herman De Beukelaer" email="herman.debeukelaer@gmail.com" />
+		</authors>
+	</info>
+
+	<guiprefs width="800" height="600" resizable="no">
+		<laf name="substance">
+			<os family="windows" />
+			<os family="unix" />
+			<param name="variant" value="mist-silver" />
+		</laf>
+		<laf name="substance">
+			<os family="mac" />
+			<param name="variant" value="mist-aqua" />
+		</laf>
+		<modifier key="useHeadingPanel" value="yes" />
+	</guiprefs>
+
+	<locale>
+		<langpack iso3="eng" />
+	</locale>
+
+	<panels>
+		<panel classname="HTMLLicencePanel" id="License" />
+		<panel classname="TargetPanel" />
+		<panel classname="PacksPanel" />
+		<panel classname="InstallPanel" />
+		<panel classname="FinishPanel" />
+	</panels>
+
+	<packs>
+		<pack name="Core Hunter" required="yes">
+			<description>The files needed for the Core Hunter GUI</description>
+			<fileset dir="product" targetdir="${INSTALL_PATH}"
+				override="true" />
+		</pack>
+	</packs>
+
+	<resources>
+		<res id="HTMLLicencePanel.License" src="license.html" />
+	</resources>
+
+</izpack:installation>
