@@ -8,12 +8,11 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>corehunter-nstaller-win32-win32-x86_64</artifactId>
+	<artifactId>org.corehunter.ui.rcp.installer.win32.win32.x86_64</artifactId>
 
 	<packaging>pom</packaging>
 
 	<properties>
-		<izpack.version>5.0.9</izpack.version>
 		<izpack.staging>${project.build.directory}/staging</izpack.staging>
 	</properties>
 
@@ -37,9 +36,9 @@
 								<copy todir="${izpack.staging}">
 									<fileset dir="${basedir}/src/izpack" />
 								</copy>
-								<copy todir="${izpack.staging}/product">
-									<fileset dir="${basedir}/../../org.corehunter.ui.rcp.product/target/products/org.corehunter.ui.rcp.product/win32/win32/x86_64" />
-								</copy>
+								<copy
+									file="${basedir}/../../org.corehunter.ui.rcp.product/target/products/org.corehunter.ui.rcp.product-win32.win32.x86_64.zip"
+									tofile="${izpack.staging}/product.zip" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -48,6 +47,7 @@
 			<plugin>
 				<groupId>org.codehaus.izpack</groupId>
 				<artifactId>izpack-maven-plugin</artifactId>
+				<version>${izpack.version}</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -68,6 +68,26 @@
 						<version>${izpack.version}</version>
 					</dependency>
 				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>com.bazaarvoice.maven.plugins</groupId>
+				<artifactId>s3-upload-maven-plugin</artifactId>
+				<version>1.4</version>
+				<configuration>
+					<bucketName>${s3.bucket.name}</bucketName>
+					<accessKey>${aws.accessKey}</accessKey>
+					<secretKey>${aws.secretKey}</secretKey>
+					<source>target/org.corehunter.ui.rcp.installer.win32.win32.x86_64-${project.version}.jar</source>
+					<destination>${installer.upload.dir}/corehunter-installer-win32-win32-x86_64-${project.version}.jar</destination>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>s3-upload</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

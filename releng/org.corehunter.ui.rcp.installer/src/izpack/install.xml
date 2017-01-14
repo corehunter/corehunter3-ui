@@ -41,8 +41,8 @@
 	<packs>
 		<pack name="Core Hunter" required="yes">
 			<description>The files needed for the Core Hunter GUI</description>
-			<fileset dir="product" targetdir="${INSTALL_PATH}"
-				override="true" />
+			<file src="product.zip" targetdir="${INSTALL_PATH}" unpack="true"
+				override="true" />				
 		</pack>
 	</packs>
 

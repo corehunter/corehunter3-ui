@@ -12,13 +12,14 @@
 		<tycho.version>0.23.0</tycho.version>
 		<s3.wagon.version>1.2.1</s3.wagon.version>
 		<s3.bucket.name>download.corehunter.org</s3.bucket.name>
+		<installer.upload.dir>installers/{project.version}</installer.upload.dir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<neon-repo.url>http://download.eclipse.org/releases/neon</neon-repo.url>
 		<nebula.url>http://download.eclipse.org/technology/nebula/snapshot</nebula.url>
 		<rap.url>http://download.eclipse.org/rt/rap/3.1</rap.url>
 		<local-repo.url>file://${basedir}/../../releng/org.corehunter.convert/target/repository</local-repo.url>
 		<!-- Skip the deployment here, submodules can override this property -->
-        <maven.deploy.skip>true</maven.deploy.skip>
+		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
 	<repositories>
@@ -103,19 +104,19 @@
 	<modules>
 		<module>../..</module>
 	</modules>
-	
+
 	<distributionManagement>
- <site>
-  <id>s3.site</id>
-  <url>s3://${s3.bucket.name}/site</url>
- </site>
- <repository>
-  <id>s3.release</id>
-  <url>s3://${s3.bucket.name}/release</url>
- </repository>
- <snapshotRepository>
-  <id>s3.snapshot</id>
-  <url>s3://${s3.bucket.name}/snapshot</url>
- </snapshotRepository>
-</distributionManagement>
+		<site>
+			<id>s3.site</id>
+			<url>s3://${s3.bucket.name}/site</url>
+		</site>
+		<repository>
+			<id>s3.release</id>
+			<url>s3://${s3.bucket.name}/release</url>
+		</repository>
+		<snapshotRepository>
+			<id>s3.snapshot</id>
+			<url>s3://${s3.bucket.name}/snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
