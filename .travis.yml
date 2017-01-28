@@ -1,5 +1,7 @@
 language: java
 
+jdk: oraclejdk8
+
 install: true 
 
 script: cd releng/org.corehunter.convert && mvn clean p2:site && cd ../../ && mvn clean verify
