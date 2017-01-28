@@ -12,7 +12,7 @@
 		<tycho.version>0.23.0</tycho.version>
 		<s3.wagon.version>1.2.1</s3.wagon.version>
 		<s3.bucket.name>download.corehunter.org</s3.bucket.name>
-		<installer.upload.dir>installers/{project.version}</installer.upload.dir>
+		<installer.upload.dir>installers/${project.version}</installer.upload.dir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<neon-repo.url>http://download.eclipse.org/releases/neon</neon-repo.url>
 		<nebula.url>http://download.eclipse.org/technology/nebula/snapshot</nebula.url>
