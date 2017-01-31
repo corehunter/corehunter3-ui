@@ -23,4 +23,29 @@
 		<module>org.corehunter.ui.rcp.installer.win32.win32.x86</module>
 		<module>org.corehunter.ui.rcp.installer.win32.win32.x86_64</module>
 	</modules>
+	
+	<build>
+	<plugins>
+		<plugin>
+				<groupId>com.bazaarvoice.maven.plugins</groupId>
+				<artifactId>s3-upload-maven-plugin</artifactId>
+				<version>1.4</version>
+				<configuration>
+					<bucketName>${s3.bucket.name}</bucketName>
+					<accessKey>${aws.accessKey}</accessKey>
+					<secretKey>${aws.secretKey}</secretKey>
+					<source>${basedir}/src/html/index.html</source>
+					<destination>${installer.upload.dir}/index.html</destination>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>s3-upload</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
