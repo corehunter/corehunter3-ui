@@ -45,8 +45,6 @@
 						</product>
 					</products>
 				</configuration>
-
-
 				<executions>
 					<execution>
 						<id>materialize-products</id>
@@ -59,6 +57,46 @@
 						<goals>
 							<goal>archive-products</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- plugin>
+				<groupId>com.bazaarvoice.maven.plugins</groupId>
+				<artifactId>s3-upload-maven-plugin</artifactId>
+				<version>1.4</version>
+				<configuration>
+					<bucketName>${s3.bucket.name}</bucketName>
+					<accessKey>${aws.accessKey}</accessKey>
+					<secretKey>${aws.secretKey}</secretKey>
+					<source>target/products</source>
+					<destination>${product.upload.dir}</destination>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>s3-upload</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
+			</plugin -->
+			<plugin>
+				<groupId>com.bazaarvoice.maven.plugins</groupId>
+				<artifactId>s3-upload-maven-plugin</artifactId>
+				<version>1.4</version>
+				<configuration>
+					<bucketName>${s3.bucket.name}</bucketName>
+					<accessKey>${aws.accessKey}</accessKey>
+					<secretKey>${aws.secretKey}</secretKey>
+					<source>${basedir}/src/html/index.html</source>
+					<destination>${product.upload.dir}/index.html</destination>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>s3-upload</goal>
+						</goals>
+						<phase>deploy</phase>
 					</execution>
 				</executions>
 			</plugin>
