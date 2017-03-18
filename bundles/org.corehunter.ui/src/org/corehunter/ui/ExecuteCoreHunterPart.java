@@ -289,6 +289,8 @@ public class ExecuteCoreHunterPart implements Refreshable{
 
 		objectiveViewer = new ObjectiveViewer();
 
+		objectiveViewer.createPartControl(objectiveViewerComposite);
+		
 		objectiveViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
 			@Override
@@ -297,8 +299,6 @@ public class ExecuteCoreHunterPart implements Refreshable{
 			}
 
 		});
-
-		objectiveViewer.createPartControl(objectiveViewerComposite);
 
 		Composite objectiveButtonComposite = new Composite(corehunterRunArgumentsGroup, SWT.NONE);
 		objectiveButtonComposite.setLayout(new GridLayout(2, false));
