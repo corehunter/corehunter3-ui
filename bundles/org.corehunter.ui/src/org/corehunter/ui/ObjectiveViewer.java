@@ -16,6 +16,7 @@
 
 package org.corehunter.ui;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,6 +54,9 @@ public class ObjectiveViewer {
 	private CoreHunterData coreHunterData;
 
 	private double totalWeight;
+	
+	private DecimalFormat weightFormat = new DecimalFormat("#"); 
+	private DecimalFormat percentageFormat = new DecimalFormat("#.00"); 
 
 	public ObjectiveViewer() {
 
@@ -110,11 +114,11 @@ public class ObjectiveViewer {
 	}
 
 	public final void updateViewer() {
+		totalWeight = 0 ; 
+		
 		if (objectives != null) {
 			Iterator<CoreHunterObjective> iterator = objectives.iterator() ;
-			
-			totalWeight = 0 ;
-			
+
 			while (iterator.hasNext()) {
 				totalWeight = totalWeight + iterator.next().getWeight() ;
 			}
@@ -133,9 +137,9 @@ public class ObjectiveViewer {
 
 	// This will create the columns for the table
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Objective", "Measure", "Weight (%)" };
+		String[] titles = { "Objective", "Measure", "Weight", "Weight as %"  };
 
-		int[] bounds = { 250, 200, 75 };
+		int[] bounds = { 250, 200, 50, 75};
 
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -161,11 +165,18 @@ public class ObjectiveViewer {
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return getPercentage(element).toString() ;
+				return weightFormat.format(getWeight(element)) ;
 			}
 		});
-		//col.setEditingSupport(new WeightEditingSupport(viewer));
-
+		col.setEditingSupport(new WeightEditingSupport(viewer));
+		
+		col = createTableViewerColumn(titles[3], bounds[3], 1);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return percentageFormat.format(getPercentage(element)) ;
+			}
+		});
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
@@ -320,7 +331,7 @@ public class ObjectiveViewer {
 		}
 	}
 
-	/*public class WeightEditingSupport extends EditingSupport {
+	public class WeightEditingSupport extends EditingSupport {
 
 		private final TableViewer viewer;
 		private final SpinnerCellEditor editor;
@@ -333,7 +344,7 @@ public class ObjectiveViewer {
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
-			editor.setValue(getPercentage(element));
+			editor.setValue(getWeight(element));
 			return editor;
 		}
 
@@ -349,54 +360,18 @@ public class ObjectiveViewer {
 
 		@Override
 		protected void setValue(Object element, Object userInputValue) {
-			((CoreHunterObjective) element).setWeight(getWeight(userInputValue));
-			viewer.update(element, null);
-		}
-	}*/
-	
-	public class WeightEditingSupport extends EditingSupport {
-
-		private final TableViewer viewer;
-		private final TextCellEditor editor;
-
-		public WeightEditingSupport(TableViewer viewer) {
-			super(viewer);
-			this.viewer = viewer;
-			this.editor = new TextCellEditor(viewer.getTable(), SWT.NONE);
-		}
-
-		@Override
-		protected CellEditor getCellEditor(Object element) {
-			editor.setValue(getPercentage(element));
-			return editor;
-		}
-
-		@Override
-		protected boolean canEdit(Object element) {
-			return objectives != null && objectives.size() > 1;
-		}
-
-		@Override
-		protected Object getValue(Object element) {
-			return ((CoreHunterObjective) element).getWeight();
-		}
-
-		@Override
-		protected void setValue(Object element, Object userInputValue) {
-			((CoreHunterObjective) element).setWeight(getWeight(userInputValue));
+			((CoreHunterObjective) element).setWeight((double) userInputValue);
 			viewer.update(element, null);
 		}
 	}
 	
-	private Object getPercentage(Object element) {
+	private double getPercentage(Object element) {
 		double ratio = ((CoreHunterObjective) element).getWeight() / totalWeight;
 		
-		return (int)(ratio * 100.0);
+		return ratio * 100.0;
 	}
 	
 	private double getWeight(Object element) {
-		double ratio = ((CoreHunterObjective) element).getWeight() / totalWeight;
-		
-		return (int)(ratio * 100.0);
+		return ((CoreHunterObjective) element).getWeight();
 	}
 }
